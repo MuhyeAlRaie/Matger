@@ -155,33 +155,38 @@
     <script src="js/auth.js"></script>
 
     <!-- Page Specific Script -->
-    <script>
-        // Simple Tab Switcher
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.account-tab').forEach(el => el.classList.add('d-none'));
-            document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        
+        // 1. Wait for Supabase to tell us who is logged in
+        const { data: { session } } = await supabase.auth.getSession();
 
-            // Show selected
-            document.getElementById(`tab-${tabName}`).classList.remove('d-none');
-            document.getElementById(`btn-${tabName}`).classList.add('active');
+        // 2. If no session, redirect to login
+        if (!session) {
+            console.log("No session found, redirecting to login...");
+            window.location.href = 'login.html';
+            return;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Security Check
-            if (!currentUser) {
-                window.location.href = 'login.html';
-                return;
-            }
+        // 3. If logged in, set the global variable and load data
+        console.log("Session found:", session.user.email);
+        currentUser = session.user;
+        
+        loadAccountDetails();
+        
+        // Update display name in sidebar
+        if(currentUser) {
+            document.getElementById('user-display-name').textContent = currentUser.email.split('@')[0];
+        }
+    });
 
-            // Load Data
-            loadAccountDetails();
-            
-            // Update display name in sidebar
-            if(currentUser) {
-                document.getElementById('user-display-name').textContent = currentUser.email.split('@')[0];
-            }
-        });
-    </script>
+    // Simple Tab Switcher (Keep this outside DOMContentLoaded or keep it inside, doesn't matter much)
+    function switchTab(tabName) {
+        document.querySelectorAll('.account-tab').forEach(el => el.classList.add('d-none'));
+        document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.remove('d-none');
+        document.getElementById(`btn-${tabName}`).classList.add('active');
+    }
+</script>
 </body>
 </html>
