@@ -138,9 +138,12 @@ function applyLanguage(lang) {
 // 4. Banners Logic
 // ==========================================
 async function loadBanners() {
+    // FIX: Only run if we are on the homepage (where banner-section exists)
     const bannerSection = document.getElementById('banner-section');
+    if (!bannerSection) return; 
     
     try {
+        // ... rest of the function stays the same
         const { data: banners, error } = await supabase
             .from('banners')
             .select('*')
