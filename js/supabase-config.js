@@ -1,18 +1,21 @@
+
 /**
- * Supabase Configuration
- * 
- * This file initializes the Supabase client connection.
- * It uses the @supabase/supabase-js library loaded via CDN in index.html.
+ * Supabase Configuration (Fixed)
+ * Prevents "Identifier already declared" errors.
  */
 
-// 1. REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
-// You can find these in your Supabase Dashboard -> Settings -> API
-const SUPABASE_URL = 'https://mpkkuhcarwfribnxaqpq.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wa2t1aGNhcndmcmlibnhhcXBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwODUwMjQsImV4cCI6MjA4ODY2MTAyNH0.HRwGVkaTQ-EM9AEVk8MzOadrt7j1aS8tEwHrwjPM-Iw'; // Public Anon Key
+const SUPABASE_URL = 'https://mpkkuhcarwfribnxaqpq.supabase.co'; // REPLACE WITH YOUR URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wa2t1aGNhcndmcmlibnhhcXBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwODUwMjQsImV4cCI6MjA4ODY2MTAyNH0.HRwGVkaTQ-EM9AEVk8MzOadrt7j1aS8tEwHrwjPM-Iw'; // REPLACE WITH YOUR KEY
 
-// 2. Initialize the Supabase client
-// This creates a global 'supabase' object accessible by other JS files.
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize only once
+if (!window.appSupabaseClient) {
+    try {
+        window.appSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase Client Initialized');
+    } catch (error) {
+        console.error('Supabase Init Error:', error);
+    }
+}
 
-// 3. Optional: Log connection status for debugging
-console.log('Supabase Client Initialized', supabase);
+// Make it available globally so other scripts can find it
+const supabase = window.appSupabaseClient;
