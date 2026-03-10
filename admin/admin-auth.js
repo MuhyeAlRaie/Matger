@@ -1,29 +1,53 @@
 /**
- * ADMIN-AUTH.JS
- * Simple Auth Guard for Admin Pages
+ * Admin Authentication Guard
+ * 
+ * This script must be included in every admin HTML page.
+ * It checks:
+ * 1. Is the user logged in? (Supabase Session)
+ * 2. Is the user an admin? (Exists in 'admins' table)
+ * 
+ * If checks fail, redirect to main login.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    
-    if (!user) {
-        alert('يجب تسجيل الدخول للوصول للوحة التحكم');
+async function checkAdminAccess() {
+    // 1. Check Session
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+        // Not logged in
         window.location.href = '../login.html';
         return;
     }
 
-    // Optional: Check if user is admin (usually based on email or role column in profiles)
-    // For this MVP, we assume any logged-in user can access, 
-    // or you can add: if (!user.email.includes('admin')) { logout... }
-    
-    // Logout Handler
-    window.handleLogout = async function() {
-        await supabase.auth.signOut();
-        localStorage.removeItem('user');
+    const userEmail = session.user.email;
+
+    // 2. Check Admin Role in Database
+    try {
+        const { data: adminRecord, error } = await supabase
+            .from('admins')
+            .select('email')
+            .eq('email', userEmail)
+            .single();
+
+        if (error || !adminRecord) {
+            console.error('Admin check failed:', error);
+            alert('Access Denied: You are not authorized to view this page.');
+            window.location.href = '../index.html';
+            return;
+        }
+
+        // Success: User is Admin
+        console.log('Admin verified:', userEmail);
+        
+        // Populate sidebar user info
+        const adminNameEl = document.getElementById('admin-user-email');
+        if (adminNameEl) adminNameEl.textContent = userEmail;
+
+    } catch (err) {
+        console.error('Error checking admin status:', err);
         window.location.href = '../index.html';
     }
-    
-    // Set Username in Sidebar
-    const nameEl = document.getElementById('admin-username');
-    if(nameEl) nameEl.textContent = user.email;
-});
+}
+
+// Run check when DOM is ready
+document.addEventListener('DOMContentLoaded', checkAdminAccess);

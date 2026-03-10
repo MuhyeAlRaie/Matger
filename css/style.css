@@ -1,242 +1,289 @@
 /* =========================================
-   IMPORT FONTS
-   ========================================= */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Poppins:wght@300;400;600&display=swap');
-
-/* =========================================
-   ROOT VARIABLES & RESET
+   1. Global Variables & Typography
    ========================================= */
 :root {
     --primary-color: #0d6efd;
     --secondary-color: #6c757d;
-    --success-color: #198754;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --light-bg: #f8f9fa;
-    --dark-bg: #212529;
-    --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    --accent-color: #ffc107;
+    --text-color: #212529;
+    --bg-light: #f8f9fa;
+    --card-radius: 12px;
     --transition-speed: 0.3s;
 }
 
 body {
-    font-family: 'Cairo', sans-serif; /* Default Arabic */
-    background-color: var(--light-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
     overflow-x: hidden;
 }
 
-/* English Language Override */
-html[lang="en"] body {
-    font-family: 'Poppins', sans-serif;
-}
-
-a { text-decoration: none; }
-img { max-width: 100%; }
-
-/* =========================================
-   NAVBAR & HEADER
-   ========================================= */
-.navbar {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 1rem 0;
-}
-
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
-}
-
-#pwa-install-btn {
-    font-size: 0.8rem;
-    border-radius: 20px;
-    padding: 5px 15px;
+/* Font adjustments for Arabic */
+html[lang="ar"] body {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* =========================================
-   HERO SLIDER
-   ========================================= */
-.carousel-item img {
-    height: 400px; /* Fixed height for consistency */
-    object-fit: cover;
-    filter: brightness(0.9);
-}
-
-.carousel-caption {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    border-radius: 10px;
-}
-
-/* =========================================
-   CATEGORIES
-   ========================================= */
-.category-card {
-    text-align: center;
-    cursor: pointer;
-    transition: var(--transition-speed);
-    padding: 20px;
-    border-radius: 15px;
-    background: #fff;
-    border: 1px solid #eee;
-}
-
-.category-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--card-shadow);
-}
-
-.category-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 10px;
-    border: 2px solid var(--primary-color);
-}
-
-/* =========================================
-   PRODUCT CARDS
+   2. Components: Product Cards
    ========================================= */
 .product-card {
-    background: #fff;
     border: none;
-    border-radius: 10px;
-    overflow: hidden;
-    transition: var(--transition-speed);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-radius: var(--card-radius);
+    background: #fff;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
     height: 100%;
-    display: flex;
-    flex-direction: column;
     position: relative;
+    overflow: hidden;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-.product-img-wrapper {
+.product-image-wrapper {
     position: relative;
-    height: 250px;
     overflow: hidden;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    background-color: #eee;
 }
 
-.product-img-wrapper img {
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain;
+.product-image-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     transition: transform 0.5s ease;
 }
 
-.product-card:hover .product-img-wrapper img {
+.product-card:hover .product-image-wrapper img {
     transform: scale(1.05);
 }
 
-/* Badges */
-.badge-discount {
+.discount-badge {
     position: absolute;
     top: 10px;
-    /* Logical property handles RTL/LTR automatically */
+    /* Logical property: Start is Left in LTR, Right in RTL */
     inset-inline-start: 10px; 
-    background-color: var(--danger-color);
+    background-color: #dc3545;
     color: white;
-    padding: 5px 10px;
-    border-radius: 20px;
+    padding: 4px 8px;
+    border-radius: 4px;
     font-size: 0.8rem;
     font-weight: bold;
+    z-index: 2;
 }
 
-.product-body {
-    padding: 15px;
+.card-body {
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
 }
 
 .product-title {
     font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    height: 2.8em; /* Force height for alignment */
+    height: 2.4em; /* Force height for alignment */
 }
 
 .product-price {
     font-size: 1.2rem;
-    color: var(--primary-color);
     font-weight: 700;
+    color: var(--primary-color);
     margin-top: auto;
 }
 
-.product-old-price {
+.old-price {
     font-size: 0.9rem;
     text-decoration: line-through;
     color: var(--secondary-color);
-    margin-inline-end: 8px; /* Space between old and new price */
-}
-
-.btn-add-cart {
-    width: 100%;
-    margin-top: 10px;
-    border-radius: 5px;
+    margin-inline-end: 8px;
 }
 
 /* =========================================
-   BUTTONS & UTILITIES
+   3. Components: Categories
+   ========================================= */
+.category-card {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--card-radius);
+    border: 1px solid #eee;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.category-card:hover {
+    border-color: var(--primary-color);
+    background-color: #f0f8ff;
+}
+
+.category-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+/* =========================================
+   4. Components: Banners
+   ========================================= */
+.banner-slide {
+    width: 100%;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--card-radius);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.banner-content {
+    background: rgba(0,0,0,0.4);
+    padding: 2rem;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    max-width: 80%;
+    text-align: center;
+}
+
+/* =========================================
+   5. Cart & Checkout
+   ========================================= */
+.cart-item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.order-summary-card {
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* =========================================
+   6. Admin Panel
+   ========================================= */
+.admin-sidebar {
+    min-height: 100vh;
+    background-color: #343a40;
+    color: white;
+}
+
+.admin-nav-link {
+    color: #adb5bd;
+    padding: 12px 20px;
+    display: block;
+    text-decoration: none;
+    transition: 0.2s;
+    border-left: 3px solid transparent; /* For LTR */
+}
+
+/* RTL Support for Admin Sidebar Border */
+html[dir="rtl"] .admin-nav-link {
+    border-left: none;
+    border-right: 3px solid transparent;
+}
+
+.admin-nav-link:hover, .admin-nav-link.active {
+    background-color: #495057;
+    color: white;
+}
+
+html[dir="ltr"] .admin-nav-link:hover,
+html[dir="ltr"] .admin-nav-link.active {
+    border-left-color: var(--primary-color);
+}
+
+html[dir="rtl"] .admin-nav-link:hover,
+html[dir="rtl"] .admin-nav-link.active {
+    border-right-color: var(--primary-color);
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-pending { background-color: #fff3cd; color: #856404; }
+.status-shipped { background-color: #d1e7dd; color: #0f5132; }
+.status-delivered { background-color: #cff4fc; color: #055160; }
+.status-cancelled { background-color: #f8d7da; color: #842029; }
+
+/* =========================================
+   7. Utilities & Animations
    ========================================= */
 .section-title {
     position: relative;
     padding-bottom: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .section-title::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    /* Logical: Left in LTR, Right in RTL */
+    inset-inline-start: 0;
     width: 50px;
     height: 3px;
     background-color: var(--primary-color);
 }
 
-/* Admin Dashboard Styles */
-.admin-sidebar {
-    min-height: 100vh;
-    background: var(--dark-bg);
-    color: #fff;
-}
-.admin-nav-link {
-    color: rgba(255,255,255,0.8);
-    padding: 10px 15px;
-    display: block;
-}
-.admin-nav-link:hover, .admin-nav-link.active {
-    background: var(--primary-color);
-    color: #fff;
+html[dir="rtl"] .section-title::after {
+    right: 0; /* Fallback */
+    left: auto;
 }
 
-/* =========================================
-   RESPONSIVE DESIGN
-   ========================================= */
-@media (max-width: 768px) {
-    .carousel-item img { height: 250px; }
-    .section-title { font-size: 1.5rem; }
-    .category-img { width: 60px; height: 60px; }
+/* Toast Animation */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
-/* =========================================
-   LOADING SPINNER
-   ========================================= */
-.loading-overlay {
+.toast-show {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Loading Spinner Overlay */
+#loading-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(255,255,255,0.8);

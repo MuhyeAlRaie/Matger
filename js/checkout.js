@@ -1,162 +1,292 @@
 /**
- * CHECKOUT.JS
- * Handles Checkout Form, Region Logic, and Order Submission
+ * Checkout Logic
+ * Handles:
+ * 1. Geolocation Detection & Reverse Geocoding (Address Auto-fill)
+ * 2. Saving User Location to Supabase
+ * 3. Delivery Region Selection & Shipping Cost Calculation
+ * 4. Order Submission (Orders & Order Items)
  */
 
+let cartData = [];
+let deliveryRegions = [];
+let selectedRegion = null;
+let shippingCost = 0;
+
+// ==========================================
+// 1. Initialization
+// ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-    await loadRegions();
-    calculateTotal(); // Initial calc
-});
-
-// 1. LOAD REGIONS & POPULATE SELECT
-async function loadRegions() {
-    const { data, error } = await supabase
-        .from('delivery_regions')
-        .select('*')
-        .eq('is_active', true)
-        .order('delivery_price', { ascending: true });
-
-    const select = document.getElementById('delivery-region');
-    select.innerHTML = '<option value="" selected disabled>اختر المنطقة...</option>';
-
-    if (data) {
-        data.forEach(region => {
-            const name = localStorage.getItem('lang') === 'ar' ? region.region_name_ar : region.region_name_en;
-            const option = document.createElement('option');
-            option.value = JSON.stringify({ id: region.id, price: region.delivery_price, name: name });
-            option.textContent = `${name} - ${region.delivery_price} JOD`;
-            select.appendChild(option);
-        });
+    // Check if user is logged in
+    if (!currentUser) {
+        showToast(currentLang === 'ar' ? 'يرجى تسجيل الدخول لإتمام الطلب' : 'Please login to complete order', 'danger');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+        return;
     }
-}
 
-// 2. LISTEN FOR REGION CHANGE
-document.getElementById('delivery-region').addEventListener('change', function(e) {
-    calculateTotal();
+    // Load Cart Data
+    loadCartFromStorage();
+    if (cartData.length === 0) {
+        window.location.href = 'cart.html'; // Redirect if empty
+        return;
+    }
+
+    // Load Delivery Regions
+    await loadDeliveryRegions();
+
+    // Render Order Summary
+    renderOrderSummary();
+
+    // Setup Form Listener
+    const form = document.getElementById('checkout-form');
+    if (form) {
+        form.addEventListener('submit', handlePlaceOrder);
+    }
+
+    // Setup Geolocation Listener
+    const geoBtn = document.getElementById('detect-location-btn');
+    if (geoBtn) {
+        geoBtn.addEventListener('click', detectMyLocation);
+    }
 });
 
-// 3. GEOLOCATION
-document.getElementById('detect-location-btn').addEventListener('click', () => {
-    const status = document.getElementById('location-status');
-    status.textContent = "جاري تحديد الموقع...";
+// ==========================================
+// 2. Geolocation & Address Logic
+// ==========================================
+function detectMyLocation() {
+    const btn = document.getElementById('detect-location-btn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>...';
 
     if (!navigator.geolocation) {
-        status.textContent = "المتصفح لا يدعم تحديد الموقع.";
+        showToast('Geolocation is not supported by your browser', 'danger');
+        resetBtn(btn, originalText);
         return;
     }
 
     navigator.geolocation.getCurrentPosition(
-        (position) => {
-            document.getElementById('lat').value = position.coords.latitude;
-            document.getElementById('lng').value = position.coords.longitude;
-            status.textContent = "تم تحديد الموقع: " + position.coords.latitude.toFixed(4) + ", " + position.coords.longitude.toFixed(4);
-            
-            // Optional: Try to guess region based on coords (Complex, skipping for MVP)
-            // For now, just alert user to select region manually or keep it as extra data
-            alert("تم تحديد موقعك. يرجى اختيار منطقة التوصيل من القائمة لحساب السعر.");
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            try {
+                // 1. Reverse Geocoding using OpenStreetMap Nominatim API (Free)
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                const data = await response.json();
+                
+                const addressString = data.display_name || `Lat: ${lat}, Lng: ${lng}`;
+
+                // 2. Save to Supabase
+                const { error: dbError } = await supabase.from('user_locations').insert([{
+                    user_id: currentUser.id,
+                    latitude: lat,
+                    longitude: lng,
+                    address: addressString
+                }]);
+
+                if (dbError) console.error("Error saving location:", dbError);
+
+                // 3. Auto-fill Form
+                document.getElementById('checkout-address').value = addressString;
+                showToast(currentLang === 'ar' ? 'تم تحديد الموقع بنجاح' : 'Location detected successfully', 'success');
+
+            } catch (err) {
+                console.error("Geocoding error:", err);
+                showToast(currentLang === 'ar' ? 'فشل الحصول على العنوان' : 'Failed to get address', 'danger');
+            } finally {
+                resetBtn(btn, originalText);
+            }
         },
         (error) => {
-            status.textContent = "فشل تحديد الموقع: " + error.message;
+            console.error("Geo Error:", error);
+            showToast(currentLang === 'ar' ? 'فشل الوصول للموقع' : 'Could not get location', 'danger');
+            resetBtn(btn, originalText);
         }
     );
-});
-
-// 4. CALCULATE TOTALS
-function calculateTotal() {
-    const cart = JSON.parse(localStorage.getItem('ecommerce_cart')) || [];
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Get Delivery Price
-    const regionSelect = document.getElementById('delivery-region');
-    let deliveryFee = 0;
-    let regionName = '';
-
-    if (regionSelect.value) {
-        const regionData = JSON.parse(regionSelect.value);
-        deliveryFee = parseFloat(regionData.price);
-        regionName = regionData.name;
-    }
-
-    // Check Coupon (From Cart Logic)
-    let discount = 0;
-    // Simple coupon re-check (or store applied coupon in localStorage in cart.js)
-    // Assuming no coupon for now unless implemented in cart.js and passed here
-
-    const total = subtotal + deliveryFee - discount;
-
-    // Update UI
-    document.getElementById('summary-subtotal').textContent = subtotal.toFixed(2) + ' JOD';
-    document.getElementById('summary-delivery').textContent = deliveryFee.toFixed(2) + ' JOD';
-    document.getElementById('summary-total').textContent = total.toFixed(2) + ' JOD';
-
-    return { subtotal, deliveryFee, total, regionName };
 }
 
-// 5. SUBMIT ORDER
-document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+function resetBtn(btn, text) {
+    btn.disabled = false;
+    btn.innerHTML = text;
+}
+
+// ==========================================
+// 3. Delivery Regions Logic
+// ==========================================
+async function loadDeliveryRegions() {
+    const regionSelect = document.getElementById('delivery-region');
+    if (!regionSelect) return;
+
+    try {
+        const { data, error } = await supabase
+            .from('delivery_regions')
+            .select('*')
+            .order('cost', { ascending: true });
+
+        if (error) throw error;
+
+        deliveryRegions = data;
+
+        // Populate Select
+        data.forEach(region => {
+            const option = document.createElement('option');
+            option.value = region.id;
+            const name = currentLang === 'ar' ? region.region_name_ar : region.region_name_en;
+            option.textContent = `${name} (${region.cost} JOD)`;
+            regionSelect.appendChild(option);
+        });
+
+        // Set default to first region
+        if (data.length > 0) {
+            handleRegionChange({ target: { value: data[0].id } });
+            regionSelect.value = data[0].id;
+        }
+
+        // Listen for changes
+        regionSelect.addEventListener('change', handleRegionChange);
+
+    } catch (err) {
+        console.error("Error loading regions:", err);
+    }
+}
+
+function handleRegionChange(e) {
+    const regionId = e.target.value;
+    selectedRegion = deliveryRegions.find(r => r.id == regionId);
+    
+    if (selectedRegion) {
+        shippingCost = selectedRegion.cost;
+        renderOrderSummary(); // Update totals
+    }
+}
+
+// ==========================================
+// 4. Order Summary & Calculation
+// ==========================================
+async function renderOrderSummary() {
+    const container = document.getElementById('checkout-summary-items');
+    const subtotalEl = document.getElementById('checkout-subtotal');
+    const shippingEl = document.getElementById('checkout-shipping');
+    const totalEl = document.getElementById('checkout-total');
+
+    if (!container) return;
+
+    // Fetch products details
+    const ids = cartData.map(item => item.id);
+    const { data: products } = await supabase.from('products').select('*').in('id', ids);
+
+    let subtotal = 0;
+    let html = '';
+
+    if (products) {
+        products.forEach(prod => {
+            const cartItem = cartData.find(c => c.id === prod.id);
+            const qty = cartItem ? cartItem.quantity : 0;
+            const price = prod.discount_price || prod.price;
+            subtotal += price * qty;
+
+            const name = getLocalizedField(prod, 'name');
+            html += `
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span>${name} x ${qty}</span>
+                    <span>${formatPrice(price * qty)}</span>
+                </div>
+            `;
+        });
+    }
+
+    container.innerHTML = html;
+    subtotalEl.textContent = formatPrice(subtotal);
+    shippingEl.textContent = formatPrice(shippingCost);
+    totalEl.textContent = formatPrice(subtotal + shippingCost);
+}
+
+// ==========================================
+// 5. Place Order Logic
+// ==========================================
+async function handlePlaceOrder(e) {
     e.preventDefault();
+    const btn = document.getElementById('place-order-btn');
+    const originalText = btn.innerHTML;
     
-    const user = JSON.parse(localStorage.getItem('user'));
-    const cart = JSON.parse(localStorage.getItem('ecommerce_cart')) || [];
-    
-    if (cart.length === 0) {
-        alert("السلة فارغة!");
+    // Validate
+    const name = document.getElementById('checkout-name').value;
+    const phone = document.getElementById('checkout-phone').value;
+    const address = document.getElementById('checkout-address').value;
+
+    if (!name || !phone || !address || !selectedRegion) {
+        showToast(currentLang === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields', 'danger');
         return;
     }
 
-    const btn = document.getElementById('place-order-btn');
+    // Disable Button
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جاري الطلب...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
     try {
-        const { subtotal, deliveryFee, total, regionName } = calculateTotal();
+        // 1. Calculate Final Totals
+        const ids = cartData.map(item => item.id);
+        const { data: products } = await supabase.from('products').select('*').in('id', ids);
         
-        const orderData = {
-            user_id: user ? user.id : null,
-            customer_name: document.getElementById('fullName').value,
-            customer_email: user ? user.email : null,
-            customer_phone: document.getElementById('phone').value,
-            shipping_address: document.getElementById('address').value,
-            delivery_region: regionName,
-            delivery_fee: deliveryFee,
-            subtotal: subtotal,
-            total_amount: total,
-            notes: document.getElementById('orderNotes').value,
-            status: 'new'
-        };
+        let subtotal = 0;
+        const orderItemsPayload = [];
 
-        // 1. Insert Order
-        const { data: order, error: orderError } = await supabase
+        products.forEach(prod => {
+            const cartItem = cartData.find(c => c.id === prod.id);
+            const qty = cartItem.quantity;
+            const price = prod.discount_price || prod.price;
+            subtotal += price * qty;
+
+            orderItemsPayload.push({
+                product_id: prod.id,
+                quantity: qty,
+                unit_price: price
+            });
+        });
+
+        const finalTotal = subtotal + shippingCost;
+
+        // 2. Create Order Record
+        const { data: orderData, error: orderError } = await supabase
             .from('orders')
-            .insert([orderData])
+            .insert([{
+                user_id: currentUser.id,
+                total_amount: finalTotal,
+                shipping_cost: shippingCost,
+                status: 'pending',
+                customer_name: name,
+                customer_phone: phone,
+                shipping_address: address,
+                region_id: selectedRegion.id
+            }])
             .select()
             .single();
 
         if (orderError) throw orderError;
 
-        // 2. Insert Order Items
-        const itemsToInsert = cart.map(item => ({
-            order_id: order.id,
-            product_id: item.id,
-            product_name: item.name, // Snapshot
-            price: item.price,       // Snapshot
-            quantity: item.quantity
+        // 3. Create Order Items
+        const itemsWithError = orderItemsPayload.map(item => ({
+            ...item,
+            order_id: orderData.id
         }));
 
         const { error: itemsError } = await supabase
             .from('order_items')
-            .insert(itemsToInsert);
+            .insert(itemsWithError);
 
         if (itemsError) throw itemsError;
 
-        // 3. Clear Cart & Redirect
-        localStorage.removeItem('ecommerce_cart');
-        window.location.href = 'thank-you.html';
+        // 4. Clear Cart
+        localStorage.removeItem('app_cart');
+        cartData = [];
 
-    } catch (error) {
-        console.error(error);
-        alert('حدث خطأ أثناء إتمام الطلب: ' + error.message);
+        // 5. Redirect
+        window.location.href = `thank-you.html?id=${orderData.id}`;
+
+    } catch (err) {
+        console.error("Order Error:", err);
+        showToast(currentLang === 'ar' ? 'فشل إتمام الطلب' : 'Failed to place order', 'danger');
         btn.disabled = false;
-        btn.innerHTML = 'تأكيد الطلب';
+        btn.innerHTML = originalText;
     }
-});
+}

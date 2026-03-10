@@ -1,296 +1,271 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الطلبات | Manage Orders</title>
+    <title>Manage Orders</title>
     
-    <!-- Bootstrap 5.3 RTL -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     
-    <!-- Admin Styles -->
     <style>
-        :root { --sidebar-width: 250px; }
-        body { background-color: #f4f6f9; overflow-x: hidden; }
-        #sidebar {
-            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; right: 0;
-            background: #343a40; color: #fff; transition: all 0.3s; z-index: 1000;
-        }
-        html[dir="ltr"] #sidebar { right: auto; left: 0; }
-        #content { margin-right: var(--sidebar-width); transition: all 0.3s; }
-        html[dir="ltr"] #content { margin-right: 0; margin-left: var(--sidebar-width); }
-        .sidebar-link {
-            color: rgba(255,255,255,0.8); padding: 12px 20px; display: block; text-decoration: none;
-        }
-        .sidebar-link:hover, .sidebar-link.active { background: #495057; color: #fff; border-right: 4px solid #0d6efd; }
-        html[dir="ltr"] .sidebar-link:hover, html[dir="ltr"] .sidebar-link.active { border-right: none; border-left: 4px solid #0d6efd; }
-        @media (max-width: 768px) {
-            #sidebar { margin-right: calc(var(--sidebar-width) * -1); }
-            html[dir="ltr"] #sidebar { margin-left: calc(var(--sidebar-width) * -1); margin-right: 0; }
-            #sidebar.active { margin-right: 0; }
-            html[dir="ltr"] #sidebar.active { margin-left: 0; }
-            #content { margin-right: 0; margin-left: 0; }
-        }
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #212529; color: white; }
+        .sidebar .nav-link { color: #adb5bd; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #343a40; color: white; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <nav id="sidebar">
-        <div class="sidebar-header p-3 border-bottom border-secondary">
-            <h4 class="mb-0"><i class="fas fa-cogs me-2"></i> Admin</h4>
-        </div>
-        <ul class="list-unstyled p-2">
-            <li><a href="index.html" class="sidebar-link"><i class="fas fa-tachometer-alt me-2"></i> الرئيسية</a></li>
-            <li><a href="products.html" class="sidebar-link"><i class="fas fa-box me-2"></i> المنتجات</a></li>
-            <li><a href="categories.html" class="sidebar-link"><i class="fas fa-list me-2"></i> التصنيفات</a></li>
-            <li><a href="orders.html" class="sidebar-link active"><i class="fas fa-shopping-bag me-2"></i> الطلبات</a></li>
-            <li><a href="../index.html" class="sidebar-link"><i class="fas fa-external-link-alt me-2"></i> عرض المتجر</a></li>
-        </ul>
-    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                <h4 class="text-center mb-4 text-white">Admin Panel</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="products.html"><i class="bi bi-box-seam me-2"></i> Products</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="categories.html"><i class="bi bi-tags me-2"></i> Categories</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link active" href="orders.html"><i class="bi bi-receipt me-2"></i> Orders</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="banners.html"><i class="bi bi-images me-2"></i> Banners</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="coupons.html"><i class="bi bi-percent me-2"></i> Coupons</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="regions.html"><i class="bi bi-geo-alt me-2"></i> Regions</a></li>
+                    <li class="nav-item mb-2">
+    <a class="nav-link" href="notifications.html"><i class="bi bi-megaphone me-2"></i> Notifications</a>
+</li>
+                    <li class="nav-item mt-4"><hr><a class="nav-link text-danger" href="#" onclick="logoutAdmin()"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                </ul>
+            </nav>
 
-    <!-- CONTENT -->
-    <div id="content">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
-            <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn btn-light"><i class="fas fa-bars"></i></button>
-                <div class="ms-auto">
-                    <button class="btn btn-outline-primary btn-sm" onclick="loadOrders()"><i class="fas fa-sync-alt"></i> تحديث</button>
-                </div>
-            </div>
-        </nav>
-
-        <div class="container-fluid px-4">
-            <h3 class="fw-bold mb-4">إدارة الطلبات</h3>
-
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>العميل</th>
-                                    <th>التاريخ</th>
-                                    <th>العنوان</th>
-                                    <th>الحالة</th>
-                                    <th class="text-end">الإجمالي</th>
-                                    <th class="text-center">إجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orders-table-body">
-                                <tr><td colspan="7" class="text-center py-4">جاري التحميل...</td></tr>
-                            </tbody>
-                        </table>
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Orders</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <!-- Filter Buttons -->
+                        <div class="btn-group me-2" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" onclick="filterOrders('all', this)">All</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="filterOrders('pending', this)">Pending</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="filterOrders('shipped', this)">Shipped</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="filterOrders('delivered', this)">Delivered</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Orders Table -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
-    <!-- ORDER DETAILS MODAL -->
-    <div class="modal fade" id="orderModal" tabindex="-1">
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">تفاصيل الطلب #<span id="modal-order-id"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">Order Details <span id="modal-order-id" class="badge bg-secondary ms-2"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Customer Info -->
+                    
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <h6 class="fw-bold">معلومات العميل</h6>
-                            <p class="mb-1"><i class="fas fa-user me-2 text-muted"></i> <span id="modal-customer-name"></span></p>
-                            <p class="mb-1"><i class="fas fa-phone me-2 text-muted"></i> <span id="modal-phone"></span></p>
-                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2 text-muted"></i> <span id="modal-address"></span></p>
-                            <p class="mb-0 small text-muted" id="modal-notes"></p>
+                            <h6 class="text-muted small text-uppercase">Customer Info</h6>
+                            <p class="mb-1"><strong>Name:</strong> <span id="modal-customer-name"></span></p>
+                            <p class="mb-1"><strong>Phone:</strong> <span id="modal-customer-phone"></span></p>
+                            <p class="mb-1"><strong>Address:</strong> <span id="modal-address" class="text-break"></span></p>
                         </div>
-                        <div class="col-md-6 border-start">
-                            <h6 class="fw-bold">ملخص الدفع</h6>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span>المجموع:</span>
-                                <span id="modal-subtotal"></span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span>التوصيل:</span>
-                                <span id="modal-delivery"></span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between fw-bold fs-5">
-                                <span>الإجمالي:</span>
-                                <span id="modal-total"></span>
-                            </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Update Status</h6>
+                            <select id="modal-status-select" class="form-select">
+                                <option value="pending">Pending</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm mt-2 w-100" onclick="updateOrderStatus()">Update Status</button>
                         </div>
                     </div>
 
-                    <!-- Order Items -->
-                    <h6 class="fw-bold border-bottom pb-2">المنتجات المطلوبة</h6>
+                    <hr>
+                    <h6 class="mb-3">Order Items</h6>
                     <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>المنتج</th>
-                                    <th class="text-center">الكمية</th>
-                                    <th class="text-end">السعر</th>
+                                    <th>Product</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Total</th>
                                 </tr>
                             </thead>
-                            <tbody id="modal-items-body"></tbody>
+                            <tbody id="modal-order-items">
+                                <!-- Items injected here -->
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold">Total Amount:</td>
+                                    <td class="text-end fw-bold" id="modal-total-amount"></td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
 
-                    <!-- Status Update -->
-                    <div class="mt-4 bg-light p-3 rounded">
-                        <label class="form-label fw-bold">تحديث حالة الطلب</label>
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-8">
-                                <select class="form-select" id="modal-status-select">
-                                    <option value="new">جديد (New)</option>
-                                    <option value="processing">قيد المعالجة (Processing)</option>
-                                    <option value="shipped">تم الشحن (Shipped)</option>
-                                    <option value="delivered">تم التوصيل (Delivered)</option>
-                                    <option value="cancelled">ملغي (Cancelled)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-success w-100" onclick="saveStatus()">حفظ الحالة</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/supabase-config.js"></script>
+    <script src="admin-auth.js"></script>
 
+    <!-- Page Logic -->
     <script>
-        // Auth Check
-        if (!localStorage.getItem('user')) window.location.href = '../login.html';
-
-        let orderModal;
+        let allOrders = [];
         let currentOrderId = null;
+        let orderModal;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
-            loadOrders();
-
-            document.getElementById('sidebarCollapse').addEventListener('click', () => {
-                document.getElementById('sidebar').classList.toggle('active');
-            });
+            await loadOrders();
         });
 
         async function loadOrders() {
-            // Fetch orders with their items
-            const { data, error } = await supabase
+            const tbody = document.getElementById('orders-table-body');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+
+            const { data: orders, error } = await supabase
                 .from('orders')
-                .select(`
-                    *,
-                    order_items (
-                        *,
-                        products ( name_ar, main_image_url )
-                    )
-                `)
+                .select('*')
                 .order('created_at', { ascending: false });
 
-            const tbody = document.getElementById('orders-table-body');
-            tbody.innerHTML = '';
-
             if (error) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading orders</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading orders</td></tr>`;
                 return;
             }
 
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">لا توجد طلبات حالياً</td></tr>`;
-                return;
-            }
-
-            data.forEach(order => {
-                // Status Badge Logic
-                let badgeClass = 'bg-secondary';
-                let statusText = order.status;
-                
-                if (order.status === 'new') { badgeClass = 'bg-danger'; statusText = 'جديد'; }
-                else if (order.status === 'processing') { badgeClass = 'bg-warning text-dark'; statusText = 'قيد المعالجة'; }
-                else if (order.status === 'shipped') { badgeClass = 'bg-info text-dark'; statusText = 'تم الشحن'; }
-                else if (order.status === 'delivered') { badgeClass = 'bg-success'; statusText = 'تم التوصيل'; }
-                else if (order.status === 'cancelled') { badgeClass = 'bg-dark'; statusText = 'ملغي'; }
-
-                const row = `
-                    <tr>
-                        <td>#${order.id}</td>
-                        <td>
-                            <div class="fw-bold">${order.customer_name}</div>
-                            <small class="text-muted">${order.customer_email || ''}</small>
-                        </td>
-                        <td>${new Date(order.created_at).toLocaleDateString('ar-EG')}</td>
-                        <td><small>${order.delivery_region}</small></td>
-                        <td><span class="badge ${badgeClass}">${statusText}</span></td>
-                        <td class="text-end fw-bold">${parseFloat(order.total_amount).toFixed(2)} JOD</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary" onclick='openOrderModal(${JSON.stringify(order)})'>
-                                <i class="fas fa-eye"></i> عرض
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
+            allOrders = orders || [];
+            renderOrdersTable(allOrders);
         }
 
-        function openOrderModal(order) {
-            currentOrderId = order.id;
-            document.getElementById('modal-order-id').textContent = order.id;
-            document.getElementById('modal-customer-name').textContent = order.customer_name;
-            document.getElementById('modal-phone').textContent = order.customer_phone || 'N/A';
-            document.getElementById('modal-address').textContent = order.shipping_address || 'N/A';
-            document.getElementById('modal-notes').textContent = order.notes ? `ملاحظات: ${order.notes}` : '';
-            
-            // Totals
-            document.getElementById('modal-subtotal').textContent = (parseFloat(order.total_amount) - parseFloat(order.delivery_fee)).toFixed(2) + ' JOD';
-            document.getElementById('modal-delivery').textContent = parseFloat(order.delivery_fee).toFixed(2) + ' JOD';
-            document.getElementById('modal-total').textContent = parseFloat(order.total_amount).toFixed(2) + ' JOD';
-            
-            // Set Status
-            document.getElementById('modal-status-select').value = order.status;
+        function filterOrders(status, btnElement) {
+            // Update active button state
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
 
-            // Items
-            const itemsBody = document.getElementById('modal-items-body');
-            itemsBody.innerHTML = '';
-            
-            if (order.order_items && order.order_items.length > 0) {
-                order.order_items.forEach(item => {
-                    // Fallback for product name if join failed
-                    const name = item.products ? item.products.name_ar : 'منتج محذوف';
-                    const img = item.products ? item.products.main_image_url : '';
-
-                    itemsBody.innerHTML += `
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    ${img ? `<img src="${img}" width="40" height="40" class="rounded me-2" style="object-fit:cover;">` : ''}
-                                    <span>${name}</span>
-                                </div>
-                            </td>
-                            <td class="text-center">${item.quantity}</td>
-                            <td class="text-end">${parseFloat(item.price).toFixed(2)}</td>
-                        </tr>
-                    `;
-                });
+            // Filter data
+            if (status === 'all') {
+                renderOrdersTable(allOrders);
             } else {
-                itemsBody.innerHTML = '<tr><td colspan="3" class="text-center">لا توجد عناصر</td></tr>';
+                const filtered = allOrders.filter(o => o.status === status);
+                renderOrdersTable(filtered);
+            }
+        }
+
+        function renderOrdersTable(orders) {
+            const tbody = document.getElementById('orders-table-body');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No orders found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td class="ps-4 fw-bold">#${order.id.slice(0,8)}</td>
+                    <td>
+                        <div class="fw-bold">${order.customer_name}</div>
+                        <div class="small text-muted">${order.customer_phone}</div>
+                    </td>
+                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    <td class="fw-bold">${order.total_amount.toFixed(2)} JOD</td>
+                    <td><span class="badge ${getStatusBadgeClass(order.status)}">${order.status}</span></td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-primary" onclick="openOrderDetails('${order.id}')">View</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function openOrderDetails(orderId) {
+            currentOrderId = orderId;
+            const order = allOrders.find(o => o.id === orderId);
+            
+            if(!order) return;
+
+            // Populate Header Info
+            document.getElementById('modal-order-id').textContent = '#' + order.id.slice(0,8);
+            document.getElementById('modal-customer-name').textContent = order.customer_name;
+            document.getElementById('modal-customer-phone').textContent = order.customer_phone;
+            document.getElementById('modal-address').textContent = order.shipping_address;
+            document.getElementById('modal-status-select').value = order.status;
+            document.getElementById('modal-total-amount').textContent = order.total_amount.toFixed(2) + ' JOD';
+
+            // Fetch Order Items
+            const itemsBody = document.getElementById('modal-order-items');
+            itemsBody.innerHTML = '<tr><td colspan="4" class="text-center">Loading items...</td></tr>';
+
+            const { data: items, error } = await supabase
+                .from('order_items')
+                .select(`*, products(name_en, name_ar, image_url)`)
+                .eq('order_id', orderId);
+
+            if (!error && items) {
+                itemsBody.innerHTML = items.map(item => {
+                    const prodName = item.products ? item.products.name_en : 'Unknown Product';
+                    const imgUrl = item.products ? item.products.image_url : '';
+                    
+                    return `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                ${imgUrl ? `<img src="${imgUrl}" class="rounded me-2" style="width:30px;height:30px;object-fit:cover;">` : ''}
+                                <span>${prodName}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">${item.quantity}</td>
+                        <td class="text-end">${item.unit_price.toFixed(2)}</td>
+                        <td class="text-end fw-bold">${(item.quantity * item.unit_price).toFixed(2)}</td>
+                    </tr>`;
+                }).join('');
+            } else {
+                itemsBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading items</td></tr>';
             }
 
             orderModal.show();
         }
 
-        async function saveStatus() {
+        async function updateOrderStatus() {
             const newStatus = document.getElementById('modal-status-select').value;
+            
             const { error } = await supabase
                 .from('orders')
                 .update({ status: newStatus })
@@ -299,10 +274,25 @@
             if (error) {
                 alert('Failed to update status: ' + error.message);
             } else {
-                alert('تم تحديث الحالة بنجاح');
+                showToast('Order status updated successfully', 'success');
                 orderModal.hide();
-                loadOrders(); // Refresh list
+                loadOrders(); // Refresh table
             }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'pending': return 'bg-warning text-dark';
+                case 'shipped': return 'bg-info text-white';
+                case 'delivered': return 'bg-success text-white';
+                case 'cancelled': return 'bg-danger text-white';
+                default: return 'bg-secondary';
+            }
+        }
+
+        async function logoutAdmin() {
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
         }
     </script>
 </body>

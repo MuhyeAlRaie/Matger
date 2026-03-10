@@ -1,322 +1,306 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المنتجات | Manage Products</title>
+    <title>Manage Products</title>
     
-    <!-- Bootstrap 5.3 RTL -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     
-    <!-- Inline Admin Styles (Reused from index) -->
     <style>
-        :root { --sidebar-width: 250px; }
-        body { background-color: #f4f6f9; overflow-x: hidden; }
-        #sidebar {
-            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; right: 0;
-            background: #343a40; color: #fff; transition: all 0.3s; z-index: 1000;
-        }
-        html[dir="ltr"] #sidebar { right: auto; left: 0; }
-        #content { margin-right: var(--sidebar-width); transition: all 0.3s; }
-        html[dir="ltr"] #content { margin-right: 0; margin-left: var(--sidebar-width); }
-        .sidebar-link {
-            color: rgba(255,255,255,0.8); padding: 12px 20px; display: block; text-decoration: none;
-        }
-        .sidebar-link:hover, .sidebar-link.active { background: #495057; color: #fff; border-right: 4px solid #0d6efd; }
-        html[dir="ltr"] .sidebar-link:hover, html[dir="ltr"] .sidebar-link.active { border-right: none; border-left: 4px solid #0d6efd; }
-        @media (max-width: 768px) {
-            #sidebar { margin-right: calc(var(--sidebar-width) * -1); }
-            html[dir="ltr"] #sidebar { margin-left: calc(var(--sidebar-width) * -1); margin-right: 0; }
-            #sidebar.active { margin-right: 0; }
-            html[dir="ltr"] #sidebar.active { margin-left: 0; }
-            #content { margin-right: 0; margin-left: 0; }
-        }
-        .img-thumbnail-sm { width: 50px; height: 50px; object-fit: cover; }
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #212529; color: white; }
+        .sidebar .nav-link { color: #adb5bd; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #343a40; color: white; }
+        .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <nav id="sidebar">
-        <div class="sidebar-header p-3 border-bottom border-secondary">
-            <h4 class="mb-0"><i class="fas fa-cogs me-2"></i> Admin</h4>
-        </div>
-        <ul class="list-unstyled p-2">
-            <li><a href="index.html" class="sidebar-link"><i class="fas fa-tachometer-alt me-2"></i> الرئيسية</a></li>
-            <li><a href="products.html" class="sidebar-link active"><i class="fas fa-box me-2"></i> المنتجات</a></li>
-            <li><a href="categories.html" class="sidebar-link"><i class="fas fa-list me-2"></i> التصنيفات</a></li>
-            <li><a href="orders.html" class="sidebar-link"><i class="fas fa-shopping-bag me-2"></i> الطلبات</a></li>
-            <li><a href="../index.html" class="sidebar-link"><i class="fas fa-external-link-alt me-2"></i> عرض المتجر</a></li>
-        </ul>
-    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                <h4 class="text-center mb-4 text-white">Admin Panel</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link active" href="products.html"><i class="bi bi-box-seam me-2"></i> Products</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="categories.html"><i class="bi bi-tags me-2"></i> Categories</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="orders.html"><i class="bi bi-receipt me-2"></i> Orders</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="banners.html"><i class="bi bi-images me-2"></i> Banners</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="coupons.html"><i class="bi bi-percent me-2"></i> Coupons</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="regions.html"><i class="bi bi-geo-alt me-2"></i> Regions</a></li>
+                    <li class="nav-item mb-2">
+    <a class="nav-link" href="notifications.html"><i class="bi bi-megaphone me-2"></i> Notifications</a>
+</li>
+                    <li class="nav-item mt-4"><hr><a class="nav-link text-danger" href="#" onclick="logoutAdmin()"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                </ul>
+            </nav>
 
-    <!-- CONTENT -->
-    <div id="content">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
-            <div class="container-fluid">
-                <button type="button" id="sidebarCollapse" class="btn btn-light"><i class="fas fa-bars"></i></button>
-                <div class="ms-auto">
-                    <a href="index.html" class="btn btn-secondary btn-sm">رجوع</a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="container-fluid px-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold">إدارة المنتجات</h3>
-                <button class="btn btn-primary" onclick="openProductModal()">
-                    <i class="fas fa-plus me-2"></i> إضافة منتج
-                </button>
-            </div>
-
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>صورة</th>
-                                    <th>الاسم (عربي)</th>
-                                    <th>الاسم (إنجليزي)</th>
-                                    <th>السعر</th>
-                                    <th>التصنيف</th>
-                                    <th>الحالة</th>
-                                    <th class="text-end">إجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="products-table-body">
-                                <tr><td colspan="7" class="text-center py-4">جاري التحميل...</td></tr>
-                            </tbody>
-                        </table>
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Products</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal" onclick="prepareAddProduct()">
+                            <i class="bi bi-plus-lg me-1"></i> Add Product
+                        </button>
                     </div>
                 </div>
-            </div>
+
+                <!-- Products Table -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Image</th>
+                                        <th>Name (AR / EN)</th>
+                                        <th>Price</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
-    <!-- PRODUCT MODAL (ADD/EDIT) -->
+    <!-- Product Modal (Add/Edit) -->
     <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">إضافة منتج جديد</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="productForm">
+                    <form id="product-form">
                         <input type="hidden" id="prod-id">
                         
-                        <!-- Basic Info -->
-                        <h6 class="text-primary border-bottom pb-2 mb-3">المعلومات الأساسية</h6>
-                        <div class="row g-3 mb-4">
+                        <div class="row g-3">
+                            <!-- Names -->
                             <div class="col-md-6">
-                                <label class="form-label">اسم المنتج (عربي)</label>
-                                <input type="text" class="form-control" id="prod-name-ar" required onblur="generateSlug()">
+                                <label class="form-label">Name (Arabic)</label>
+                                <input type="text" class="form-control" id="prod-name-ar" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">اسم المنتج (إنجليزي)</label>
-                                <input type="text" class="form-control" id="prod-name-en" required onblur="generateSlug()">
+                                <label class="form-label">Name (English)</label>
+                                <input type="text" class="form-control" id="prod-name-en" required>
                             </div>
+
+                            <!-- Slug -->
+                            <div class="col-12">
+                                <label class="form-label">Slug (URL)</label>
+                                <input type="text" class="form-control" id="prod-slug" required placeholder="e.g. air-fryer-philips">
+                            </div>
+
+                            <!-- Prices -->
                             <div class="col-md-6">
-                                <label class="form-label">Slug (رابط URL)</label>
-                                <input type="text" class="form-control" id="prod-slug" dir="ltr" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">التصنيف</label>
-                                <select class="form-select" id="prod-category" required>
-                                    <option value="">اختر التصنيف...</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">السعر (JOD)</label>
+                                <label class="form-label">Price (JOD)</label>
                                 <input type="number" step="0.01" class="form-control" id="prod-price" required>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">سعر الخصم (اختياري)</label>
+                            <div class="col-md-6">
+                                <label class="form-label">Discount Price (Optional)</label>
                                 <input type="number" step="0.01" class="form-control" id="prod-discount">
                             </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <div class="form-check mt-3">
+
+                            <!-- Image -->
+                            <div class="col-12">
+                                <label class="form-label">Image URL</label>
+                                <input type="text" class="form-control" id="prod-image" placeholder="/images/products/filename.jpg" required>
+                                <div class="form-text">Store images in /images folder.</div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="col-md-6">
+                                <label class="form-label">Category</label>
+                                <select id="prod-category" class="form-select" required>
+                                    <option value="">Loading categories...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check mt-4">
                                     <input class="form-check-input" type="checkbox" id="prod-active" checked>
-                                    <label class="form-check-label">نشط (ظهر في المتجر)</label>
+                                    <label class="form-check-label" for="prod-active">Is Active</label>
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <label class="form-label">رابط الصورة الرئيسية (GitHub Raw URL)</label>
-                                <input type="url" class="form-control" id="prod-image" placeholder="https://raw.githubusercontent.com/..." required>
-                                <div class="form-text">تأكد من أن الرابط ينتهي بصورة الصيغة (.jpg, .png)</div>
-                            </div>
-                        </div>
 
-                        <!-- Descriptions -->
-                        <h6 class="text-primary border-bottom pb-2 mb-3">الوصف</h6>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label">وصف قصير (عربي)</label>
-                                <textarea class="form-control" id="prod-short-desc-ar" rows="2"></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">وصف قصير (إنجليزي)</label>
-                                <textarea class="form-control" id="prod-short-desc-en" rows="2"></textarea>
+                            <!-- Descriptions -->
+                            <div class="col-12">
+                                <label class="form-label">Short Desc (Arabic)</label>
+                                <textarea class="form-control" id="prod-short-ar" rows="2"></textarea>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">وصف كامل (عربي)</label>
-                                <textarea class="form-control" id="prod-full-desc-ar" rows="4"></textarea>
+                                <label class="form-label">Short Desc (English)</label>
+                                <textarea class="form-control" id="prod-short-en" rows="2"></textarea>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">وصف كامل (إنجليزي)</label>
-                                <textarea class="form-control" id="prod-full-desc-en" rows="4"></textarea>
+                                <label class="form-label">Full Desc (Arabic)</label>
+                                <textarea class="form-control" id="prod-full-ar" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Full Desc (English)</label>
+                                <textarea class="form-control" id="prod-full-en" rows="3"></textarea>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="saveProduct()">حفظ التغييرات</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/supabase-config.js"></script>
+    <script src="admin-auth.js"></script>
 
+    <!-- Page Logic -->
     <script>
-        // Auth Check
-        if (!localStorage.getItem('user')) window.location.href = '../login.html';
-
-        // Global Variables
+        let categoriesList = [];
         let productModal;
-        let categories = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             productModal = new bootstrap.Modal(document.getElementById('productModal'));
             await loadCategories();
             await loadProducts();
-
-            // Sidebar Toggle
-            document.getElementById('sidebarCollapse').addEventListener('click', () => {
-                document.getElementById('sidebar').classList.toggle('active');
-            });
         });
 
-        // 1. LOAD CATEGORIES
         async function loadCategories() {
             const { data } = await supabase.from('categories').select('*');
-            categories = data || [];
+            categoriesList = data || [];
             const select = document.getElementById('prod-category');
-            select.innerHTML = '<option value="">اختر التصنيف...</option>';
-            categories.forEach(cat => {
-                select.innerHTML += `<option value="${cat.id}">${cat.name_ar} / ${cat.name_en}</option>`;
+            select.innerHTML = '<option value="">Select Category</option>';
+            categoriesList.forEach(cat => {
+                select.innerHTML += `<option value="${cat.id}">${cat.name_en} / ${cat.name_ar}</option>`;
             });
         }
 
-        // 2. LOAD PRODUCTS
         async function loadProducts() {
-            const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('products-table-body');
-            tbody.innerHTML = '';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+
+            const { data: products, error } = await supabase
+                .from('products')
+                .select(`*, categories (name_en, name_ar)`)
+                .order('created_at', { ascending: false });
 
             if (error) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading products</td></tr>`;
                 return;
             }
 
-            data.forEach(p => {
-                const catName = categories.find(c => c.id == p.category_id)?.name_ar || 'N/A';
-                const statusBadge = p.is_active 
-                    ? '<span class="badge bg-success">نشط</span>' 
-                    : '<span class="badge bg-secondary">معطل</span>';
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No products found.</td></tr>`;
+                return;
+            }
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td><img src="${p.main_image_url}" class="img-thumbnail-sm rounded"></td>
-                        <td>${p.name_ar}</td>
-                        <td class="text-muted small">${p.name_en}</td>
-                        <td>${p.price} JOD</td>
-                        <td>${catName}</td>
-                        <td>${statusBadge}</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary me-1" onclick='editProduct(${JSON.stringify(p)})'><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+            tbody.innerHTML = products.map(prod => {
+                const catName = prod.categories ? prod.categories.name_en : 'N/A';
+                const imgUrl = prod.image_url || 'https://via.placeholder.com/50';
+                
+                return `
+                <tr>
+                    <td class="ps-4"><img src="${imgUrl}" class="product-thumb" alt="img"></td>
+                    <td>
+                        <div class="fw-bold">${prod.name_ar}</div>
+                        <div class="small text-muted">${prod.name_en}</div>
+                    </td>
+                    <td>
+                        <div>${prod.price} JOD</div>
+                        ${prod.discount_price ? `<div class="small text-danger">${prod.discount_price} JOD</div>` : ''}
+                    </td>
+                    <td>${catName}</td>
+                    <td>
+                        <span class="badge ${prod.is_active ? 'bg-success' : 'bg-secondary'}">
+                            ${prod.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${prod.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${prod.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function prepareAddProduct() {
+            document.getElementById('product-form').reset();
+            document.getElementById('prod-id').value = '';
+            document.getElementById('productModalLabel').textContent = 'Add Product';
+        }
+
+        function editProduct(id) {
+            // Find product from DOM or refetch (simpler: fetch single)
+            supabase.from('products').select('*').eq('id', id).single().then(({ data }) => {
+                if (data) {
+                    document.getElementById('prod-id').value = data.id;
+                    document.getElementById('prod-name-ar').value = data.name_ar;
+                    document.getElementById('prod-name-en').value = data.name_en;
+                    document.getElementById('prod-slug').value = data.slug;
+                    document.getElementById('prod-price').value = data.price;
+                    document.getElementById('prod-discount').value = data.discount_price || '';
+                    document.getElementById('prod-image').value = data.image_url;
+                    document.getElementById('prod-category').value = data.category_id;
+                    document.getElementById('prod-active').checked = data.is_active;
+                    
+                    document.getElementById('prod-short-ar').value = data.short_description_ar;
+                    document.getElementById('prod-short-en').value = data.short_description_en;
+                    document.getElementById('prod-full-ar').value = data.full_description_ar;
+                    document.getElementById('prod-full-en').value = data.full_description_en;
+
+                    document.getElementById('productModalLabel').textContent = 'Edit Product';
+                    productModal.show();
+                }
             });
         }
 
-        // 3. MODAL HANDLERS
-        function openProductModal() {
-            document.getElementById('productForm').reset();
-            document.getElementById('prod-id').value = '';
-            document.getElementById('modalTitle').textContent = 'إضافة منتج جديد';
-            productModal.show();
-        }
-
-        function editProduct(product) {
-            document.getElementById('prod-id').value = product.id;
-            document.getElementById('prod-name-ar').value = product.name_ar;
-            document.getElementById('prod-name-en').value = product.name_en;
-            document.getElementById('prod-slug').value = product.slug;
-            document.getElementById('prod-category').value = product.category_id;
-            document.getElementById('prod-price').value = product.price;
-            document.getElementById('prod-discount').value = product.discount_price || '';
-            document.getElementById('prod-image').value = product.main_image_url;
-            document.getElementById('prod-short-desc-ar').value = product.short_description_ar || '';
-            document.getElementById('prod-short-desc-en').value = product.short_description_en || '';
-            document.getElementById('prod-full-desc-ar').value = product.full_description_ar || '';
-            document.getElementById('prod-full-desc-en').value = product.full_description_en || '';
-            document.getElementById('prod-active').checked = product.is_active;
-            
-            document.getElementById('modalTitle').textContent = 'تعديل المنتج';
-            productModal.show();
-        }
-
-        // 4. SLUG GENERATOR
-        function generateSlug() {
-            const nameAr = document.getElementById('prod-name-ar').value;
-            const nameEn = document.getElementById('prod-name-en').value;
-            // Prefer English slug, fallback to cleaned Arabic
-            const text = nameEn.trim() || nameAr.trim();
-            const slug = text.toLowerCase()
-                .replace(/[\s\W-]+/g, '-') // Replace spaces and non-word chars with dash
-                .replace(/^-+|-+$/g, '');  // Trim dashes
-            document.getElementById('prod-slug').value = slug;
-        }
-
-        // 5. SAVE PRODUCT
         async function saveProduct() {
             const id = document.getElementById('prod-id').value;
             const productData = {
                 name_ar: document.getElementById('prod-name-ar').value,
                 name_en: document.getElementById('prod-name-en').value,
                 slug: document.getElementById('prod-slug').value,
-                category_id: document.getElementById('prod-category').value,
                 price: parseFloat(document.getElementById('prod-price').value),
                 discount_price: document.getElementById('prod-discount').value ? parseFloat(document.getElementById('prod-discount').value) : null,
-                main_image_url: document.getElementById('prod-image').value,
-                short_description_ar: document.getElementById('prod-short-desc-ar').value,
-                short_description_en: document.getElementById('prod-short-desc-en').value,
-                full_description_ar: document.getElementById('prod-full-desc-ar').value,
-                full_description_en: document.getElementById('prod-full-desc-en').value,
-                is_active: document.getElementById('prod-active').checked
+                image_url: document.getElementById('prod-image').value,
+                category_id: parseInt(document.getElementById('prod-category').value),
+                is_active: document.getElementById('prod-active').checked,
+                short_description_ar: document.getElementById('prod-short-ar').value,
+                short_description_en: document.getElementById('prod-short-en').value,
+                full_description_ar: document.getElementById('prod-full-ar').value,
+                full_description_en: document.getElementById('prod-full-en').value,
             };
-
-            // Basic Validation
-            if(!productData.name_ar || !productData.price) return alert('يرجى ملء الحقول الأساسية');
 
             let error;
             if (id) {
                 // Update
-                const { error: updateError } = await supabase.from('products').update(productData).eq('id', id);
-                error = updateError;
+                const result = await supabase.from('products').update(productData).eq('id', id);
+                error = result.error;
             } else {
                 // Insert
-                const { error: insertError } = await supabase.from('products').insert([productData]);
-                error = insertError;
+                const result = await supabase.from('products').insert([productData]);
+                error = result.error;
             }
 
             if (error) {
@@ -327,12 +311,20 @@
             }
         }
 
-        // 6. DELETE PRODUCT
         async function deleteProduct(id) {
-            if(!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-            const { error } = await supabase.from('products').delete().eq('id', id);
-            if (error) alert('Error deleting: ' + error.message);
-            else loadProducts();
+            if (confirm('Are you sure you want to delete this product?')) {
+                const { error } = await supabase.from('products').delete().eq('id', id);
+                if (error) {
+                    alert('Error deleting product: ' + error.message);
+                } else {
+                    loadProducts();
+                }
+            }
+        }
+
+        async function logoutAdmin() {
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
         }
     </script>
 </body>

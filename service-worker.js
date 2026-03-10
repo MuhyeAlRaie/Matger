@@ -1,166 +1,125 @@
 /**
- * SERVICE-WORKER.JS
- * Handles Offline Caching and Asset Management
+ * Service Worker for Multi-Category E-Commerce PWA
+ * Strategy:
+ * 1. HTML (Documents): Network First (Fetch fresh content, fallback to cache)
+ * 2. Assets (CSS, JS, Images): Cache First (Load fast, fallback to network)
  */
 
-// Version your cache to force updates when you change files
-const CACHE_VERSION = 'v1.0.0';
-const CACHE_NAME = `ecommerce-store-${CACHE_VERSION}`;
-
-// 1. The "App Shell" - Files required for the basic layout to load
+const CACHE_NAME = 'store-v1';
 const ASSETS_TO_CACHE = [
-    './',
-    './index.html',
-    './cart.html',
-    './checkout.html',
-    './login.html',
-    './register.html',
-    './category.html',
-    './product.html',
-    './css/style.css',
-    './js/supabase-config.js',
-    './js/app.js',
-    './js/cart.js',
-    './js/products.js',
-    './js/auth.js',
-    './js/checkout.js',
-    './js/pwa-installer.js',
-    './manifest.json',
-    // External Libraries (Crucial for offline look & feel)
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css',
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-    'https://unpkg.com/@supabase/supabase-js@2'
+  '/',
+  '/index.html',
+  '/category.html',
+  '/product.html',
+  '/cart.html',
+  '/checkout.html',
+  '/account.html',
+  '/login.html',
+  '/register.html',
+  '/thank-you.html',
+  '/manifest.json',
+  '/css/style.css',
+  // CDN Assets (Optional: Caching these makes offline mode much better)
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css',
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+  'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css',
+  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'
 ];
 
-// ==========================================
-// INSTALL EVENT
-// ==========================================
+// 1. Installation: Cache Critical Assets
 self.addEventListener('install', (event) => {
-    console.log('[Service Worker] Installing...');
-    
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('[Service Worker] Caching app shell');
-                return cache.addAll(ASSETS_TO_CACHE);
-            })
-            .catch((error) => {
-                console.error('[Service Worker] Installation failed:', error);
-            })
-    );
-    
-    // Force the waiting service worker to become the active service worker
-    self.skipWaiting();
+  console.log('[Service Worker] Installing...');
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[Service Worker] Caching app shell');
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
+  self.skipWaiting(); // Activate immediately
 });
 
-// ==========================================
-// ACTIVATE EVENT
-// ==========================================
+// 2. Activation: Clean Old Caches
 self.addEventListener('activate', (event) => {
-    console.log('[Service Worker] Activating...');
-    
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cache) => {
-                    // Delete old caches if the name has changed
-                    if (cache !== CACHE_NAME) {
-                        console.log('[Service Worker] Deleting old cache:', cache);
-                        return caches.delete(cache);
-                    }
-                })
-            );
+  console.log('[Service Worker] Activating...');
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('[Service Worker] Deleting old cache:', cache);
+            return caches.delete(cache);
+          }
         })
-    );
-    
-    // Take control of all pages immediately
-    return self.clients.claim();
+      );
+    })
+  );
+  self.clients.claim(); // Take control of all pages immediately
 });
 
-// ==========================================
-// FETCH EVENT
-// ==========================================
+// 3. Fetching: Serve Content
 self.addEventListener('fetch', (event) => {
-    // Network First Strategy for HTML pages (to get fresh content)
-    // Cache First Strategy for Assets (Images, CSS, JS) for speed
-    
-    event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            
-            // CACHE HIT: Return the cached version immediately
-            if (cachedResponse) {
-                // Optional: Fetch in background to update cache for next time (Stale-While-Revalidate)
-                fetchAndCache(event.request);
-                return cachedResponse;
-            }
+  const url = new URL(event.request.url);
 
-            // CACHE MISS: Fetch from network
-            return fetchAndCache(event.request);
+  // Strategy: Network First for HTML Documents (Ensure fresh data)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Update cache with fresh version
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => {
+          // Offline: Fallback to cache
+          return caches.match(event.request);
         })
     );
-});
+    return;
+  }
 
-// Helper function to fetch and store in cache
-function fetchAndCache(request) {
-    return fetch(request).then((networkResponse) => {
-        // Check if valid response
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
+  // Strategy: Cache First for Assets (CSS, JS, Images) - Speed
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        // Serve from cache
+        return cachedResponse;
+      }
+
+      // Not in cache, fetch from network
+      return fetch(event.request).then((response) => {
+        // Don't cache non-successful responses
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
         }
 
-        // Clone the response because it's a stream and can only be consumed once
-        const responseToCache = networkResponse.clone();
-
+        // Clone the response to cache it
+        const responseToCache = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
+          cache.put(event.request, responseToCache);
         });
 
-        return networkResponse;
-    }).catch((error) => {
-        console.log('[Service Worker] Fetch failed:', error);
-        // You could return a custom offline fallback page here if needed
-        throw error;
-    });
-}
-
-// ==========================================
-// PUSH NOTIFICATION HANDLERS
-// (Add this to the end of service-worker.js)
-// ==========================================
-
-// 1. Listen for Push Event
-self.addEventListener('push', (event) => {
-    const data = event.data.json();
-    console.log('Push Received:', data);
-
-    const options = {
-        body: data.body || 'New update from MyStore',
-        icon: 'images/icons/icon-192x192.png',
-        badge: 'images/icons/icon-192x192.png',
-        vibrate: [100, 50, 100],
-        data: {
-            dateOfArrival: Date.now(),
-            primaryKey: 1
-        },
-        actions: [
-            { action: 'explore', title: 'Go to Store', icon: 'images/icons/icon-192x192.png' },
-            { action: 'close', title: 'Close', icon: 'images/icons/icon-192x192.png' }
-        ]
-    };
-
-    event.waitUntil(
-        self.registration.showNotification(data.title || 'MyStore', options)
-    );
+        return response;
+      });
+    })
+  );
 });
 
-// 2. Handle Notification Click
-self.addEventListener('notificationclick', (event) => {
-    console.log('Notification click Received.');
+// 4. Push Notifications Listener (Placeholder)
+self.addEventListener('push', (event) => {
+  const options = {
+    body: event.data ? event.data.text() : 'New update from MyStore',
+    icon: '/images/icons/icon-192x192.png',
+    badge: '/images/icons/icon-192x192.png',
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    }
+  };
 
-    event.notification.close();
-
-    event.waitUntil(
-        clients.openWindow('https://your-username.github.io/repo-name/')
-    );
+  event.waitUntil(
+    self.registration.showNotification('MyStore', options)
+  );
 });

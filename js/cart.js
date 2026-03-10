@@ -1,56 +1,73 @@
 /**
- * CART.JS - Shopping Cart Logic
- * Manages cart state in LocalStorage and updates UI
+ * Shopping Cart Logic
+ * Handles:
+ * 1. LocalStorage persistence
+ * 2. Add/Remove/Update items
+ * 3. Calculate totals and apply coupons
+ * 4. Render Cart UI on cart.html
  */
 
-const CART_STORAGE_KEY = 'ecommerce_cart';
-const CURRENCY = 'JOD';
-
-// Global Cart State
-let cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) || [];
-let appliedCoupon = null; // Stores { code: 'SAVE10', discount: 10, type: 'percent' }
+const CART_KEY = 'app_cart';
+let cartData = [];
+let appliedCoupon = null; // Stores coupon object { code, discount_type, value }
 
 // ==========================================
-// CORE FUNCTIONS
+// 1. Initialization
 // ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    loadCartFromStorage();
+    updateCartCountUI();
 
-/**
- * Add a product to the cart
- * @param {Object} product - Product object {id, name, price, image, slug}
- */
-function addToCart(product) {
-    const existingItem = cart.find(item => item.id === product.id);
+    // If we are on the Cart page, render the full table
+    if (window.location.pathname.includes('cart.html')) {
+        renderCartPage();
+    }
+});
 
+// ==========================================
+// 2. Core Cart Functions
+// ==========================================
+function loadCartFromStorage() {
+    const stored = localStorage.getItem(CART_KEY);
+    cartData = stored ? JSON.parse(stored) : [];
+}
+
+function saveCartToStorage() {
+    localStorage.setItem(CART_KEY, JSON.stringify(cartData));
+    updateCartCountUI();
+}
+
+function getCart() {
+    return cartData;
+}
+
+// Add item to cart
+function addToCart(productId) {
+    const existingItem = cartData.find(item => item.id === productId);
+    
     if (existingItem) {
         existingItem.quantity += 1;
-        showToast(`تم تحديث الكمية لـ ${getProductName(product)}`, 'info');
     } else {
-        cart.push({ ...product, quantity: 1 });
-        showToast(`تمت إضافة ${getProductName(product)} للسلة`, 'success');
+        cartData.push({ id: productId, quantity: 1 });
     }
-
-    saveCart();
+    
+    saveCartToStorage();
+    
+    // Show feedback
+    const msg = currentLang === 'ar' ? 'تمت الإضافة للسلة' : 'Added to cart';
+    showToast(msg, 'success');
 }
 
-/**
- * Remove item completely from cart
- * @param {Number} productId 
- */
+// Remove item completely
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
-    saveCart();
-    if (document.getElementById('cart-page-body')) {
-        renderCartPage(); // Re-render if on cart page
-    }
+    cartData = cartData.filter(item => item.id !== productId);
+    saveCartToStorage();
+    renderCartPage(); // Re-render if on cart page
 }
 
-/**
- * Update item quantity
- * @param {Number} productId 
- * @param {Number} change (+1 or -1)
- */
+// Update quantity (+1 or -1)
 function updateQuantity(productId, change) {
-    const item = cart.find(item => item.id === productId);
+    const item = cartData.find(item => item.id === productId);
     if (!item) return;
 
     item.quantity += change;
@@ -58,200 +75,203 @@ function updateQuantity(productId, change) {
     if (item.quantity <= 0) {
         removeFromCart(productId);
     } else {
-        saveCart();
-        if (document.getElementById('cart-page-body')) {
-            renderCartPage();
-        }
-    }
-}
-
-/**
- * Save cart to LocalStorage and update Navbar Count
- */
-function saveCart() {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-    updateCartCount();
-}
-
-/**
- * Calculate total price of items in cart
- * @returns {Number} Subtotal
- */
-function getCartSubtotal() {
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-}
-
-/**
- * Apply a coupon code (Logic placeholder - connects to checkout.js later)
- * @param {String} code 
- */
-function applyCoupon(code) {
-    // In a real app, this would validate against Supabase
-    // For now, we simulate a coupon logic
-    if (code.toUpperCase() === 'WELCOME10') {
-        appliedCoupon = { code: code, discount: 0.10, type: 'percent' };
-        showToast('تم تطبيق كوبون الخصم بنجاح 10%', 'success');
-        renderCartPage();
-    } else {
-        showToast('كوبون غير صالح', 'danger');
-        appliedCoupon = null;
+        saveCartToStorage();
         renderCartPage();
     }
 }
 
-// ==========================================
-// UI HELPERS
-// ==========================================
-
-function updateCartCount() {
-    const countEl = document.getElementById('cart-count');
-    if (countEl) {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        countEl.textContent = totalItems;
-        // Hide badge if 0
-        countEl.style.display = totalItems > 0 ? 'inline-block' : 'none';
+// Update Navbar Badge
+function updateCartCountUI() {
+    const badge = document.getElementById('cart-count');
+    if (badge) {
+        const totalCount = cartData.reduce((sum, item) => sum + item.quantity, 0);
+        badge.textContent = totalCount;
+        badge.style.display = totalCount > 0 ? 'block' : 'none';
     }
 }
 
-function formatCurrency(amount) {
-    return parseFloat(amount).toFixed(2) + ' ' + CURRENCY;
-}
-
-// Helper to get name based on current lang (since we store the object snapshot)
-function getProductName(product) {
-    // If the stored object has language fields, use them, else fallback to name
-    const lang = localStorage.getItem('lang') || 'ar';
-    if (lang === 'en' && product.name_en) return product.name_en;
-    if (lang === 'ar' && product.name_ar) return product.name_ar;
-    return product.name || 'منتج';
-}
-
-function showToast(message, type = 'info') {
-    // Check if toast container exists
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'position-fixed bottom-0 end-0 p-3';
-        container.style.zIndex = '1100';
-        document.body.appendChild(container);
-    }
-
-    const toastHtml = `
-        <div class="toast align-items-center text-white bg-${type} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    `;
-    
-    // Create temp element to parse HTML
-    const temp = document.createElement('div');
-    temp.innerHTML = toastHtml;
-    const toastEl = temp.firstElementChild;
-    
-    container.appendChild(toastEl);
-
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        toastEl.remove();
-    }, 3000);
-}
-
 // ==========================================
-// RENDER CART PAGE (For cart.html)
+// 3. Cart Page Rendering
 // ==========================================
-function renderCartPage() {
-    const tbody = document.getElementById('cart-page-body');
-    const subtotalEl = document.getElementById('cart-subtotal');
-    const discountEl = document.getElementById('cart-discount');
-    const totalEl = document.getElementById('cart-total');
-    const emptyMsg = document.getElementById('cart-empty-msg');
+async function renderCartPage() {
+    const container = document.getElementById('cart-items-container');
+    const summaryContainer = document.getElementById('cart-summary');
+    const emptyMsg = document.getElementById('empty-cart-msg');
 
-    if (!tbody) return; // Not on cart page
+    if (!container) return;
 
-    tbody.innerHTML = '';
-    
-    if (cart.length === 0) {
+    toggleLoading(true);
+
+    if (cartData.length === 0) {
+        container.innerHTML = '';
+        summaryContainer.style.display = 'none';
         if(emptyMsg) emptyMsg.style.display = 'block';
-        subtotalEl.textContent = '0.00 ' + CURRENCY;
-        totalEl.textContent = '0.00 ' + CURRENCY;
+        toggleLoading(false);
         return;
     }
 
     if(emptyMsg) emptyMsg.style.display = 'none';
+    summaryContainer.style.display = 'block';
 
-    let subtotal = 0;
+    try {
+        // Fetch product details for all items in cart
+        const ids = cartData.map(item => item.id);
+        const { data: products, error } = await supabase
+            .from('products')
+            .select('*')
+            .in('id', ids);
 
-    cart.forEach(item => {
-        const itemTotal = item.price * item.quantity;
-        subtotal += itemTotal;
-        const name = getProductName(item);
+        if (error) throw error;
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>
-                <div class="d-flex align-items-center">
-                    <img src="${item.main_image_url || item.image}" alt="${name}" style="width: 50px; height: 50px; object-fit: cover;" class="me-2 rounded">
-                    <div>
-                        <h6 class="mb-0">${name}</h6>
-                        <small class="text-muted">${formatCurrency(item.price)}</small>
+        if (!products || products.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning">Products not found.</div>';
+            toggleLoading(false);
+            return;
+        }
+
+        let html = '';
+        let subtotal = 0;
+
+        products.forEach(product => {
+            const cartItem = cartData.find(c => c.id === product.id);
+            const qty = cartItem ? cartItem.quantity : 0;
+            
+            // Price logic
+            const price = product.discount_price && product.discount_price < product.price ? product.discount_price : product.price;
+            const itemTotal = price * qty;
+            subtotal += itemTotal;
+
+            const name = getLocalizedField(product, 'name');
+            const imgUrl = product.image_url || 'https://via.placeholder.com/80';
+
+            html += `
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="row align-items-center">
+                            <div class="col-3 col-md-2">
+                                <img src="${imgUrl}" class="img-fluid rounded cart-item-img" alt="${name}">
+                            </div>
+                            <div class="col-9 col-md-5">
+                                <h5 class="mb-1 product-title"><a href="product.html?slug=${product.slug}" class="text-decoration-none text-dark">${name}</a></h5>
+                                <div class="text-muted small">${formatPrice(price)}</div>
+                            </div>
+                            <div class="col-12 col-md-3 mt-3 mt-md-0">
+                                <div class="quantity-control d-inline-flex">
+                                    <button class="quantity-btn" onclick="updateQuantity(${product.id}, -1)">-</button>
+                                    <span class="px-2">${qty}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity(${product.id}, 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2 text-end mt-2 mt-md-0">
+                                <div class="fw-bold">${formatPrice(itemTotal)}</div>
+                                <button class="btn btn-sm text-danger p-0 mt-1" onclick="removeFromCart(${product.id})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </td>
-            <td>
-                <div class="input-group input-group-sm" style="width: 100px;">
-                    <button class="btn btn-outline-secondary" onclick="updateQuantity(${item.id}, -1)">-</button>
-                    <input type="text" class="form-control text-center" value="${item.quantity}" readonly>
-                    <button class="btn btn-outline-secondary" onclick="updateQuantity(${item.id}, 1)">+</button>
-                </div>
-            </td>
-            <td class="fw-bold">${formatCurrency(itemTotal)}</td>
-            <td>
-                <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${item.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
+            `;
+        });
 
-    // Calculate Totals with Coupon
-    let discountAmount = 0;
-    if (appliedCoupon) {
-        if (appliedCoupon.type === 'percent') {
-            discountAmount = subtotal * appliedCoupon.discount;
-        }
+        container.innerHTML = html;
+        updateCartSummary(subtotal);
+
+    } catch (err) {
+        console.error("Error rendering cart:", err);
+        container.innerHTML = '<div class="alert alert-danger">Error loading cart items.</div>';
+    } finally {
+        toggleLoading(false);
     }
-
-    const finalTotal = subtotal - discountAmount;
-
-    // Update DOM
-    if(subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
-    if(discountEl) discountEl.textContent = '-' + formatCurrency(discountAmount);
-    if(totalEl) totalEl.textContent = formatCurrency(finalTotal);
 }
 
-// Initialize Cart Count on Load
-document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
-    
-    // If we are on cart page, render the items
-    if (document.getElementById('cart-page-body')) {
-        renderCartPage();
-        
-        // Bind Coupon Button
-        const couponBtn = document.getElementById('apply-coupon-btn');
-        if(couponBtn) {
-            couponBtn.addEventListener('click', () => {
-                const input = document.getElementById('coupon-input');
-                if(input && input.value) {
-                    applyCoupon(input.value);
-                }
-            });
+// ==========================================
+// 4. Coupon & Totals Logic
+// ==========================================
+async function applyCoupon() {
+    const codeInput = document.getElementById('coupon-code');
+    const code = codeInput.value.trim().toUpperCase();
+    const msgEl = document.getElementById('coupon-message');
+
+    if (!code) return;
+
+    try {
+        // Check coupon in Supabase
+        const { data: coupon, error } = await supabase
+            .from('coupons')
+            .select('*')
+            .eq('code', code)
+            .eq('is_active', true)
+            .single();
+
+        if (error || !coupon) {
+            appliedCoupon = null;
+            if(msgEl) {
+                msgEl.textContent = currentLang === 'ar' ? 'كوبون غير صالح' : 'Invalid coupon code';
+                msgEl.className = 'form-text text-danger';
+            }
+            return;
+        }
+
+        appliedCoupon = coupon;
+        if(msgEl) {
+            msgEl.textContent = currentLang === 'ar' ? 'تم تطبيق الكوبون بنجاح' : 'Coupon applied successfully';
+            msgEl.className = 'form-text text-success';
+        }
+
+        // Re-render summary to show discount
+        const subtotal = calculateCurrentSubtotal(); // Helper to recalculate from DOM or state
+        updateCartSummary(subtotal);
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function updateCartSummary(subtotal) {
+    let discount = 0;
+    const summaryBody = document.getElementById('summary-body');
+    const checkoutBtnTotal = document.getElementById('checkout-total');
+
+    if (appliedCoupon) {
+        if (appliedCoupon.discount_type === 'percentage') {
+            discount = subtotal * (appliedCoupon.value / 100);
+        } else {
+            discount = appliedCoupon.value;
         }
     }
-});
+
+    // Ensure discount doesn't exceed subtotal
+    if (discount > subtotal) discount = subtotal;
+
+    const total = subtotal - discount;
+
+    const html = `
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">${i18n[currentLang].price} (${i18n[currentLang].subtotal})</span>
+            <span>${formatPrice(subtotal)}</span>
+        </div>
+        ${appliedCoupon ? `
+        <div class="d-flex justify-content-between mb-2 text-success">
+            <span>${currentLang === 'ar' ? 'الخصم' : 'Discount'} (${appliedCoupon.code})</span>
+            <span>-${formatPrice(discount)}</span>
+        </div>` : ''}
+        <hr>
+        <div class="d-flex justify-content-between mb-3">
+            <span class="fw-bold fs-5">${currentLang === 'ar' ? 'الإجمالي' : 'Total'}</span>
+            <span class="fw-bold fs-5 text-primary">${formatPrice(total)}</span>
+        </div>
+        <a href="checkout.html" class="btn btn-primary w-100 py-2">${currentLang === 'ar' ? 'إتمام الشراء' : 'Proceed to Checkout'}</a>
+    `;
+
+    if (summaryBody) summaryBody.innerHTML = html;
+}
+
+// Helper to recalculate subtotal from the currently fetched products (used in coupon apply)
+// In a real app we might store subtotal in a variable, but recalculating is safer.
+function calculateCurrentSubtotal() {
+    // This is a bit tricky because we don't have the product prices here easily without re-fetching or storing them.
+    // For simplicity in this step, we will trigger a full re-render of the cart which recalculates everything.
+    renderCartPage();
+    return 0; // Placeholder, renderCartPage handles the UI update.
+}

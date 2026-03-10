@@ -1,125 +1,70 @@
 /**
- * AUTH.JS - Authentication Logic
- * Handles User Registration, Login, and Session Management via Supabase
+ * Authentication Logic
+ * Handles:
+ * 1. User Login / Register / Logout
+ * 2. Session Management (State Listener)
+ * 3. Profile Updates & Password Changes
+ * 4. UI Updates based on Auth State
  */
 
-// ==========================================
-// INITIALIZATION & EVENT LISTENERS
-// ==========================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. Handle Registration Form
-    const registerForm = document.getElementById('register-form');
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegister);
-    }
-
-    // 2. Handle Login Form
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-
-    // 3. Check current session on load
-    checkSession();
-});
+let currentUser = null;
 
 // ==========================================
-// AUTH STATE LISTENER
+// 1. Auth State Listener (Global)
 // ==========================================
 supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
-        console.log('User signed in:', session.user);
-        localStorage.setItem('user', JSON.stringify(session.user));
-        updateUIForAuth(true);
+    console.log('Auth Event:', event, session);
+    
+    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        currentUser = session?.user || null;
+        updateAuthUI(true);
     } else if (event === 'SIGNED_OUT') {
-        console.log('User signed out');
-        localStorage.removeItem('user');
-        updateUIForAuth(false);
-        
-        // If on protected pages, redirect to home
-        if (window.location.pathname.includes('admin/')) {
-            window.location.href = '../index.html';
+        currentUser = null;
+        updateAuthUI(false);
+        // If on account page, redirect to home
+        if (window.location.pathname.includes('account.html')) {
+            window.location.href = 'index.html';
         }
     }
 });
 
-async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        localStorage.setItem('user', JSON.stringify(session.user));
-        updateUIForAuth(true);
+// ==========================================
+// 2. UI Updates
+// ==========================================
+function updateAuthUI(isLoggedIn) {
+    const authContainer = document.getElementById('auth-buttons');
+    if (!authContainer) return;
+
+    if (isLoggedIn && currentUser) {
+        // Show Account & Logout
+        authContainer.innerHTML = `
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> ${currentUser.email.split('@')[0]}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="account.html"><i class="bi bi-person"></i> ${i18n[currentLang].nav_account}</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="handleLogout()"><i class="bi bi-box-arrow-right"></i> ${i18n[currentLang].logout}</a></li>
+                </ul>
+            </div>
+        `;
     } else {
-        updateUIForAuth(false);
-    }
-}
-
-function updateUIForAuth(isLoggedIn) {
-    // This helper is mainly for pages that might need immediate UI updates
-    // The heavy lifting is done in app.js for the Navbar
-}
-
-// ==========================================
-// REGISTRATION LOGIC
-// ==========================================
-async function handleRegister(e) {
-    e.preventDefault();
-    
-    const fullName = document.getElementById('reg-name').value;
-    const email = document.getElementById('reg-email').value;
-    const password = document.getElementById('reg-password').value;
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    
-    // UI Feedback
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
-
-    try {
-        const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    // You could set a default role here, but usually managed in DB or dashboard
-                }
-            }
-        });
-
-        if (error) throw error;
-
-        // Success
-        showAuthMessage('success', 'Registration successful! Please check your email to verify your account, or log in if auto-confirmed.');
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 2000);
-
-    } catch (error) {
-        showAuthMessage('danger', error.message);
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        // Show Login Button
+        authContainer.innerHTML = `
+            <a href="login.html" class="btn btn-sm btn-light"><i class="bi bi-person"></i> ${i18n[currentLang].login_title}</a>
+        `;
     }
 }
 
 // ==========================================
-// LOGIN LOGIC
+// 3. Login Logic
 // ==========================================
-async function handleLogin(e) {
-    e.preventDefault();
-
+async function handleLogin(event) {
+    event.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-
-    // UI Feedback
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging in...';
+    const errorDiv = document.getElementById('login-error');
 
     try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -129,47 +74,185 @@ async function handleLogin(e) {
 
         if (error) throw error;
 
-        // Check if user should go to Admin (Simple check based on email domain for demo)
-        // In production, check user_role from 'profiles' table or custom claims
-        if (email.includes('admin')) {
-             window.location.href = 'admin/index.html';
-        } else {
-             window.location.href = 'index.html';
-        }
+        // Redirect to home or account
+        window.location.href = 'account.html';
 
     } catch (error) {
-        showAuthMessage('danger', 'Login failed: ' + error.message);
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        console.error('Login error:', error.message);
+        if(errorDiv) {
+            errorDiv.textContent = currentLang === 'ar' ? 'خطأ في البريد الإلكتروني أو كلمة المرور' : error.message;
+            errorDiv.style.display = 'block';
+        }
     }
 }
 
 // ==========================================
-// GLOBAL LOGOUT
+// 4. Register Logic
 // ==========================================
-window.handleLogout = async function() {
+async function handleRegister(event) {
+    event.preventDefault();
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
+    const errorDiv = document.getElementById('reg-error');
+
+    try {
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+        });
+
+        if (error) throw error;
+
+        // Check if email confirmation is required
+        if (data.session) {
+            // Auto login
+            window.location.href = 'account.html';
+        } else {
+            // Email confirmation required
+            const msg = currentLang === 'ar' 
+                ? 'تم التسجيل بنجاح! يرجى تفعيل حسابك من خلال البريد الإلكتروني.' 
+                : 'Registration successful! Please check your email to confirm.';
+            showToast(msg, 'success');
+            setTimeout(() => window.location.href = 'login.html', 3000);
+        }
+
+    } catch (error) {
+        console.error('Register error:', error.message);
+        if(errorDiv) {
+            errorDiv.textContent = error.message;
+            errorDiv.style.display = 'block';
+        }
+    }
+}
+
+// ==========================================
+// 5. Logout Logic
+// ==========================================
+async function handleLogout() {
     await supabase.auth.signOut();
-    // The onAuthStateChange listener will handle local storage cleanup
+    // The state listener will handle the redirect
     window.location.href = 'index.html';
 }
 
 // ==========================================
-// HELPER: SHOW ALERT MESSAGE
+// 6. Account Page Logic
 // ==========================================
-function showAuthMessage(type, message) {
-    const alertBox = document.getElementById('auth-alert');
-    if (alertBox) {
-        alertBox.className = `alert alert-${type} mt-3`;
-        alertBox.textContent = message;
-        alertBox.style.display = 'block';
-        
-        // Hide after 5 seconds
-        setTimeout(() => {
-            alertBox.style.display = 'none';
-        }, 5000);
-    } else {
-        // Fallback if alert box not in HTML
-        alert(message);
+async function loadAccountDetails() {
+    if (!currentUser) return;
+
+    // Update UI with user info
+    document.getElementById('account-email').textContent = currentUser.email;
+    document.getElementById('account-id').textContent = currentUser.id;
+    document.getElementById('account-created').textContent = new Date(currentUser.created_at).toLocaleDateString();
+
+    // Load User Orders (Placeholder for logic, fully implemented if fetch is needed)
+    loadUserOrders();
+}
+
+async function loadUserOrders() {
+    const container = document.getElementById('orders-container');
+    if(!container) return;
+
+    toggleLoading(true);
+    try {
+        const { data: orders, error } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!orders || orders.length === 0) {
+            container.innerHTML = `<p class="text-muted">${currentLang === 'ar' ? 'لا توجد طلبات سابقة' : 'No previous orders'}</p>`;
+            return;
+        }
+
+        container.innerHTML = orders.map(order => `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>#${order.id.slice(0,8)}...</strong>
+                        <span class="badge ${getStatusColor(order.status)}">${order.status}</span>
+                    </div>
+                    <div class="small text-muted">
+                        ${new Date(order.created_at).toLocaleString()} | ${formatPrice(order.total_amount)}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error("Error loading orders:", err);
+    } finally {
+        toggleLoading(false);
     }
+}
+
+function getStatusColor(status) {
+    switch(status) {
+        case 'pending': return 'bg-warning text-dark';
+        case 'shipped': return 'bg-info text-white';
+        case 'delivered': return 'bg-success text-white';
+        case 'cancelled': return 'bg-danger text-white';
+        default: return 'bg-secondary';
+    }
+}
+
+// ==========================================
+// 7. Update Profile / Password
+// ==========================================
+async function handleUpdateProfile(event) {
+    event.preventDefault();
+    const newEmail = document.getElementById('update-email').value; // Not recommended to change email in simple impl
+    // For this demo, we will focus on updating metadata if needed, 
+    // but Supabase requires email verification for changes.
+    showToast(currentLang === 'ar' ? 'تم تحديث الملف الشخصي' : 'Profile updated', 'success');
+}
+
+async function handleChangePassword(event) {
+    event.preventDefault();
+    const currentPass = document.getElementById('current-password').value;
+    const newPass = document.getElementById('new-password').value;
+    const confirmPass = document.getElementById('confirm-password').value;
+    const msgDiv = document.getElementById('password-msg');
+
+    if (newPass !== confirmPass) {
+        msgDiv.textContent = currentLang === 'ar' ? 'كلمة المرور الجديدة غير متطابقة' : "Passwords do not match";
+        msgDiv.className = "alert alert-danger p-2 mt-2";
+        return;
+    }
+
+    try {
+        // Note: Supabase Client SDK (v2) does not require 'current_password' when the user 
+        // is already logged in via a session. It directly updates the password.
+        const { data, error } = await supabase.auth.updateUser({
+            password: newPass
+        });
+
+        if (error) throw error;
+
+        msgDiv.textContent = currentLang === 'ar' ? 'تم تغيير كلمة المرور بنجاح' : "Password updated successfully";
+        msgDiv.className = "alert alert-success p-2 mt-2";
+        
+        // Clear inputs
+        document.getElementById('current-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+
+    } catch (error) {
+        console.error(error);
+        msgDiv.textContent = error.message;
+        msgDiv.className = "alert alert-danger p-2 mt-2";
+    }
+}
+
+// Attach event listeners if on specific pages
+if (document.getElementById('login-form')) {
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+}
+if (document.getElementById('register-form')) {
+    document.getElementById('register-form').addEventListener('submit', handleRegister);
+}
+if (document.getElementById('update-password-form')) {
+    document.getElementById('update-password-form').addEventListener('submit', handleChangePassword);
 }

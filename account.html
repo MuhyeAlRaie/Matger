@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابي | My Account</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="bi bi-shop-window me-2"></i> <span data-i18n="store_name">متجري</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav_home">الرئيسية</a></li>
+                    <li class="nav-item"><a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <button id="lang-toggle" class="btn btn-sm btn-outline-light">English</button>
+                    <div id="auth-buttons"></div>
+                    <a href="cart.html" class="btn btn-sm btn-warning position-relative">
+                        <i class="bi bi-cart3"></i>
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row">
+            
+            <!-- Sidebar / Menu -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 mb-3">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-person-circle display-1 text-secondary"></i>
+                        </div>
+                        <h5 id="user-display-name" class="mb-1">User</h5>
+                        <p class="text-muted small" id="account-email">loading...</p>
+                    </div>
+                </div>
+
+                <div class="list-group shadow-sm">
+                    <button class="list-group-item list-group-item-action active" id="btn-profile" onclick="switchTab('profile')">
+                        <i class="bi bi-person me-2"></i> Profile Info
+                    </button>
+                    <button class="list-group-item list-group-item-action" id="btn-orders" onclick="switchTab('orders')">
+                        <i class="bi bi-bag me-2"></i> Order History
+                    </button>
+                    <button class="list-group-item list-group-item-action" id="btn-security" onclick="switchTab('security')">
+                        <i class="bi bi-shield-lock me-2"></i> Change Password
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-lg-8">
+                
+                <!-- Tab: Profile Info -->
+                <div id="tab-profile" class="account-tab">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white fw-bold">Personal Information</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="small text-muted">User ID</label>
+                                <div id="account-id" class="fw-bold">---</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small text-muted">Member Since</label>
+                                <div id="account-created" class="fw-bold">---</div>
+                            </div>
+                            <div class="alert alert-info small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                To update your email address, please contact support or re-register with a new account.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Orders -->
+                <div id="tab-orders" class="account-tab d-none">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white fw-bold">Order History</div>
+                        <div class="card-body">
+                            <div id="orders-container">
+                                <!-- Orders injected by auth.js -->
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Security -->
+                <div id="tab-security" class="account-tab d-none">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white fw-bold">Change Password</div>
+                        <div class="card-body">
+                            <form id="update-password-form">
+                                <div id="password-msg" class="mb-3"></div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" id="current-password" class="form-control" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">New Password</label>
+                                        <input type="password" id="new-password" class="form-control" required minlength="6">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Confirm New Password</label>
+                                        <input type="password" id="confirm-password" class="form-control" required minlength="6">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="js/supabase-config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- Page Specific Script -->
+    <script>
+        // Simple Tab Switcher
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.account-tab').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
+
+            // Show selected
+            document.getElementById(`tab-${tabName}`).classList.remove('d-none');
+            document.getElementById(`btn-${tabName}`).classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Security Check
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load Data
+            loadAccountDetails();
+            
+            // Update display name in sidebar
+            if(currentUser) {
+                document.getElementById('user-display-name').textContent = currentUser.email.split('@')[0];
+            }
+        });
+    </script>
+</body>
+</html>

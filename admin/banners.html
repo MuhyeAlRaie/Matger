@@ -1,86 +1,272 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>إدارة البنرات</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Banners</title>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
     <style>
-        :root { --sidebar-width: 250px; }
-        body { background-color: #f4f6f9; }
-        #sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; right: 0; background: #343a40; color: #fff; }
-        html[dir="ltr"] #sidebar { right: auto; left: 0; }
-        #content { margin-right: var(--sidebar-width); }
-        html[dir="ltr"] #content { margin-right: 0; margin-left: var(--sidebar-width); }
-        .sidebar-link { color: rgba(255,255,255,0.8); padding: 12px 20px; display: block; text-decoration: none; }
-        .sidebar-link:hover, .sidebar-link.active { background: #495057; color: #fff; border-right: 4px solid #0d6efd; }
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #212529; color: white; }
+        .sidebar .nav-link { color: #adb5bd; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #343a40; color: white; }
+        .banner-thumb { width: 100px; height: 50px; object-fit: cover; border-radius: 5px; }
     </style>
 </head>
 <body>
-    <nav id="sidebar">
-        <div class="p-3 border-bottom border-secondary"><h5>Admin Panel</h5></div>
-        <ul class="list-unstyled p-2">
-            <li><a href="index.html" class="sidebar-link">الرئيسية</a></li>
-            <li><a href="products.html" class="sidebar-link">المنتجات</a></li>
-            <li><a href="banners.html" class="sidebar-link active">البنرات</a></li>
-            <li><a href="../index.html" class="sidebar-link">عرض المتجر</a></li>
-        </ul>
-    </nav>
-    <div id="content">
-        <nav class="navbar navbar-light bg-white shadow-sm p-3"><button class="btn btn-light" onclick="document.getElementById('sidebar').classList.toggle('active')"><i class="fas fa-bars"></i></button></nav>
-        <div class="container-fluid p-4">
-            <button class="btn btn-primary mb-3" onclick="openModal()">إضافة بانر</button>
-            <div class="card shadow-sm"><div class="card-body p-0">
-                <table class="table mb-0"><thead><tr><th>صورة</th><th>العنوان (عربي)</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="table-body"></tbody></table>
-            </div></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                <h4 class="text-center mb-4 text-white">Admin Panel</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a class="nav-link" href="index.html"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="products.html"><i class="bi bi-box-seam me-2"></i> Products</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="categories.html"><i class="bi bi-tags me-2"></i> Categories</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="orders.html"><i class="bi bi-receipt me-2"></i> Orders</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link active" href="banners.html"><i class="bi bi-images me-2"></i> Banners</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="coupons.html"><i class="bi bi-percent me-2"></i> Coupons</a></li>
+                    <li class="nav-item mb-2"><a class="nav-link" href="regions.html"><i class="bi bi-geo-alt me-2"></i> Regions</a></li>
+                    <li class="nav-item mb-2">
+    <a class="nav-link" href="notifications.html"><i class="bi bi-megaphone me-2"></i> Notifications</a>
+</li>
+                    <li class="nav-item mt-4"><hr><a class="nav-link text-danger" href="#" onclick="logoutAdmin()"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Homepage Banners</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bannerModal" onclick="prepareAddBanner()">
+                            <i class="bi bi-plus-lg me-1"></i> Add Banner
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Banners Table -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Image</th>
+                                        <th>Title (AR / EN)</th>
+                                        <th>Link</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="banners-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="bannerModal" tabindex="-1">
-        <div class="modal-dialog"><div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">بانر جديد</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
-                <input type="hidden" id="b-id">
-                <input type="text" id="b-title-ar" class="form-control mb-2" placeholder="العنوان (عربي)">
-                <input type="text" id="b-title-en" class="form-control mb-2" placeholder="العنوان (إنجليزي)">
-                <textarea id="b-desc-ar" class="form-control mb-2" placeholder="الوصف (عربي)"></textarea>
-                <textarea id="b-desc-en" class="form-control mb-2" placeholder="الوصف (إنجليزي)"></textarea>
-                <input type="url" id="b-image" class="form-control mb-2" placeholder="رابط الصورة (GitHub Raw URL)">
-                <div class="form-check"><input type="checkbox" id="b-active" class="form-check-input" checked><label class="form-check-label">نشط</label></div>
+    <!-- Banner Modal (Add/Edit) -->
+    <div class="modal fade" id="bannerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bannerModalLabel">Add Banner</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="banner-form">
+                        <input type="hidden" id="banner-id">
+                        
+                        <div class="row g-3">
+                            <!-- Image URL -->
+                            <div class="col-12">
+                                <label class="form-label">Image URL</label>
+                                <input type="text" class="form-control" id="banner-image" placeholder="/images/banners/slide1.jpg" required>
+                            </div>
+
+                            <!-- Titles -->
+                            <div class="col-md-6">
+                                <label class="form-label">Title (Arabic)</label>
+                                <input type="text" class="form-control" id="banner-title-ar" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Title (English)</label>
+                                <input type="text" class="form-control" id="banner-title-en" required>
+                            </div>
+
+                            <!-- Descriptions -->
+                            <div class="col-md-6">
+                                <label class="form-label">Description (Arabic)</label>
+                                <textarea class="form-control" id="banner-desc-ar" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Description (English)</label>
+                                <textarea class="form-control" id="banner-desc-en" rows="2"></textarea>
+                            </div>
+
+                            <!-- Link -->
+                            <div class="col-md-6">
+                                <label class="form-label">Redirect Link</label>
+                                <input type="text" class="form-control" id="banner-link" placeholder="https://...">
+                            </div>
+
+                            <!-- Active -->
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="banner-active" checked>
+                                    <label class="form-check-label" for="banner-active">Is Active (Show on Homepage)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBanner()">Save Banner</button>
+                </div>
             </div>
-            <div class="modal-footer"><button class="btn btn-primary" onclick="saveBanner()">حفظ</button></div>
-        </div></div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="admin-auth.js"></script>
+
+    <!-- Page Logic -->
     <script>
-        let bannerModal = new bootstrap.Modal(document.getElementById('bannerModal'));
-        async function load() {
-            const { data } = await supabase.from('banners').select('*');
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = data.map(b => `
+        let bannerModal;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            bannerModal = new bootstrap.Modal(document.getElementById('bannerModal'));
+            await loadBanners();
+        });
+
+        async function loadBanners() {
+            const tbody = document.getElementById('banners-table-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading...</td></tr>';
+
+            const { data: banners, error } = await supabase
+                .from('banners')
+                .select('*')
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading banners</td></tr>`;
+                return;
+            }
+
+            if (banners.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No banners found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = banners.map(ban => {
+                const imgUrl = ban.image_url || 'https://via.placeholder.com/100x50';
+                return `
                 <tr>
-                    <td><img src="${b.image_url}" width="100"></td>
-                    <td>${b.title_ar}</td>
-                    <td>${b.is_active ? '<span class="badge bg-success">نشط</span>' : '<span class="badge bg-secondary">معطل</span>'}</td>
-                    <td><button class="btn btn-sm btn-outline-primary" onclick='edit(${JSON.stringify(b)})'>تعديل</button> <button class="btn btn-sm btn-outline-danger" onclick="del('${b.id}')">حذف</button></td>
-                </tr>`).join('');
+                    <td class="ps-4"><img src="${imgUrl}" class="banner-thumb" alt="img"></td>
+                    <td>
+                        <div class="fw-bold">${ban.title_ar}</div>
+                        <div class="small text-muted">${ban.title_en}</div>
+                    </td>
+                    <td class="small text-muted text-truncate" style="max-width: 200px;">${ban.link || '-'}</td>
+                    <td>
+                        <span class="badge ${ban.is_active ? 'bg-success' : 'bg-secondary'}">
+                            ${ban.is_active ? 'Active' : 'Hidden'}
+                        </span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editBanner(${ban.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteBanner(${ban.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
         }
-        function openModal() { document.getElementById('b-id').value=''; document.getElementById('b-title-ar').value=''; document.getElementById('b-title-en').value=''; document.getElementById('b-image').value=''; bannerModal.show(); }
-        function edit(b) { document.getElementById('b-id').value=b.id; document.getElementById('b-title-ar').value=b.title_ar; document.getElementById('b-title-en').value=b.title_en; document.getElementById('b-desc-ar').value=b.description_ar; document.getElementById('b-desc-en').value=b.description_en; document.getElementById('b-image').value=b.image_url; document.getElementById('b-active').checked=b.is_active; bannerModal.show(); }
+
+        function prepareAddBanner() {
+            document.getElementById('banner-form').reset();
+            document.getElementById('banner-id').value = '';
+            document.getElementById('bannerModalLabel').textContent = 'Add Banner';
+        }
+
+        function editBanner(id) {
+            supabase.from('banners').select('*').eq('id', id).single().then(({ data }) => {
+                if (data) {
+                    document.getElementById('banner-id').value = data.id;
+                    document.getElementById('banner-image').value = data.image_url;
+                    document.getElementById('banner-title-ar').value = data.title_ar;
+                    document.getElementById('banner-title-en').value = data.title_en;
+                    document.getElementById('banner-desc-ar').value = data.description_ar;
+                    document.getElementById('banner-desc-en').value = data.description_en;
+                    document.getElementById('banner-link').value = data.link || '';
+                    document.getElementById('banner-active').checked = data.is_active;
+
+                    document.getElementById('bannerModalLabel').textContent = 'Edit Banner';
+                    bannerModal.show();
+                }
+            });
+        }
+
         async function saveBanner() {
-            const id = document.getElementById('b-id').value;
-            const obj = { title_ar: document.getElementById('b-title-ar').value, title_en: document.getElementById('b-title-en').value, description_ar: document.getElementById('b-desc-ar').value, description_en: document.getElementById('b-desc-en').value, image_url: document.getElementById('b-image').value, is_active: document.getElementById('b-active').checked };
-            if(id) await supabase.from('banners').update(obj).eq('id', id);
-            else await supabase.from('banners').insert([obj]);
-            bannerModal.hide(); load();
+            const id = document.getElementById('banner-id').value;
+            const bannerData = {
+                image_url: document.getElementById('banner-image').value,
+                title_ar: document.getElementById('banner-title-ar').value,
+                title_en: document.getElementById('banner-title-en').value,
+                description_ar: document.getElementById('banner-desc-ar').value,
+                description_en: document.getElementById('banner-desc-en').value,
+                link: document.getElementById('banner-link').value,
+                is_active: document.getElementById('banner-active').checked
+            };
+
+            let error;
+            if (id) {
+                const result = await supabase.from('banners').update(bannerData).eq('id', id);
+                error = result.error;
+            } else {
+                const result = await supabase.from('banners').insert([bannerData]);
+                error = result.error;
+            }
+
+            if (error) {
+                alert('Error saving banner: ' + error.message);
+            } else {
+                bannerModal.hide();
+                loadBanners();
+            }
         }
-        async function del(id) { if(confirm('حذف؟')) { await supabase.from('banners').delete().eq('id', id); load(); } }
-        load();
+
+        async function deleteBanner(id) {
+            if (confirm('Are you sure you want to delete this banner?')) {
+                const { error } = await supabase.from('banners').delete().eq('id', id);
+                if (error) {
+                    alert('Error deleting banner: ' + error.message);
+                } else {
+                    loadBanners();
+                }
+            }
+        }
+
+        async function logoutAdmin() {
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        }
     </script>
 </body>
 </html>
