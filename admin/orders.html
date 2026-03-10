@@ -148,152 +148,163 @@
     <script src="admin-auth.js"></script>
 
     <!-- Page Logic -->
-    <script>
-        let allOrders = [];
-        let currentOrderId = null;
-        let orderModal;
+   <script>
+    let allOrders = [];
+    let currentOrderId = null;
+    let orderModal;
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
-            await loadOrders();
-        });
+    document.addEventListener('DOMContentLoaded', async () => {
+        orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+        await loadOrders();
+    });
 
-        async function loadOrders() {
-            const tbody = document.getElementById('orders-table-body');
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+    async function loadOrders() {
+        const tbody = document.getElementById('orders-table-body');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
 
-            const { data: orders, error } = await supabase
-                .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false });
+        const { data: orders, error } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-            if (error) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading orders</td></tr>`;
-                return;
-            }
+        if (error) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading orders</td></tr>`;
+            console.error("Load Orders Error:", error);
+            return;
+        }
 
-            allOrders = orders || [];
+        allOrders = orders || [];
+        renderOrdersTable(allOrders);
+    }
+
+    function filterOrders(status, btnElement) {
+        document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+
+        if (status === 'all') {
             renderOrdersTable(allOrders);
+        } else {
+            const filtered = allOrders.filter(o => o.status === status);
+            renderOrdersTable(filtered);
+        }
+    }
+
+    function renderOrdersTable(orders) {
+        const tbody = document.getElementById('orders-table-body');
+        
+        if (orders.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No orders found.</td></tr>`;
+            return;
         }
 
-        function filterOrders(status, btnElement) {
-            // Update active button state
-            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
+        tbody.innerHTML = orders.map(order => `
+            <tr>
+                <td class="ps-4 fw-bold">#${order.id.slice(0,8)}</td>
+                <td>
+                    <div class="fw-bold">${order.customer_name}</div>
+                    <div class="small text-muted">${order.customer_phone}</div>
+                </td>
+                <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                <td class="fw-bold">${order.total_amount.toFixed(2)} JOD</td>
+                <td><span class="badge ${getStatusBadgeClass(order.status)}">${order.status}</span></td>
+                <td class="text-end pe-4">
+                    <button class="btn btn-sm btn-outline-primary" onclick="openOrderDetails('${order.id}')">View</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-            // Filter data
-            if (status === 'all') {
-                renderOrdersTable(allOrders);
-            } else {
-                const filtered = allOrders.filter(o => o.status === status);
-                renderOrdersTable(filtered);
-            }
-        }
+    async function openOrderDetails(orderId) {
+        currentOrderId = orderId;
+        const order = allOrders.find(o => o.id === orderId);
+        
+        if(!order) return;
 
-        function renderOrdersTable(orders) {
-            const tbody = document.getElementById('orders-table-body');
-            
-            if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No orders found.</td></tr>`;
-                return;
-            }
+        // Populate Header Info
+        document.getElementById('modal-order-id').textContent = '#' + order.id.slice(0,8);
+        document.getElementById('modal-customer-name').textContent = order.customer_name;
+        document.getElementById('modal-customer-phone').textContent = order.customer_phone;
+        document.getElementById('modal-address').textContent = order.shipping_address;
+        document.getElementById('modal-status-select').value = order.status;
+        document.getElementById('modal-total-amount').textContent = order.total_amount.toFixed(2) + ' JOD';
 
-            tbody.innerHTML = orders.map(order => `
+        // Fetch Order Items
+        const itemsBody = document.getElementById('modal-order-items');
+        itemsBody.innerHTML = '<tr><td colspan="4" class="text-center">Loading items...</td></tr>';
+
+        const { data: items, error } = await supabase
+            .from('order_items')
+            .select(`*, products (name_en, name_ar, image_url)`)
+            .eq('order_id', orderId);
+
+        console.log("Items Data:", items); // DEBUG LOG
+        console.log("Items Error:", error); // DEBUG LOG
+
+        if (!error && items && items.length > 0) {
+            itemsBody.innerHTML = items.map(item => {
+                // SAFETY CHECK: If product was deleted, handle null
+                const prodName = (item.products && item.products.name_en) ? item.products.name_en : 'Deleted Product';
+                const imgUrl = (item.products && item.products.image_url) ? item.products.image_url : 'https://via.placeholder.com/30';
+                
+                return `
                 <tr>
-                    <td class="ps-4 fw-bold">#${order.id.slice(0,8)}</td>
                     <td>
-                        <div class="fw-bold">${order.customer_name}</div>
-                        <div class="small text-muted">${order.customer_phone}</div>
+                        <div class="d-flex align-items-center">
+                            <img src="${imgUrl}" class="rounded me-2" style="width:30px;height:30px;object-fit:cover;">
+                            <span>${prodName}</span>
+                        </div>
                     </td>
-                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
-                    <td class="fw-bold">${order.total_amount.toFixed(2)} JOD</td>
-                    <td><span class="badge ${getStatusBadgeClass(order.status)}">${order.status}</span></td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-outline-primary" onclick="openOrderDetails('${order.id}')">View</button>
+                    <td class="text-center">${item.quantity}</td>
+                    <td class="text-end">${item.unit_price.toFixed(2)}</td>
+                    <td class="text-end fw-bold">${(item.quantity * item.unit_price).toFixed(2)}</td>
+                </tr>`;
+            }).join('');
+        } else {
+            // FIX: Show message if items are missing
+            itemsBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">
+                        No items found for this order. 
+                        <br><small class="text-danger">This usually means the order was created before the checkout fix.</small>
                     </td>
                 </tr>
-            `).join('');
+            `;
         }
 
-        async function openOrderDetails(orderId) {
-            currentOrderId = orderId;
-            const order = allOrders.find(o => o.id === orderId);
-            
-            if(!order) return;
+        orderModal.show();
+    }
 
-            // Populate Header Info
-            document.getElementById('modal-order-id').textContent = '#' + order.id.slice(0,8);
-            document.getElementById('modal-customer-name').textContent = order.customer_name;
-            document.getElementById('modal-customer-phone').textContent = order.customer_phone;
-            document.getElementById('modal-address').textContent = order.shipping_address;
-            document.getElementById('modal-status-select').value = order.status;
-            document.getElementById('modal-total-amount').textContent = order.total_amount.toFixed(2) + ' JOD';
+    async function updateOrderStatus() {
+        const newStatus = document.getElementById('modal-status-select').value;
+        
+        const { error } = await supabase
+            .from('orders')
+            .update({ status: newStatus })
+            .eq('id', currentOrderId);
 
-            // Fetch Order Items
-            const itemsBody = document.getElementById('modal-order-items');
-            itemsBody.innerHTML = '<tr><td colspan="4" class="text-center">Loading items...</td></tr>';
-
-            const { data: items, error } = await supabase
-                .from('order_items')
-                .select(`*, products(name_en, name_ar, image_url)`)
-                .eq('order_id', orderId);
-
-            if (!error && items) {
-                itemsBody.innerHTML = items.map(item => {
-                    const prodName = item.products ? item.products.name_en : 'Unknown Product';
-                    const imgUrl = item.products ? item.products.image_url : '';
-                    
-                    return `
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                ${imgUrl ? `<img src="${imgUrl}" class="rounded me-2" style="width:30px;height:30px;object-fit:cover;">` : ''}
-                                <span>${prodName}</span>
-                            </div>
-                        </td>
-                        <td class="text-center">${item.quantity}</td>
-                        <td class="text-end">${item.unit_price.toFixed(2)}</td>
-                        <td class="text-end fw-bold">${(item.quantity * item.unit_price).toFixed(2)}</td>
-                    </tr>`;
-                }).join('');
-            } else {
-                itemsBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading items</td></tr>';
-            }
-
-            orderModal.show();
+        if (error) {
+            alert('Failed to update status: ' + error.message);
+        } else {
+            showToast('Order status updated successfully', 'success');
+            orderModal.hide();
+            loadOrders();
         }
+    }
 
-        async function updateOrderStatus() {
-            const newStatus = document.getElementById('modal-status-select').value;
-            
-            const { error } = await supabase
-                .from('orders')
-                .update({ status: newStatus })
-                .eq('id', currentOrderId);
-
-            if (error) {
-                alert('Failed to update status: ' + error.message);
-            } else {
-                showToast('Order status updated successfully', 'success');
-                orderModal.hide();
-                loadOrders(); // Refresh table
-            }
+    function getStatusBadgeClass(status) {
+        switch(status) {
+            case 'pending': return 'bg-warning text-dark';
+            case 'shipped': return 'bg-info text-white';
+            case 'delivered': return 'bg-success text-white';
+            case 'cancelled': return 'bg-danger text-white';
+            default: return 'bg-secondary';
         }
+    }
 
-        function getStatusBadgeClass(status) {
-            switch(status) {
-                case 'pending': return 'bg-warning text-dark';
-                case 'shipped': return 'bg-info text-white';
-                case 'delivered': return 'bg-success text-white';
-                case 'cancelled': return 'bg-danger text-white';
-                default: return 'bg-secondary';
-            }
-        }
-
-        async function logoutAdmin() {
-            await supabase.auth.signOut();
-            window.location.href = '../login.html';
-        }
-    </script>
+    async function logoutAdmin() {
+        await supabase.auth.signOut();
+        window.location.href = '../login.html';
+    }
+</script>
 </body>
 </html>
