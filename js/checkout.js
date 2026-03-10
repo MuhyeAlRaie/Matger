@@ -148,7 +148,7 @@
         if (subEl) subEl.textContent = formatPrice(subtotal);
         if (shipEl) shipEl.textContent = formatPrice(shippingCost);
         
-        // CALCULATE TOTAL WITH COUPON
+        // CALCULATE TOTAL WITH COUPON (Updated)
         let discount = 0;
         if (appliedCoupon) {
             if (appliedCoupon.discount_type === 'percentage') {
@@ -161,6 +161,27 @@
 
         const finalTotal = subtotal + shippingCost - discount;
         if (totalEl) totalEl.textContent = formatPrice(finalTotal);
+
+        // NEW: Update Discount Row Visibility and Text
+        const discRow = document.getElementById('checkout-discount-row');
+        const discEl = document.getElementById('checkout-discount');
+        const typeEl = document.getElementById('coupon-type-display');
+
+        if (discRow && discEl && typeEl) {
+            if (appliedCoupon && discount > 0) {
+                discRow.classList.remove('d-none'); // Show the row
+                
+                // Determine text to show (e.g., "10%" or "Fixed")
+                let typeText = (appliedCoupon.discount_type === 'percentage') 
+                    ? appliedCoupon.value + '%' 
+                    : 'Fixed';
+                
+                typeEl.textContent = typeText;
+                discEl.textContent = "-" + formatPrice(discount);
+            } else {
+                discRow.classList.add('d-none'); // Hide if no coupon
+            }
+        }
     }
 
     // 7. Submit Logic (UPDATED WITH COUPON)
