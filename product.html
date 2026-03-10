@@ -11,29 +11,60 @@
 </head>
 <body>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html"><i class="bi bi-shop-window me-2"></i> <span data-i18n="store_name">متجري</span></a>
+   <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <div class="container">
+        <!-- Brand (Left) -->
+        <a class="navbar-brand" href="index.html">
+            <i class="bi bi-shop-window me-2"></i> <span data-i18n="store_name">متجري</span>
+        </a>
+        
+        <!-- Right Side: Cart (Always Visible) & Menu Toggle -->
+        <div class="d-flex align-items-center gap-3">
+            <!-- Cart Button (Moved Here) -->
+            <a href="cart.html" class="btn btn-sm btn-warning position-relative">
+                <i class="bi bi-cart3"></i>
+                <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+            </a>
+
+            <!-- Mobile Menu Button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav_home">الرئيسية</a></li>
-                    <li class="nav-item"><a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a></li>
-                </ul>
-                <div class="d-flex align-items-center gap-3">
-                    <button id="lang-toggle" class="btn btn-sm btn-outline-light">English</button>
-                    <div id="auth-buttons"></div>
-                    <a href="cart.html" class="btn btn-sm btn-warning position-relative">
-                        <i class="bi bi-cart3"></i>
-                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-                    </a>
+        </div>
+
+        <!-- Collapsible Menu (Links, Language, Auth) -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html" data-i18n="nav_home">الرئيسية</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a>
+                </li>
+            </ul>
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- Language Switcher -->
+                <button id="lang-toggle" class="btn btn-sm btn-outline-light">English</button>
+                
+                <!-- Search (Optional - keeping it inside menu for cleanliness, or move out if preferred) -->
+                <form class="d-none d-md-flex" role="search">
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="search" id="search-input" placeholder="بحث..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="button"><i class="bi bi-search"></i></button>
+                    </div>
+                </form>
+
+                <!-- Auth Buttons -->
+                <div id="auth-buttons" class="d-flex gap-2">
+                    <!-- Injected by JS -->
+                    <a href="login.html" class="btn btn-sm btn-light"><i class="bi bi-person"></i></a>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Breadcrumb -->
     <div class="bg-light py-2 mb-4">
