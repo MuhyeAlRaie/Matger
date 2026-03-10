@@ -1,16 +1,15 @@
 /**
- * Checkout - Safe Version (No Global Variables)
- * This script is self-contained to prevent conflicts.
+ * Checkout - Final Fix (Uses Direct Session Check)
  */
 
 (function() {
-    // 1. Prevent running twice
+    // Prevent running twice
     if (window.checkoutHasLoaded) return;
     window.checkoutHasLoaded = true;
 
     console.log("Checkout Safe Version Loaded...");
 
-    // 2. Load cart from storage ONLY when needed (No global variable)
+    // 2. Load cart from storage
     function getCartItems() {
         const stored = localStorage.getItem('app_cart');
         return stored ? JSON.parse(stored) : [];
@@ -28,7 +27,7 @@
         return parseFloat(price).toFixed(2) + ' ' + (currentLang === 'ar' ? 'د.أ' : 'JOD');
     }
 
-    // 4. Initialization
+    // 4. Initialization (FIXED: Uses getSession)
     document.addEventListener('DOMContentLoaded', async () => {
         // Wait for supabase
         if (!window.supabase) {
@@ -36,8 +35,11 @@
             return;
         }
 
-        // Security Check
-        if (!window.currentUser) {
+        // FIX: Check Session Directly from Database
+        const { data: { session }, error } = await window.supabase.auth.getSession();
+        
+        if (error || !session) {
+            console.log("No active session found, redirecting to login.");
             if (window.showToast) showToast(currentLang === 'ar' ? 'يرجى تسجيل الدخول' : 'Please login', 'danger');
             setTimeout(() => window.location.href = 'login.html', 2000);
             return;
@@ -52,11 +54,11 @@
 
         // Load UI
         await loadRegions();
-        updateSummary(items);
+        updateSummary(items, session.user); // Pass user to summary if needed
 
         // Listeners
         const form = document.getElementById('checkout-form');
-        if (form) form.addEventListener('submit', placeOrder);
+        if (form) form.addEventListener('submit', (e) => placeOrder(e, session.user)); // Pass user to order function
 
         const btnLoc = document.getElementById('detect-location-btn');
         if (btnLoc) btnLoc.addEventListener('click', detectLocation);
@@ -103,12 +105,12 @@
         selectedRegion = currentRegions.find(r => r.id == id);
         if (selectedRegion) {
             shippingCost = selectedRegion.cost;
-            updateSummary(getCartItems());
+            updateSummary(getCartItems(), null); // Refresh summary with new cost
         }
     }
 
     // 6. Summary Logic
-    async function updateSummary(items) {
+    async function updateSummary(items, user) {
         const container = document.getElementById('checkout-summary-items');
         const subEl = document.getElementById('checkout-subtotal');
         const shipEl = document.getElementById('checkout-shipping');
@@ -140,8 +142,8 @@
         if (totalEl) totalEl.textContent = formatPrice(subtotal + shippingCost);
     }
 
-    // 7. Submit Logic
-    async function placeOrder(e) {
+    // 7. Submit Logic (FIXED: Receives User)
+    async function placeOrder(e, user) {
         e.preventDefault();
         const btn = document.getElementById('place-order-btn');
         const originalText = btn.innerHTML;
@@ -174,8 +176,9 @@
                 orderItems.push({ product_id: prod.id, quantity: qty, unit_price: price });
             });
 
+            // FIX: Use the passed 'user' object
             const { data: order } = await window.supabase.from('orders').insert([{
-                user_id: window.currentUser.id,
+                user_id: user.id,
                 total_amount: subtotal + shippingCost,
                 shipping_cost: shippingCost,
                 status: 'pending',
