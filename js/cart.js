@@ -1,5 +1,5 @@
 /**
- * Shopping Cart Logic
+ * Shopping Cart Logic (Fixed with Safety Checks)
  * Handles:
  * 1. LocalStorage persistence
  * 2. Add/Remove/Update items
@@ -9,7 +9,7 @@
 
 const CART_KEY = 'app_cart';
 let cartData = [];
-let appliedCoupon = null; // Stores coupon object { code, discount_type, value }
+let appliedCoupon = null;
 
 // ==========================================
 // 1. Initialization
@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage();
     updateCartCountUI();
 
-    // If we are on the Cart page, render the full table
     if (window.location.pathname.includes('cart.html')) {
         renderCartPage();
     }
@@ -41,37 +40,28 @@ function getCart() {
     return cartData;
 }
 
-// Add item to cart
 function addToCart(productId) {
     const existingItem = cartData.find(item => item.id === productId);
-    
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         cartData.push({ id: productId, quantity: 1 });
     }
-    
     saveCartToStorage();
-    
-    // Show feedback
     const msg = currentLang === 'ar' ? 'تمت الإضافة للسلة' : 'Added to cart';
     showToast(msg, 'success');
 }
 
-// Remove item completely
 function removeFromCart(productId) {
     cartData = cartData.filter(item => item.id !== productId);
     saveCartToStorage();
-    renderCartPage(); // Re-render if on cart page
+    renderCartPage();
 }
 
-// Update quantity (+1 or -1)
 function updateQuantity(productId, change) {
     const item = cartData.find(item => item.id === productId);
     if (!item) return;
-
     item.quantity += change;
-
     if (item.quantity <= 0) {
         removeFromCart(productId);
     } else {
@@ -80,7 +70,6 @@ function updateQuantity(productId, change) {
     }
 }
 
-// Update Navbar Badge
 function updateCartCountUI() {
     const badge = document.getElementById('cart-count');
     if (badge) {
@@ -91,30 +80,33 @@ function updateCartCountUI() {
 }
 
 // ==========================================
-// 3. Cart Page Rendering
+// 3. Cart Page Rendering (Fixed Crashes)
 // ==========================================
 async function renderCartPage() {
     const container = document.getElementById('cart-items-container');
     const summaryContainer = document.getElementById('cart-summary');
     const emptyMsg = document.getElementById('empty-cart-msg');
 
+    // SAFETY CHECK: If on a page without these elements, stop.
     if (!container) return;
 
     toggleLoading(true);
 
     if (cartData.length === 0) {
         container.innerHTML = '';
-        summaryContainer.style.display = 'none';
-        if(emptyMsg) emptyMsg.style.display = 'block';
+        
+        // FIX: Check if summaryContainer exists before styling it
+        if (summaryContainer) summaryContainer.style.display = 'none';
+        if (emptyMsg) emptyMsg.style.display = 'block';
+        
         toggleLoading(false);
         return;
     }
 
-    if(emptyMsg) emptyMsg.style.display = 'none';
-    summaryContainer.style.display = 'block';
+    if (emptyMsg) emptyMsg.style.display = 'none';
+    if (summaryContainer) summaryContainer.style.display = 'block';
 
     try {
-        // Fetch product details for all items in cart
         const ids = cartData.map(item => item.id);
         const { data: products, error } = await supabase
             .from('products')
@@ -135,9 +127,7 @@ async function renderCartPage() {
         products.forEach(product => {
             const cartItem = cartData.find(c => c.id === product.id);
             const qty = cartItem ? cartItem.quantity : 0;
-            
-            // Price logic
-            const price = product.discount_price && product.discount_price < product.price ? product.discount_price : product.price;
+            const price = product.discount_price || product.price;
             const itemTotal = price * qty;
             subtotal += itemTotal;
 
@@ -190,13 +180,12 @@ async function renderCartPage() {
 // ==========================================
 async function applyCoupon() {
     const codeInput = document.getElementById('coupon-code');
-    const code = codeInput.value.trim().toUpperCase();
     const msgEl = document.getElementById('coupon-message');
+    const code = codeInput.value.trim().toUpperCase();
 
     if (!code) return;
 
     try {
-        // Check coupon in Supabase
         const { data: coupon, error } = await supabase
             .from('coupons')
             .select('*')
@@ -218,10 +207,10 @@ async function applyCoupon() {
             msgEl.textContent = currentLang === 'ar' ? 'تم تطبيق الكوبون بنجاح' : 'Coupon applied successfully';
             msgEl.className = 'form-text text-success';
         }
-
-        // Re-render summary to show discount
-        const subtotal = calculateCurrentSubtotal(); // Helper to recalculate from DOM or state
-        updateCartSummary(subtotal);
+        
+        // Need to recalculate totals
+        // Since we don't have the subtotal variable here easily, we trigger a re-render
+        renderCartPage();
 
     } catch (err) {
         console.error(err);
@@ -233,6 +222,8 @@ function updateCartSummary(subtotal) {
     const summaryBody = document.getElementById('summary-body');
     const checkoutBtnTotal = document.getElementById('checkout-total');
 
+    if (!summaryBody) return;
+
     if (appliedCoupon) {
         if (appliedCoupon.discount_type === 'percentage') {
             discount = subtotal * (appliedCoupon.value / 100);
@@ -241,9 +232,7 @@ function updateCartSummary(subtotal) {
         }
     }
 
-    // Ensure discount doesn't exceed subtotal
     if (discount > subtotal) discount = subtotal;
-
     const total = subtotal - discount;
 
     const html = `
@@ -264,14 +253,5 @@ function updateCartSummary(subtotal) {
         <a href="checkout.html" class="btn btn-primary w-100 py-2">${currentLang === 'ar' ? 'إتمام الشراء' : 'Proceed to Checkout'}</a>
     `;
 
-    if (summaryBody) summaryBody.innerHTML = html;
-}
-
-// Helper to recalculate subtotal from the currently fetched products (used in coupon apply)
-// In a real app we might store subtotal in a variable, but recalculating is safer.
-function calculateCurrentSubtotal() {
-    // This is a bit tricky because we don't have the product prices here easily without re-fetching or storing them.
-    // For simplicity in this step, we will trigger a full re-render of the cart which recalculates everything.
-    renderCartPage();
-    return 0; // Placeholder, renderCartPage handles the UI update.
+    summaryBody.innerHTML = html;
 }
