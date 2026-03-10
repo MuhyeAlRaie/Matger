@@ -12,21 +12,27 @@ let currentUser = null;
 // ==========================================
 // 1. Auth State Listener (Global)
 // ==========================================
-supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth Event:', event, session);
-    
-    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-        currentUser = session?.user || null;
-        updateAuthUI(true);
-    } else if (event === 'SIGNED_OUT') {
-        currentUser = null;
-        updateAuthUI(false);
-        // If on account page, redirect to home
-        if (window.location.pathname.includes('account.html')) {
-            window.location.href = 'index.html';
-        }
+// Safety check: Wait for supabase to be defined
+const checkAuthInterval = setInterval(() => {
+    if (window.supabase && window.supabase.auth) {
+        clearInterval(checkAuthInterval);
+        
+        window.supabase.auth.onAuthStateChange((event, session) => {
+            console.log('Auth Event:', event, session);
+            
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                currentUser = session?.user || null;
+                updateAuthUI(true);
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                updateAuthUI(false);
+                if (window.location.pathname.includes('account.html')) {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
     }
-});
+}, 100); // Check every 100ms
 
 // ==========================================
 // 2. UI Updates
