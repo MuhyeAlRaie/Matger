@@ -1,20 +1,22 @@
 /**
- * Checkout Logic (Ultimate Fix)
- * Variables renamed to prevent conflicts.
+ * Checkout - Safe Version (No Global Variables)
+ * This script is self-contained to prevent conflicts.
  */
 
 (function() {
-    // Prevent running twice
-    if (window.checkoutHasRun) return;
-    window.checkoutHasRun = true;
+    // 1. Prevent running twice
+    if (window.checkoutHasLoaded) return;
+    window.checkoutHasLoaded = true;
 
-    // 1. Variables (Renamed to avoid conflict)
-    let localCartData = [];
-    let localRegions = [];
-    let selectedRegion = null;
-    let shippingCost = 0;
+    console.log("Checkout Safe Version Loaded...");
 
-    // 2. Helpers
+    // 2. Load cart from storage ONLY when needed (No global variable)
+    function getCartItems() {
+        const stored = localStorage.getItem('app_cart');
+        return stored ? JSON.parse(stored) : [];
+    }
+
+    // 3. Helpers
     function getLocalizedField(obj, fieldName) {
         if (!obj) return '';
         const suffix = currentLang === 'ar' ? 'ar' : 'en';
@@ -26,49 +28,48 @@
         return parseFloat(price).toFixed(2) + ' ' + (currentLang === 'ar' ? 'د.أ' : 'JOD');
     }
 
-    // 3. Initialization
+    // 4. Initialization
     document.addEventListener('DOMContentLoaded', async () => {
-        console.log("Checkout Page Initializing...");
-
-        // Wait for Supabase to be ready (Safety check)
+        // Wait for supabase
         if (!window.supabase) {
-            console.error("Supabase not loaded yet.");
+            console.error("Supabase not ready");
             return;
         }
 
-        if (!currentUser) {
-            showToast(currentLang === 'ar' ? 'يرجى تسجيل الدخول' : 'Please login', 'danger');
+        // Security Check
+        if (!window.currentUser) {
+            if (window.showToast) showToast(currentLang === 'ar' ? 'يرجى تسجيل الدخول' : 'Please login', 'danger');
             setTimeout(() => window.location.href = 'login.html', 2000);
             return;
         }
 
-        // Load Cart Data
-        const stored = localStorage.getItem('app_cart');
-        if (stored) {
-            localCartData = JSON.parse(stored);
-        }
-
-        if (localCartData.length === 0) {
+        // Check if cart has items
+        const items = getCartItems();
+        if (items.length === 0) {
             window.location.href = 'cart.html';
             return;
         }
 
-        console.log("Cart loaded, fetching regions...");
-        await loadDeliveryRegions();
-        await renderOrderSummary();
+        // Load UI
+        await loadRegions();
+        updateSummary(items);
 
-        // Events
+        // Listeners
         const form = document.getElementById('checkout-form');
-        if (form) form.addEventListener('submit', handlePlaceOrder);
+        if (form) form.addEventListener('submit', placeOrder);
 
-        const geoBtn = document.getElementById('detect-location-btn');
-        if (geoBtn) geoBtn.addEventListener('click', detectMyLocation);
+        const btnLoc = document.getElementById('detect-location-btn');
+        if (btnLoc) btnLoc.addEventListener('click', detectLocation);
     });
 
-    // 4. Functions
-    async function loadDeliveryRegions() {
-        const regionSelect = document.getElementById('delivery-region');
-        if (!regionSelect) return;
+    // 5. Regions Logic
+    let currentRegions = [];
+    let selectedRegion = null;
+    let shippingCost = 0;
+
+    async function loadRegions() {
+        const select = document.getElementById('delivery-region');
+        if (!select) return;
 
         try {
             const { data, error } = await window.supabase
@@ -77,52 +78,45 @@
                 .order('cost', { ascending: true });
 
             if (error) throw error;
-            localRegions = data;
+            currentRegions = data;
 
-            regionSelect.innerHTML = '<option value="" selected disabled>Loading regions...</option>';
-            
+            select.innerHTML = '';
             data.forEach(region => {
-                const option = document.createElement('option');
-                option.value = region.id;
+                const opt = document.createElement('option');
+                opt.value = region.id;
                 const name = currentLang === 'ar' ? region.region_name_ar : region.region_name_en;
-                option.textContent = `${name} (${region.cost} JOD)`;
-                regionSelect.appendChild(option);
+                opt.textContent = `${name} (${region.cost} JOD)`;
+                select.appendChild(opt);
             });
 
             if (data.length > 0) {
                 handleRegionChange({ target: { value: data[0].id } });
-                regionSelect.value = data[0].id;
+                select.value = data[0].id;
             }
 
-            regionSelect.addEventListener('change', handleRegionChange);
-
-        } catch (err) {
-            console.error("Error loading regions:", err);
-        }
+            select.addEventListener('change', handleRegionChange);
+        } catch (e) { console.error(e); }
     }
 
     function handleRegionChange(e) {
-        const regionId = e.target.value;
-        selectedRegion = localRegions.find(r => r.id == regionId);
+        const id = e.target.value;
+        selectedRegion = currentRegions.find(r => r.id == id);
         if (selectedRegion) {
             shippingCost = selectedRegion.cost;
-            renderOrderSummary();
+            updateSummary(getCartItems());
         }
     }
 
-    async function renderOrderSummary() {
-        console.log("Rendering Order Summary...");
+    // 6. Summary Logic
+    async function updateSummary(items) {
         const container = document.getElementById('checkout-summary-items');
-        const subtotalEl = document.getElementById('checkout-subtotal');
-        const shippingEl = document.getElementById('checkout-shipping');
+        const subEl = document.getElementById('checkout-subtotal');
+        const shipEl = document.getElementById('checkout-shipping');
         const totalEl = document.getElementById('checkout-total');
 
-        if (!container) {
-            console.error("Summary container missing!");
-            return;
-        }
+        if (!container) return;
 
-        const ids = localCartData.map(item => item.id);
+        const ids = items.map(i => i.id);
         const { data: products } = await window.supabase.from('products').select('*').in('id', ids);
 
         let subtotal = 0;
@@ -130,28 +124,24 @@
 
         if (products) {
             products.forEach(prod => {
-                const cartItem = localCartData.find(c => c.id === prod.id);
-                const qty = cartItem ? cartItem.quantity : 0;
+                const item = items.find(c => c.id === prod.id);
+                const qty = item ? item.quantity : 0;
                 const price = prod.discount_price || prod.price;
                 subtotal += price * qty;
 
                 const name = getLocalizedField(prod, 'name');
-                html += `
-                    <div class="d-flex justify-content-between mb-2 small">
-                        <span>${name} x ${qty}</span>
-                        <span>${formatPrice(price * qty)}</span>
-                    </div>
-                `;
+                html += `<div class="d-flex justify-content-between mb-2 small"><span>${name} x ${qty}</span><span>${formatPrice(price * qty)}</span></div>`;
             });
         }
 
         container.innerHTML = html;
-        if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
-        if (shippingEl) shippingEl.textContent = formatPrice(shippingCost);
+        if (subEl) subEl.textContent = formatPrice(subtotal);
+        if (shipEl) shipEl.textContent = formatPrice(shippingCost);
         if (totalEl) totalEl.textContent = formatPrice(subtotal + shippingCost);
     }
 
-    async function handlePlaceOrder(e) {
+    // 7. Submit Logic
+    async function placeOrder(e) {
         e.preventDefault();
         const btn = document.getElementById('place-order-btn');
         const originalText = btn.innerHTML;
@@ -161,102 +151,71 @@
         const address = document.getElementById('checkout-address').value;
 
         if (!name || !phone || !address || !selectedRegion) {
-            showToast(currentLang === 'ar' ? 'يرجى ملء جميع الحقول' : 'Fill all fields', 'danger');
+            if (window.showToast) showToast(currentLang === 'ar' ? 'Fill fields' : 'Fill all fields', 'danger');
             return;
         }
 
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+        btn.innerHTML = '...';
 
         try {
-            const ids = localCartData.map(item => item.id);
+            const items = getCartItems();
+            const ids = items.map(i => i.id);
             const { data: products } = await window.supabase.from('products').select('*').in('id', ids);
 
             let subtotal = 0;
-            const orderItemsPayload = [];
+            const orderItems = [];
 
             products.forEach(prod => {
-                const cartItem = localCartData.find(c => c.id === prod.id);
-                const qty = cartItem.quantity;
+                const item = items.find(c => c.id === prod.id);
+                const qty = item.quantity;
                 const price = prod.discount_price || prod.price;
                 subtotal += price * qty;
-
-                orderItemsPayload.push({
-                    product_id: prod.id,
-                    quantity: qty,
-                    unit_price: price
-                });
+                orderItems.push({ product_id: prod.id, quantity: qty, unit_price: price });
             });
 
-            const finalTotal = subtotal + shippingCost;
+            const { data: order } = await window.supabase.from('orders').insert([{
+                user_id: window.currentUser.id,
+                total_amount: subtotal + shippingCost,
+                shipping_cost: shippingCost,
+                status: 'pending',
+                customer_name: name,
+                customer_phone: phone,
+                shipping_address: address,
+                region_id: selectedRegion.id
+            }]).select().single();
 
-            const { data: orderData, error: orderError } = await window.supabase
-                .from('orders')
-                .insert([{
-                    user_id: currentUser.id,
-                    total_amount: finalTotal,
-                    shipping_cost: shippingCost,
-                    status: 'pending',
-                    customer_name: name,
-                    customer_phone: phone,
-                    shipping_address: address,
-                    region_id: selectedRegion.id
-                }])
-                .select()
-                .single();
-
-            if (orderError) throw orderError;
-
-            const itemsWithError = orderItemsPayload.map(item => ({
-                ...item,
-                order_id: orderData.id
-            }));
-
-            const { error: itemsError } = await window.supabase
-                .from('order_items')
-                .insert(itemsWithError);
-
-            if (itemsError) throw itemsError;
+            const itemsWithId = orderItems.map(i => ({ ...i, order_id: order.id }));
+            await window.supabase.from('order_items').insert(itemsWithId);
 
             localStorage.removeItem('app_cart');
-            localCartData = [];
-
-            window.location.href = `thank-you.html?id=${orderData.id}`;
-
+            window.location.href = `thank-you.html?id=${order.id}`;
         } catch (err) {
-            console.error("Order Error:", err);
-            showToast(currentLang === 'ar' ? 'فشل الطلب' : 'Failed', 'danger');
+            console.error(err);
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
     }
-    
-    // Geolocation (Simplified)
-    function detectMyLocation() {
+
+    // 8. Location Logic
+    function detectLocation() {
         const btn = document.getElementById('detect-location-btn');
-        const originalText = btn.innerHTML;
+        const old = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '...';
 
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
                     const data = await res.json();
-                    document.getElementById('checkout-address').value = data.display_name || `${lat},${lng}`;
-                    showToast("Location found", "success");
-                } catch(e) { console.error(e); }
-                finally { 
-                    btn.disabled = false; 
-                    btn.innerHTML = originalText; 
-                }
+                    document.getElementById('checkout-address').value = data.display_name;
+                } catch(e) {}
+                btn.disabled = false;
+                btn.innerHTML = old;
             },
-            (err) => { 
-                console.error(err); 
-                btn.disabled = false; 
-                btn.innerHTML = originalText; 
+            () => {
+                btn.disabled = false;
+                btn.innerHTML = old;
             }
         );
     }
