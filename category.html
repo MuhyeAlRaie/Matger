@@ -106,109 +106,142 @@
     <script src="js/cart.js"></script>
     <script src="js/auth.js"></script>
 
-    <!-- Page Specific Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const params = new URLSearchParams(window.location.search);
-            const slug = params.get('slug');
-            const searchQuery = params.get('search');
+   <!-- Page Specific Script -->
+<script>
+    // ==========================================
+    // HELPERS (Required because products.js is not loaded here)
+    // ==========================================
+    function getLocalizedField(obj, fieldName) {
+        if (!obj) return '';
+        const suffix = currentLang === 'ar' ? 'ar' : 'en';
+        return obj[`${fieldName}_${suffix}`] || obj[`${fieldName}_ar`] || '';
+    }
 
-            // 1. Load Sidebar Categories
-            await loadSidebarCategories();
+    function formatPrice(price) {
+        if (!price) return '0.00 JOD';
+        return parseFloat(price).toFixed(2) + ' ' + (currentLang === 'ar' ? 'د.أ' : 'JOD');
+    }
 
-            // 2. Load Products
-            if (searchQuery) {
-                document.getElementById('page-title').textContent = `Search: "${searchQuery}"`;
-                document.getElementById('breadcrumb-current').textContent = "Search Results";
-                await loadProducts({ search: searchQuery });
-            } else if (slug) {
-                await loadProducts({ categorySlug: slug });
-            } else {
-                // Load all if no params
-                await loadProducts({});
-            }
-        });
+    // ==========================================
+    // LOAD SIDEBAR (Fixed Scope Error)
+    // ==========================================
+    async function loadSidebarCategories() {
+        const container = document.getElementById('sidebar-categories');
+        
+        // FIX: Read URL params inside this function so 'slug' is defined here
+        const params = new URLSearchParams(window.location.search);
+        const currentSlug = params.get('slug');
 
-        async function loadSidebarCategories() {
-            const container = document.getElementById('sidebar-categories');
-            try {
-                const { data: categories } = await supabase.from('categories').select('*');
-                let html = `<a href="category.html" class="list-group-item list-group-item-action ${!slug ? 'active' : ''}">All Products</a>`;
-                
-                categories.forEach(cat => {
-                    const name = currentLang === 'ar' ? cat.name_ar : cat.name_en;
-                    const isActive = slug === cat.slug ? 'active' : '';
-                    html += `<a href="category.html?slug=${cat.slug}" class="list-group-item list-group-item-action ${isActive}">${name}</a>`;
-                });
-                container.innerHTML = html;
-            } catch (e) { console.error(e); }
-        }
-
-        async function loadProducts(filters = {}) {
-            const grid = document.getElementById('products-grid');
-            const emptyState = document.getElementById('empty-state');
-            const countLabel = document.getElementById('results-count');
+        if (!container) return;
+        try {
+            const { data: categories } = await supabase.from('categories').select('*');
+            let html = `<a href="category.html" class="list-group-item list-group-item-action ${!currentSlug ? 'active' : ''}">All Products</a>`;
             
-            let query = supabase.from('products').select(`*, categories (slug)`).eq('is_active', true);
+            categories.forEach(cat => {
+                const name = currentLang === 'ar' ? cat.name_ar : cat.name_en;
+                // FIX: Use currentSlug (defined above) instead of global slug
+                const isActive = currentSlug === cat.slug ? 'active' : '';
+                html += `<a href="category.html?slug=${cat.slug}" class="list-group-item list-group-item-action ${isActive}">${name}</a>`;
+            });
+            container.innerHTML = html;
+        } catch (e) { console.error(e); }
+    }
 
-            if (filters.categorySlug) {
-                // Assuming categories table has slug, and we filter by relation
-                // Note: Supabase filtering on relation requires specific syntax
-                query = query.eq('categories.slug', filters.categorySlug);
-                
-                // Update Title
-                const { data: catData } = await supabase.from('categories').select('name_ar, name_en').eq('slug', filters.categorySlug).single();
-                if(catData) {
-                    document.getElementById('page-title').textContent = currentLang === 'ar' ? catData.name_ar : catData.name_en;
-                    document.getElementById('breadcrumb-current').textContent = document.getElementById('page-title').textContent;
-                }
-            }
+    // ==========================================
+    // LOAD PRODUCTS
+    // ==========================================
+    async function loadProducts(filters = {}) {
+        const grid = document.getElementById('products-grid');
+        const emptyState = document.getElementById('empty-state');
+        const countLabel = document.getElementById('results-count');
+        
+        if (!grid) return;
 
-            if (filters.search) {
-                // Simple ilike search on name fields
-                const term = `%${filters.search}%`;
-                query = query.or(`name_ar.ilike.${term},name_en.ilike.${term}`);
-            }
+        toggleLoading(true);
 
-            const { data: products, error } = await query;
+        let query = supabase.from('products').select(`*, categories (slug)`).eq('is_active', true);
 
-            grid.innerHTML = '';
-            if (error || !products || products.length === 0) {
-                grid.classList.add('d-none');
-                emptyState.classList.remove('d-none');
-                countLabel.textContent = '0 results';
-            } else {
-                countLabel.textContent = `${products.length} results`;
-                // Reuse createProductCard from products.js logic (inline here for single file simplicity)
-                products.forEach(prod => {
-                    const name = currentLang === 'ar' ? prod.name_ar : prod.name_en;
-                    const price = prod.discount_price < prod.price ? prod.discount_price : prod.price;
-                    const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
-                    const hasDiscount = prod.discount_price && prod.discount_price < prod.price;
-
-                    grid.innerHTML += `
-                    <div class="col-6 col-md-4 col-lg-4">
-                        <div class="product-card h-100">
-                            <a href="product.html?slug=${prod.slug}" class="text-decoration-none text-dark">
-                                <div class="product-image-wrapper">
-                                    <img src="${imgUrl}" alt="${name}" loading="lazy">
-                                    ${hasDiscount ? `<span class="discount-badge">SALE</span>` : ''}
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="product-title">${name}</h5>
-                                    <div class="product-price">
-                                        ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
-                                        ${price} JOD
-                                    </div>
-                                    <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">Add to Cart</button>
-                                </div>
-                            </a>
-                        </div>
-                    </div>`;
-                });
+        if (filters.categorySlug) {
+            query = query.eq('categories.slug', filters.categorySlug);
+            
+            // Update Title
+            const { data: catData } = await supabase.from('categories').select('name_ar, name_en').eq('slug', filters.categorySlug).single();
+            if(catData) {
+                const title = currentLang === 'ar' ? catData.name_ar : catData.name_en;
+                document.getElementById('page-title').textContent = title;
+                document.getElementById('breadcrumb-current').textContent = title;
             }
         }
-    </script>
+
+        if (filters.search) {
+            const term = `%${filters.search}%`;
+            query = query.or(`name_ar.ilike.${term},name_en.ilike.${term}`);
+        }
+
+        const { data: products, error } = await query;
+
+        grid.innerHTML = '';
+        if (error || !products || products.length === 0) {
+            grid.classList.add('d-none');
+            emptyState.classList.remove('d-none');
+            countLabel.textContent = '0 results';
+        } else {
+            countLabel.textContent = `${products.length} results`;
+            
+            // Render Products (Using helpers defined above)
+            products.forEach(prod => {
+                const name = getLocalizedField(prod, 'name');
+                const price = prod.discount_price < prod.price ? prod.discount_price : prod.price;
+                const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
+                const hasDiscount = prod.discount_price && prod.discount_price < prod.price;
+
+                grid.innerHTML += `
+                <div class="col-6 col-md-4 col-lg-4">
+                    <div class="product-card h-100">
+                        <a href="product.html?slug=${prod.slug}" class="text-decoration-none text-dark">
+                            <div class="product-image-wrapper">
+                                <img src="${imgUrl}" alt="${name}" loading="lazy">
+                                ${hasDiscount ? `<span class="discount-badge">SALE</span>` : ''}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="product-title">${name}</h5>
+                                <div class="product-price">
+                                    ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
+                                    ${price} JOD
+                                </div>
+                                <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">Add to Cart</button>
+                            </div>
+                        </a>
+                    </div>
+                </div>`;
+            });
+        }
+        toggleLoading(false);
+    }
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Load Sidebar first
+        await loadSidebarCategories();
+
+        // Determine what to load
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('slug');
+        const searchQuery = params.get('search');
+
+        if (searchQuery) {
+            document.getElementById('page-title').textContent = `Search: "${searchQuery}"`;
+            document.getElementById('breadcrumb-current').textContent = "Search Results";
+            await loadProducts({ search: searchQuery });
+        } else if (slug) {
+            await loadProducts({ categorySlug: slug });
+        } else {
+            await loadProducts({});
+        }
+    });
+</script>
     <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
