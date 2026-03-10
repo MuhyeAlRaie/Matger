@@ -1,12 +1,5 @@
 /**
  * Admin Authentication Guard
- * 
- * This script must be included in every admin HTML page.
- * It checks:
- * 1. Is the user logged in? (Supabase Session)
- * 2. Is the user an admin? (Exists in 'admins' table)
- * 
- * If checks fail, redirect to main login.
  */
 
 async function checkAdminAccess() {
@@ -14,12 +7,13 @@ async function checkAdminAccess() {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session) {
-        // Not logged in
+        console.log('Admin Check: No session found.');
         window.location.href = '../login.html';
         return;
     }
 
     const userEmail = session.user.email;
+    console.log('Admin Check: Checking email...', userEmail);
 
     // 2. Check Admin Role in Database
     try {
@@ -29,25 +23,31 @@ async function checkAdminAccess() {
             .eq('email', userEmail)
             .single();
 
-        if (error || !adminRecord) {
-            console.error('Admin check failed:', error);
-            alert('Access Denied: You are not authorized to view this page.');
+        if (error) {
+            console.error('Admin Check DB Error:', error);
+            alert(`Database Error: ${error.message}`);
             window.location.href = '../index.html';
             return;
         }
 
-        // Success: User is Admin
-        console.log('Admin verified:', userEmail);
+        if (!adminRecord) {
+            console.warn('Admin Check: Email not found in admins table.');
+            alert('Access Denied: Your email is not in the admin list.');
+            window.location.href = '../index.html';
+            return;
+        }
+
+        // Success
+        console.log('Admin Check: Verified!', userEmail);
         
-        // Populate sidebar user info
+        // Populate sidebar
         const adminNameEl = document.getElementById('admin-user-email');
         if (adminNameEl) adminNameEl.textContent = userEmail;
 
     } catch (err) {
-        console.error('Error checking admin status:', err);
+        console.error('Admin Check System Error:', err);
         window.location.href = '../index.html';
     }
 }
 
-// Run check when DOM is ready
 document.addEventListener('DOMContentLoaded', checkAdminAccess);
