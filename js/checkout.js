@@ -142,7 +142,7 @@
         if (totalEl) totalEl.textContent = formatPrice(subtotal + shippingCost);
     }
 
-    // 7. Submit Logic (FIXED: Receives User)
+       // 7. Submit Logic (FIXED: Added Debugging Alerts)
     async function placeOrder(e, user) {
         e.preventDefault();
         const btn = document.getElementById('place-order-btn');
@@ -153,31 +153,76 @@
         const address = document.getElementById('checkout-address').value;
 
         if (!name || !phone || !address || !selectedRegion) {
-            if (window.showToast) showToast(currentLang === 'ar' ? 'Fill fields' : 'Fill all fields', 'danger');
+            alert("Please fill all fields and select a region.");
             return;
         }
 
         btn.disabled = true;
-        btn.innerHTML = '...';
+        btn.innerHTML = 'Creating Order...';
 
         try {
+            // 1. Get Cart Items
             const items = getCartItems();
             const ids = items.map(i => i.id);
-            const { data: products } = await window.supabase.from('products').select('*').in('id', ids);
 
+            if (ids.length === 0) {
+                alert("Your cart is empty.");
+                window.location.href = 'cart.html';
+                return;
+            }
+
+            // 2. Fetch Product Details
+            console.log("Fetching products for IDs:", ids);
+            const { data: products, error: prodError } = await window.supabase.from('products').select('*').in('id', ids);
+
+            if (prodError) {
+                console.error("Product Fetch Error:", prodError);
+                alert("Error fetching product details: " + prodError.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+
+            if (!products || products.length === 0) {
+                alert("CRITICAL: Products not found in database! Please delete your cart and try adding items again.");
+                console.log("IDs looked for:", ids);
+                console.log("Result:", products);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+
+            // 3. Build Order Items List
             let subtotal = 0;
             const orderItems = [];
 
             products.forEach(prod => {
                 const item = items.find(c => c.id === prod.id);
+                // Safety check if item is missing from cart but found in DB
+                if (!item) return; 
+
                 const qty = item.quantity;
                 const price = prod.discount_price || prod.price;
                 subtotal += price * qty;
-                orderItems.push({ product_id: prod.id, quantity: qty, unit_price: price });
+                
+                orderItems.push({ 
+                    product_id: prod.id, 
+                    quantity: qty, 
+                    unit_price: price 
+                });
             });
 
-            // FIX: Use the passed 'user' object
-            const { data: order } = await window.supabase.from('orders').insert([{
+            if (orderItems.length === 0) {
+                alert("Error: Could not match cart items to database items.");
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+
+            console.log("Order Items to save:", orderItems);
+
+            // 4. Create Order
+            const { data: order, error: orderError } = await window.supabase.from('orders').insert([{
                 user_id: user.id,
                 total_amount: subtotal + shippingCost,
                 shipping_cost: shippingCost,
@@ -188,13 +233,41 @@
                 region_id: selectedRegion.id
             }]).select().single();
 
-            const itemsWithId = orderItems.map(i => ({ ...i, order_id: order.id }));
-            await window.supabase.from('order_items').insert(itemsWithId);
+            if (orderError) {
+                console.error("Order Creation Error:", orderError);
+                alert("Failed to create order: " + orderError.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
 
+            console.log("Order Created with ID:", order.id);
+
+            // 5. Save Items
+            // We MUST attach the order_id to each item
+            const itemsWithId = orderItems.map(i => ({ ...i, order_id: order.id }));
+
+            console.log("Saving Items:", itemsWithId);
+
+            const { error: itemsError } = await window.supabase.from('order_items').insert(itemsWithId);
+
+            if (itemsError) {
+                console.error("Items Save Error:", itemsError);
+                alert("Order created, but items failed to save: " + itemsError.message);
+                // Don't redirect, let user see the error
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+
+            // 6. Success
             localStorage.removeItem('app_cart');
+            alert("Order Placed Successfully!");
             window.location.href = `thank-you.html?id=${order.id}`;
+
         } catch (err) {
-            console.error(err);
+            console.error("System Error:", err);
+            alert("An unexpected error occurred: " + err.message);
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
