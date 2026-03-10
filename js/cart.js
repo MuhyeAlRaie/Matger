@@ -205,6 +205,9 @@ async function applyCoupon() {
         }
 
         appliedCoupon = coupon;
+
+        localStorage.setItem('app_coupon', JSON.stringify(coupon));
+        
         if(msgEl) {
             msgEl.textContent = currentLang === 'ar' ? 'تم تطبيق الكوبون بنجاح' : 'Coupon applied successfully';
             msgEl.className = 'form-text text-success';

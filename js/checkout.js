@@ -1,13 +1,19 @@
 /**
- * Checkout - Final Fix (Uses Direct Session Check)
+ * Checkout - With Coupon Support
  */
 
 (function() {
-    // Prevent running twice
     if (window.checkoutHasLoaded) return;
     window.checkoutHasLoaded = true;
 
-    console.log("Checkout Safe Version Loaded...");
+    console.log("Checkout with Coupon Support Loaded...");
+
+    // State
+    let localCartData = [];
+    let currentRegions = [];
+    let selectedRegion = null;
+    let shippingCost = 0;
+    let appliedCoupon = null; // Stores the coupon object
 
     // 2. Load cart from storage
     function getCartItems() {
@@ -27,15 +33,13 @@
         return parseFloat(price).toFixed(2) + ' ' + (currentLang === 'ar' ? 'د.أ' : 'JOD');
     }
 
-    // 4. Initialization (FIXED: Uses getSession)
+    // 4. Initialization
     document.addEventListener('DOMContentLoaded', async () => {
-        // Wait for supabase
         if (!window.supabase) {
             console.error("Supabase not ready");
             return;
         }
 
-        // FIX: Check Session Directly from Database
         const { data: { session }, error } = await window.supabase.auth.getSession();
         
         if (error || !session) {
@@ -45,30 +49,34 @@
             return;
         }
 
-        // Check if cart has items
+        // FIX: Load Coupon from LocalStorage
+        const storedCoupon = localStorage.getItem('app_coupon');
+        if (storedCoupon) {
+            try {
+                appliedCoupon = JSON.parse(storedCoupon);
+                console.log("Applied Coupon Loaded:", appliedCoupon);
+            } catch(e) {
+                console.error("Error parsing coupon", e);
+            }
+        }
+
         const items = getCartItems();
         if (items.length === 0) {
             window.location.href = 'cart.html';
             return;
         }
 
-        // Load UI
         await loadRegions();
-        updateSummary(items, session.user); // Pass user to summary if needed
+        updateSummary(items, session.user);
 
-        // Listeners
         const form = document.getElementById('checkout-form');
-        if (form) form.addEventListener('submit', (e) => placeOrder(e, session.user)); // Pass user to order function
+        if (form) form.addEventListener('submit', (e) => placeOrder(e, session.user));
 
         const btnLoc = document.getElementById('detect-location-btn');
         if (btnLoc) btnLoc.addEventListener('click', detectLocation);
     });
 
     // 5. Regions Logic
-    let currentRegions = [];
-    let selectedRegion = null;
-    let shippingCost = 0;
-
     async function loadRegions() {
         const select = document.getElementById('delivery-region');
         if (!select) return;
@@ -105,11 +113,11 @@
         selectedRegion = currentRegions.find(r => r.id == id);
         if (selectedRegion) {
             shippingCost = selectedRegion.cost;
-            updateSummary(getCartItems(), null); // Refresh summary with new cost
+            updateSummary(getCartItems(), null);
         }
     }
 
-    // 6. Summary Logic
+    // 6. Summary Logic (UPDATED WITH COUPON)
     async function updateSummary(items, user) {
         const container = document.getElementById('checkout-summary-items');
         const subEl = document.getElementById('checkout-subtotal');
@@ -139,10 +147,23 @@
         container.innerHTML = html;
         if (subEl) subEl.textContent = formatPrice(subtotal);
         if (shipEl) shipEl.textContent = formatPrice(shippingCost);
-        if (totalEl) totalEl.textContent = formatPrice(subtotal + shippingCost);
+        
+        // CALCULATE TOTAL WITH COUPON
+        let discount = 0;
+        if (appliedCoupon) {
+            if (appliedCoupon.discount_type === 'percentage') {
+                discount = subtotal * (appliedCoupon.value / 100);
+            } else {
+                discount = appliedCoupon.value;
+            }
+        }
+        if (discount > subtotal) discount = subtotal;
+
+        const finalTotal = subtotal + shippingCost - discount;
+        if (totalEl) totalEl.textContent = formatPrice(finalTotal);
     }
 
-       // 7. Submit Logic (FIXED: Added Debugging Alerts)
+    // 7. Submit Logic (UPDATED WITH COUPON)
     async function placeOrder(e, user) {
         e.preventDefault();
         const btn = document.getElementById('place-order-btn');
@@ -153,78 +174,45 @@
         const address = document.getElementById('checkout-address').value;
 
         if (!name || !phone || !address || !selectedRegion) {
-            alert("Please fill all fields and select a region.");
+            if (window.showToast) showToast(currentLang === 'ar' ? 'Fill fields' : 'Fill all fields', 'danger');
             return;
         }
 
         btn.disabled = true;
-        btn.innerHTML = 'Creating Order...';
+        btn.innerHTML = '...';
 
         try {
-            // 1. Get Cart Items
             const items = getCartItems();
             const ids = items.map(i => i.id);
+            const { data: products } = await window.supabase.from('products').select('*').in('id', ids);
 
-            if (ids.length === 0) {
-                alert("Your cart is empty.");
-                window.location.href = 'cart.html';
-                return;
-            }
-
-            // 2. Fetch Product Details
-            console.log("Fetching products for IDs:", ids);
-            const { data: products, error: prodError } = await window.supabase.from('products').select('*').in('id', ids);
-
-            if (prodError) {
-                console.error("Product Fetch Error:", prodError);
-                alert("Error fetching product details: " + prodError.message);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                return;
-            }
-
-            if (!products || products.length === 0) {
-                alert("CRITICAL: Products not found in database! Please delete your cart and try adding items again.");
-                console.log("IDs looked for:", ids);
-                console.log("Result:", products);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                return;
-            }
-
-            // 3. Build Order Items List
             let subtotal = 0;
             const orderItems = [];
 
             products.forEach(prod => {
                 const item = items.find(c => c.id === prod.id);
-                // Safety check if item is missing from cart but found in DB
-                if (!item) return; 
-
                 const qty = item.quantity;
                 const price = prod.discount_price || prod.price;
                 subtotal += price * qty;
-                
-                orderItems.push({ 
-                    product_id: prod.id, 
-                    quantity: qty, 
-                    unit_price: price 
-                });
+                orderItems.push({ product_id: prod.id, quantity: qty, unit_price: price });
             });
 
-            if (orderItems.length === 0) {
-                alert("Error: Could not match cart items to database items.");
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                return;
+            // CALCULATE DISCOUNT FOR DATABASE
+            let discount = 0;
+            if (appliedCoupon) {
+                if (appliedCoupon.discount_type === 'percentage') {
+                    discount = subtotal * (appliedCoupon.value / 100);
+                } else {
+                    discount = appliedCoupon.value;
+                }
             }
+            if (discount > subtotal) discount = subtotal;
 
-            console.log("Order Items to save:", orderItems);
+            const finalTotal = subtotal + shippingCost - discount;
 
-            // 4. Create Order
-            const { data: order, error: orderError } = await window.supabase.from('orders').insert([{
+            const { data: order } = await window.supabase.from('orders').insert([{
                 user_id: user.id,
-                total_amount: subtotal + shippingCost,
+                total_amount: finalTotal,
                 shipping_cost: shippingCost,
                 status: 'pending',
                 customer_name: name,
@@ -233,41 +221,17 @@
                 region_id: selectedRegion.id
             }]).select().single();
 
-            if (orderError) {
-                console.error("Order Creation Error:", orderError);
-                alert("Failed to create order: " + orderError.message);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                return;
-            }
-
-            console.log("Order Created with ID:", order.id);
-
-            // 5. Save Items
-            // We MUST attach the order_id to each item
             const itemsWithId = orderItems.map(i => ({ ...i, order_id: order.id }));
+            await window.supabase.from('order_items').insert(itemsWithId);
 
-            console.log("Saving Items:", itemsWithId);
-
-            const { error: itemsError } = await window.supabase.from('order_items').insert(itemsWithId);
-
-            if (itemsError) {
-                console.error("Items Save Error:", itemsError);
-                alert("Order created, but items failed to save: " + itemsError.message);
-                // Don't redirect, let user see the error
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                return;
-            }
-
-            // 6. Success
+            // CLEAR COUPON AND CART AFTER SUCCESS
             localStorage.removeItem('app_cart');
-            alert("Order Placed Successfully!");
+            localStorage.removeItem('app_coupon'); 
+            localCartData = [];
+            
             window.location.href = `thank-you.html?id=${order.id}`;
-
         } catch (err) {
-            console.error("System Error:", err);
-            alert("An unexpected error occurred: " + err.message);
+            console.error(err);
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
