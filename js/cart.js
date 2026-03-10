@@ -1,15 +1,25 @@
 /**
- * Shopping Cart Logic (Fixed with Safety Checks)
- * Handles:
- * 1. LocalStorage persistence
- * 2. Add/Remove/Update items
- * 3. Calculate totals and apply coupons
- * 4. Render Cart UI on cart.html
+ * Shopping Cart Logic (Fixed with Helper Functions)
  */
 
 const CART_KEY = 'app_cart';
 let cartData = [];
 let appliedCoupon = null;
+
+// ==========================================
+// 0. HELPER FUNCTIONS (Required for this page)
+// ==========================================
+function getLocalizedField(obj, fieldName) {
+    if (!obj) return '';
+    const lang = currentLang || 'ar'; // Fallback to Arabic
+    const suffix = lang === 'ar' ? 'ar' : 'en';
+    return obj[`${fieldName}_${suffix}`] || obj[`${fieldName}_ar`] || '';
+}
+
+function formatPrice(price) {
+    if (!price) return '0.00 JOD';
+    return parseFloat(price).toFixed(2) + ' ' + (currentLang === 'ar' ? 'د.أ' : 'JOD');
+}
 
 // ==========================================
 // 1. Initialization
@@ -34,10 +44,6 @@ function loadCartFromStorage() {
 function saveCartToStorage() {
     localStorage.setItem(CART_KEY, JSON.stringify(cartData));
     updateCartCountUI();
-}
-
-function getCart() {
-    return cartData;
 }
 
 function addToCart(productId) {
@@ -80,25 +86,21 @@ function updateCartCountUI() {
 }
 
 // ==========================================
-// 3. Cart Page Rendering (Fixed Crashes)
+// 3. Cart Page Rendering
 // ==========================================
 async function renderCartPage() {
     const container = document.getElementById('cart-items-container');
     const summaryContainer = document.getElementById('cart-summary');
     const emptyMsg = document.getElementById('empty-cart-msg');
 
-    // SAFETY CHECK: If on a page without these elements, stop.
     if (!container) return;
 
     toggleLoading(true);
 
     if (cartData.length === 0) {
         container.innerHTML = '';
-        
-        // FIX: Check if summaryContainer exists before styling it
         if (summaryContainer) summaryContainer.style.display = 'none';
         if (emptyMsg) emptyMsg.style.display = 'block';
-        
         toggleLoading(false);
         return;
     }
@@ -207,9 +209,6 @@ async function applyCoupon() {
             msgEl.textContent = currentLang === 'ar' ? 'تم تطبيق الكوبون بنجاح' : 'Coupon applied successfully';
             msgEl.className = 'form-text text-success';
         }
-        
-        // Need to recalculate totals
-        // Since we don't have the subtotal variable here easily, we trigger a re-render
         renderCartPage();
 
     } catch (err) {
@@ -220,7 +219,6 @@ async function applyCoupon() {
 function updateCartSummary(subtotal) {
     let discount = 0;
     const summaryBody = document.getElementById('summary-body');
-    const checkoutBtnTotal = document.getElementById('checkout-total');
 
     if (!summaryBody) return;
 
