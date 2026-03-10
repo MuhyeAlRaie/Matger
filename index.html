@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO METADATA -->
+    <title>متجر إلكتروني متعدد الفئات | E-Commerce Store</title>
+    <meta name="description" content="أفضل المنتجات الإلكترونية والمنزلية بأفضل الأسعار. تسوق الآن مع شحن سريع لجميع مناطق الأردن.">
+    <meta name="keywords" content="تسوق, اونلاين, منتجات, الكترونيات, اردن, تخفيضات">
+    <meta name="author" content="Your Store Name">
+    <meta name="robots" content="index, follow">
+    
+    <!-- OPEN GRAPH (Facebook/LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-username.github.io/repo-name/">
+    <meta property="og:title" content="متجر إلكتروني متعدد الفئات">
+    <meta property="og:description" content="تسوق أحدث المنتجات بأفضل الأسعار في الأردن.">
+    <meta property="og:image" content="https://your-username.github.io/repo-name/images/banners/banner1.jpg">
+
+    <!-- TWITTER CARD -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://your-username.github.io/repo-name/">
+    <meta property="twitter:title" content="متجر إلكتروني متعدد الفئات">
+    <meta property="twitter:description" content="تسوق أحدث المنتجات بأفضل الأسعار في الأردن.">
+    <meta property="twitter:image" content="https://your-username.github.io/repo-name/images/banners/banner1.jpg">
+
+    <!-- CANONICAL & HREFLANG (Placeholders) -->
+    <link rel="canonical" href="https://your-username.github.io/repo-name/">
+    <link rel="alternate" hreflang="ar" href="https://your-username.github.io/repo-name/" />
+    <link rel="alternate" hreflang="en" href="https://your-username.github.io/repo-name/?lang=en" />
+
+    <!-- BOOTSTRAP 5.3 RTL (Arabic Default) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CUSTOM CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- PWA MANIFEST -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d6efd">
+    
+    <!-- APPLE TOUCH ICON -->
+    <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+
+    <!-- STRUCTURED DATA (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "My E-Commerce Store",
+      "url": "https://your-username.github.io/repo-name/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://your-username.github.io/repo-name/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-store me-2"></i> <span data-i18n="store_name">متجري</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <form class="d-flex mx-auto my-2 my-lg-0" role="search" action="search.html" method="GET">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="q" placeholder="ابحث عن منتج..." aria-label="Search" data-i18n-placeholder="search_placeholder">
+                        <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                    <!-- Language Switcher -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe me-1"></i> <span id="current-lang">AR</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="setLanguage('ar')">العربية</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="setLanguage('en')">English</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- PWA Install Button (Hidden by default, shown via JS) -->
+                    <li class="nav-item d-none" id="pwa-install-container">
+                        <button class="btn btn-sm btn-warning text-dark fw-bold" id="pwa-install-btn">
+                            <i class="fas fa-download me-1"></i> <span data-i18n="install_app">تثبيت التطبيق</span>
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="cart.html">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">
+                                0
+                            </span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item" id="auth-links">
+                        <!-- Injected via JS based on login state -->
+                        <a class="nav-link" href="login.html"><i class="fas fa-user"></i> <span data-i18n="login">دخول</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- HERO SLIDER -->
+        <section id="hero-section" class="mb-5">
+            <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner" id="banners-container">
+                    <!-- Banners injected via JS from Supabase -->
+                    <!-- Fallback Static Banner -->
+                    <div class="carousel-item active">
+                        <img src="https://via.placeholder.com/1200x400?text=Loading+Banners..." class="d-block w-100" alt="Banner">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </section>
+
+        <!-- CATEGORIES SECTION -->
+        <section class="container mb-5">
+            <h2 class="text-center mb-4 section-title" data-i18n="categories">التصنيفات</h2>
+            <div class="row text-center" id="categories-grid">
+                <!-- Categories injected via JS -->
+            </div>
+        </section>
+
+        <!-- FEATURED PRODUCTS -->
+        <section class="container mb-5 bg-light p-4 rounded">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title" data-i18n="featured_products">المنتجات المميزة</h2>
+                <a href="#" class="btn btn-outline-primary btn-sm" data-i18n="view_all">عرض الكل</a>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" id="featured-products">
+                <!-- Products injected via JS -->
+            </div>
+        </section>
+
+        <!-- NEW ARRIVALS -->
+        <section class="container mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title" data-i18n="new_products">وصل حديثاً</h2>
+                <a href="#" class="btn btn-outline-primary btn-sm" data-i18n="view_all">عرض الكل</a>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" id="new-products">
+                <!-- Products injected via JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white pt-5 pb-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5 data-i18n="store_name">متجري</h5>
+                    <p data-i18n="footer_desc">أفضل متجر إلكتروني لتلبية جميع احتياجاتك بجودة عالية وأسعار منافسة.</p>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <h5 data-i18n="links">روابط سريعة</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-white text-decoration-none" data-i18n="home">الرئيسية</a></li>
+                        <li><a href="#" class="text-white text-decoration-none" data-i18n="categories">التصنيفات</a></li>
+                        <li><a href="cart.html" class="text-white text-decoration-none" data-i18n="cart">السلة</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <h5 data-i18n="customer_service">خدمة العملاء</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none" data-i18n="contact_us">اتصل بنا</a></li>
+                        <li><a href="#" class="text-white text-decoration-none" data-i18n="shipping_policy">سياسة الشحن</a></li>
+                        <li><a href="#" class="text-white text-decoration-none" data-i18n="return_policy">سياسة الاسترجاع</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5 data-i18n="newsletter">النشرة البريدية</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="بريدك الإلكتروني" aria-label="Email">
+                        <button class="btn btn-primary" type="button"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <div class="social-icons">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <small>&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PRODUCT DETAIL MODAL (Reusable) -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalProductTitle">Product Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalProductBody">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- App Logic -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/pwa-installer.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

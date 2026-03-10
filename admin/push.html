@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إرسال إشعار | Send Notification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Admin Styles (Reused) -->
+    <style>
+        :root { --sidebar-width: 250px; }
+        body { background-color: #f4f6f9; overflow-x: hidden; }
+        #sidebar {
+            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; right: 0;
+            background: #343a40; color: #fff; transition: all 0.3s; z-index: 1000;
+        }
+        html[dir="ltr"] #sidebar { right: auto; left: 0; }
+        #content { margin-right: var(--sidebar-width); transition: all 0.3s; }
+        html[dir="ltr"] #content { margin-right: 0; margin-left: var(--sidebar-width); }
+        .sidebar-link { color: rgba(255,255,255,0.8); padding: 12px 20px; display: block; text-decoration: none; }
+        .sidebar-link:hover, .sidebar-link.active { background: #495057; color: #fff; border-right: 4px solid #0d6efd; }
+        @media (max-width: 768px) {
+            #sidebar { margin-right: calc(var(--sidebar-width) * -1); }
+            #sidebar.active { margin-right: 0; }
+            #content { margin-right: 0; margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <nav id="sidebar">
+        <div class="sidebar-header p-3 border-bottom border-secondary">
+            <h4 class="mb-0"><i class="fas fa-cogs me-2"></i> Admin</h4>
+        </div>
+        <ul class="list-unstyled p-2">
+            <li><a href="index.html" class="sidebar-link"><i class="fas fa-tachometer-alt me-2"></i> الرئيسية</a></li>
+            <li><a href="push.html" class="sidebar-link active"><i class="fas fa-bell me-2"></i> إرسال إشعار</a></li>
+            <li><a href="../index.html" class="sidebar-link"><i class="fas fa-external-link-alt me-2"></i> عرض المتجر</a></li>
+        </ul>
+    </nav>
+
+    <!-- CONTENT -->
+    <div id="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+            <div class="container-fluid">
+                <button type="button" id="sidebarCollapse" class="btn btn-light"><i class="fas fa-bars"></i></button>
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0"><i class="fas fa-paper-plane me-2 text-primary"></i>إرسال إشعار للمستخدمين</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning small">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>ملاحظة تقنية:</strong> لإرسال إشعارات Web Push الفعلية، يتطلب الأمر خادماً (مثل Supabase Edge Function) لأن بروتوكول Web Push لا يسمح بإرساله مباشرة من المتصفح بسبب قيود CORS والأمان. هذه الصفحة تعرض الواجهة والبيانات المطلوبة.
+                            </div>
+
+                            <form id="pushForm">
+                                <div class="mb-3">
+                                    <label class="form-label">عنوان الإشعار</label>
+                                    <input type="text" class="form-control" id="push-title" value="عرض خاص جديد! 🎉">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">نص الإشعار</label>
+                                    <textarea class="form-control" id="push-body" rows="3">لا تفوت العروض الحصرية على جميع الإلكترونيات.</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">المستهدفين</label>
+                                    <select class="form-select" id="push-target">
+                                        <option value="all">كل المشتركين (All Subscribers)</option>
+                                        <!-- Logic to load specific users can be added here -->
+                                    </select>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-primary" onclick="mockSendPush()">
+                                        محاكاة الإرسال (Simulate Send)
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+
+    <script>
+        if (!localStorage.getItem('user')) window.location.href = '../login.html';
+
+        document.getElementById('sidebarCollapse').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // MOCK FUNCTION
+        // In a real app, this would fetch subscriptions from 'push_subscriptions' table
+        // and POST them to a Supabase Edge Function or Firebase.
+        async function mockSendPush() {
+            const title = document.getElementById('push-title').value;
+            const body = document.getElementById('push-body').value;
+            
+            const btn = document.querySelector('#pushForm button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+            btn.disabled = true;
+
+            // 1. Fetch Subscriptions (Demo)
+            const { data: subscriptions, error } = await supabase
+                .from('push_subscriptions')
+                .select('*');
+
+            if (error) {
+                alert('Error fetching subscriptions: ' + error.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                return;
+            }
+
+            if (!subscriptions || subscriptions.length === 0) {
+                alert('لا يوجد مشتركين حالياً. No subscribers found.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                return;
+            }
+
+            console.log(`Ready to send to ${subscriptions.length} devices.`);
+            console.log("Payload:", { title, body });
+
+            // Simulation of sending
+            setTimeout(() => {
+                alert(`تمت المحاكاة! تم إرسال الإشعار إلى ${subscriptions.length} جهاز.\n\nفي الإنتاج، سيقوم الكود هنا بإرسال البيانات إلى Edge Function.`);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- HOMEPAGE -->
+  <url>
+    <loc>https://YOUR_USERNAME.github.io/REPO_NAME/index.html</loc>
+    <lastmod>2023-10-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <!-- Multilingual Links -->
+    <xhtml:link rel="alternate" hreflang="ar" href="https://YOUR_USERNAME.github.io/REPO_NAME/index.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://YOUR_USERNAME.github.io/REPO_NAME/index.html?lang=en" />
+  </url>
+
+  <!-- STATIC PAGES -->
+  <url>
+    <loc>https://YOUR_USERNAME.github.io/REPO_NAME/category.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://YOUR_USERNAME.github.io/REPO_NAME/product.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://YOUR_USERNAME.github.io/REPO_NAME/cart.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://YOUR_USERNAME.github.io/REPO_NAME/login.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- 
+     DYNAMIC PRODUCTS NOTE:
+     Since products are in Supabase, you should ideally run a script 
+     to fetch all product slugs and append them here. 
+     
+     Example of how a dynamic product entry should look:
+     
+     <url>
+       <loc>https://YOUR_USERNAME.github.io/REPO_NAME/product.html?slug=air-fryer-philips</loc>
+       <lastmod>2023-10-25</lastmod>
+       <priority>0.9</priority>
+     </url>
+  -->
+
+</urlset>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إدارة البنرات</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --sidebar-width: 250px; }
+        body { background-color: #f4f6f9; }
+        #sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; right: 0; background: #343a40; color: #fff; }
+        html[dir="ltr"] #sidebar { right: auto; left: 0; }
+        #content { margin-right: var(--sidebar-width); }
+        html[dir="ltr"] #content { margin-right: 0; margin-left: var(--sidebar-width); }
+        .sidebar-link { color: rgba(255,255,255,0.8); padding: 12px 20px; display: block; text-decoration: none; }
+        .sidebar-link:hover, .sidebar-link.active { background: #495057; color: #fff; border-right: 4px solid #0d6efd; }
+    </style>
+</head>
+<body>
+    <nav id="sidebar">
+        <div class="p-3 border-bottom border-secondary"><h5>Admin Panel</h5></div>
+        <ul class="list-unstyled p-2">
+            <li><a href="index.html" class="sidebar-link">الرئيسية</a></li>
+            <li><a href="products.html" class="sidebar-link">المنتجات</a></li>
+            <li><a href="banners.html" class="sidebar-link active">البنرات</a></li>
+            <li><a href="../index.html" class="sidebar-link">عرض المتجر</a></li>
+        </ul>
+    </nav>
+    <div id="content">
+        <nav class="navbar navbar-light bg-white shadow-sm p-3"><button class="btn btn-light" onclick="document.getElementById('sidebar').classList.toggle('active')"><i class="fas fa-bars"></i></button></nav>
+        <div class="container-fluid p-4">
+            <button class="btn btn-primary mb-3" onclick="openModal()">إضافة بانر</button>
+            <div class="card shadow-sm"><div class="card-body p-0">
+                <table class="table mb-0"><thead><tr><th>صورة</th><th>العنوان (عربي)</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="table-body"></tbody></table>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="bannerModal" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">بانر جديد</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="b-id">
+                <input type="text" id="b-title-ar" class="form-control mb-2" placeholder="العنوان (عربي)">
+                <input type="text" id="b-title-en" class="form-control mb-2" placeholder="العنوان (إنجليزي)">
+                <textarea id="b-desc-ar" class="form-control mb-2" placeholder="الوصف (عربي)"></textarea>
+                <textarea id="b-desc-en" class="form-control mb-2" placeholder="الوصف (إنجليزي)"></textarea>
+                <input type="url" id="b-image" class="form-control mb-2" placeholder="رابط الصورة (GitHub Raw URL)">
+                <div class="form-check"><input type="checkbox" id="b-active" class="form-check-input" checked><label class="form-check-label">نشط</label></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="saveBanner()">حفظ</button></div>
+        </div></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="admin-auth.js"></script>
+    <script>
+        let bannerModal = new bootstrap.Modal(document.getElementById('bannerModal'));
+        async function load() {
+            const { data } = await supabase.from('banners').select('*');
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = data.map(b => `
+                <tr>
+                    <td><img src="${b.image_url}" width="100"></td>
+                    <td>${b.title_ar}</td>
+                    <td>${b.is_active ? '<span class="badge bg-success">نشط</span>' : '<span class="badge bg-secondary">معطل</span>'}</td>
+                    <td><button class="btn btn-sm btn-outline-primary" onclick='edit(${JSON.stringify(b)})'>تعديل</button> <button class="btn btn-sm btn-outline-danger" onclick="del('${b.id}')">حذف</button></td>
+                </tr>`).join('');
+        }
+        function openModal() { document.getElementById('b-id').value=''; document.getElementById('b-title-ar').value=''; document.getElementById('b-title-en').value=''; document.getElementById('b-image').value=''; bannerModal.show(); }
+        function edit(b) { document.getElementById('b-id').value=b.id; document.getElementById('b-title-ar').value=b.title_ar; document.getElementById('b-title-en').value=b.title_en; document.getElementById('b-desc-ar').value=b.description_ar; document.getElementById('b-desc-en').value=b.description_en; document.getElementById('b-image').value=b.image_url; document.getElementById('b-active').checked=b.is_active; bannerModal.show(); }
+        async function saveBanner() {
+            const id = document.getElementById('b-id').value;
+            const obj = { title_ar: document.getElementById('b-title-ar').value, title_en: document.getElementById('b-title-en').value, description_ar: document.getElementById('b-desc-ar').value, description_en: document.getElementById('b-desc-en').value, image_url: document.getElementById('b-image').value, is_active: document.getElementById('b-active').checked };
+            if(id) await supabase.from('banners').update(obj).eq('id', id);
+            else await supabase.from('banners').insert([obj]);
+            bannerModal.hide(); load();
+        }
+        async function del(id) { if(confirm('حذف؟')) { await supabase.from('banners').delete().eq('id', id); load(); } }
+        load();
+    </script>
+</body>
+</html>

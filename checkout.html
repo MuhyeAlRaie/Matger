@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إتمام الطلب | Checkout</title>
+    <meta name="description" content="أكمل بيانات الشحن والدفع لإتمام طلبك.">
+    
+    <!-- Bootstrap 5.3 RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-store me-2"></i> <span data-i18n="store_name">متجري</span>
+            </a>
+            <!-- Simplified Mobile Toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="cart.html"><i class="fas fa-shopping-cart"></i> السلة</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="container py-5 mb-5">
+        <h2 class="mb-4 text-center">إتمام الطلب</h2>
+
+        <div class="row g-5">
+            <!-- CHECKOUT FORM -->
+            <div class="col-md-7 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h4 class="mb-0"><i class="fas fa-truck text-primary me-2"></i>بيانات الشحن</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="checkout-form" class="needs-validation" novalidate>
+                            
+                            <!-- Personal Info -->
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="fullName" class="form-label">الاسم الكامل</label>
+                                    <input type="text" class="form-control" id="fullName" required>
+                                    <div class="invalid-feedback">الرجاء إدخال الاسم.</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="phone" class="form-label">رقم الهاتف</label>
+                                    <div class="input-group has-validation">
+                                        <span class="input-group-text">+962</span>
+                                        <input type="tel" class="form-control" id="phone" placeholder="7XXXXXXXX" required>
+                                        <div class="invalid-feedback">الرجاء إدخال رقم هاتف صحيح.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Location & Delivery -->
+                            <h5 class="mb-3">منطقة التوصيل</h5>
+                            
+                            <div class="mb-3">
+                                <label for="delivery-region" class="form-label">اختر المنطقة</label>
+                                <select class="form-select" id="delivery-region" required>
+                                    <option value="" selected disabled>جاري تحميل المناطق...</option>
+                                    <!-- Options populated by JS from Supabase -->
+                                </select>
+                                <div class="form-text">سيتم حساب سعر التوصيل بناءً على المنطقة المختارة.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label d-block">تحديد الموقع الجغرافي (اختياري)</label>
+                                <button type="button" class="btn btn-outline-secondary" id="detect-location-btn">
+                                    <i class="fas fa-map-marker-alt me-2"></i> تحديث موقعي الحالي
+                                </button>
+                                <small id="location-status" class="d-block mt-2 text-muted"></small>
+                                <!-- Hidden inputs for coordinates -->
+                                <input type="hidden" id="lat" name="lat">
+                                <input type="hidden" id="lng" name="lng">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="address" class="form-label">عنوان الشحن التفصيلي</label>
+                                <textarea class="form-control" id="address" rows="3" placeholder="الاسم، الشارع، المبنى، رقم الطابق..." required></textarea>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Notes -->
+                            <div class="mb-3">
+                                <label for="orderNotes" class="form-label">ملاحظات (اختياري)</label>
+                                <textarea class="form-control" id="orderNotes" rows="2"></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button class="w-100 btn btn-primary btn-lg" type="submit" id="place-order-btn">
+                                تأكيد الطلب <i class="fas fa-check-circle ms-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDER SUMMARY -->
+            <div class="col-md-5 col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 90px; z-index: 1;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">ملخص الطلب</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                            <span>المجموع الفرعي</span>
+                            <span id="summary-subtotal">0.00 JOD</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 pb-0">
+                            <span>الشحن</span>
+                            <span id="summary-delivery">0.00 JOD</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 pb-0">
+                            <span>الخصم</span>
+                            <span class="text-danger" id="summary-discount">- 0.00 JOD</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mt-3">
+                            <span class="fw-bold fs-5">الإجمالي الكلي</span>
+                            <span class="fw-bold fs-5 text-primary" id="summary-total">0.00 JOD</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-dark text-white text-center py-3">
+        <small>&copy; 2023 متجري. All Rights Reserved.</small>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/app.js"></script> <!-- For language and auth check -->
+    <script src="js/cart.js"></script>  <!-- To calculate subtotal -->
+    <script src="js/checkout.js"></script> <!-- Handles region fetching and submission -->
+    
+    <script>
+        // Basic HTML5 Validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+</body>
+</html>
