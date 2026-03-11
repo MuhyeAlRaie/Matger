@@ -3,81 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شكراً لك | Thank You</title>
+    <title>تم الطلب بنجاح | Thank You</title>
     
+    <!-- Bootstrap 5.3 RTL CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom Modern CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <!-- =========================================
+         MODERN NAVIGATION
+         ========================================= -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html"><i class="bi bi-shop-window me-2"></i> <span data-i18n="store_name">متجري</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="index.html" data-i18n="nav_home">الرئيسية</a></li>
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-bag-heart-fill me-2 text-primary"></i> 
+                <span data-i18n="store_name">متجري</span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3 order-lg-3">
+                <a href="cart.html" class="btn btn-warning rounded-pill position-relative btn-sm">
+                    <i class="bi bi-cart3"></i>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse order-lg-2" id="mainNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link fw-bold" href="index.html" data-i18n="nav_home">الرئيسية</a></li>
                     <li class="nav-item"><a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a></li>
                 </ul>
+                
                 <div class="d-flex align-items-center gap-3">
-                    <button id="lang-toggle" class="btn btn-sm btn-outline-light">English</button>
-                    <div id="auth-buttons"></div>
-                    <a href="cart.html" class="btn btn-sm btn-warning position-relative">
-                        <i class="bi bi-cart3"></i>
-                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-                    </a>
+                    <button id="lang-toggle" class="btn btn-outline-primary rounded-pill btn-sm">English</button>
+                    <div id="auth-buttons">
+                        <a href="login.html" class="btn btn-sm btn-light rounded-pill"><i class="bi bi-person-circle"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container my-5">
+    <!-- =========================================
+         MAIN CONTENT (Centered Success Card)
+         ========================================= -->
+    <main class="container my-5">
         <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
+            <div class="col-md-8 col-lg-6 text-center">
                 
+                <!-- Icon & Title -->
                 <div class="mb-4">
-                    <i class="bi bi-check-circle-fill text-success display-1"></i>
+                    <i class="bi bi-check-circle-fill display-1 text-success"></i>
                 </div>
-
-                <h1 class="mb-3">Thank You For Your Order!</h1>
+                
+                <h1 class="display-6 fw-bold text-dark mb-3">Order Placed Successfully!</h1>
                 <h3 class="h4 text-muted mb-4">شكراً لطلبك</h3>
-
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body py-4">
-                        <p class="mb-1 fs-5">Order ID: <strong id="display-order-id">#---</strong></p>
-                        <p class="text-muted">We have received your order and will process it shortly.</p>
-                        <p class="text-muted">لقد استلمنا طلبك وسنقوم بمعالجته قريباً.</p>
+                
+                <!-- Order Details Card -->
+                <div class="card border-0 shadow-lg rounded-4 mb-5">
+                    <div class="card-body p-5">
+                        <p class="text-muted mb-2">Your order has been received and we will process it shortly.</p>
+                        
+                        <div class="bg-light rounded-3 p-3 mb-3">
+                            <span class="d-block small text-muted fw-bold text-uppercase mb-1">Order Reference</span>
+                            <span class="h2 fw-bold text-primary" id="display-order-id">#---</span>
+                        </div>
+                        
+                        <div class="alert alert-info rounded-3 border-0 small">
+                            <i class="bi bi-info-circle me-2"></i> A confirmation email has been sent to your registered address.
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="index.html" class="btn btn-primary px-4 py-2">Continue Shopping</a>
-                    <a href="account.html" class="btn btn-outline-secondary px-4 py-2">View Orders</a>
+                <!-- Action Buttons -->
+                <div class="d-grid gap-3 d-md-block">
+                    <button onclick="window.location.href='account.html'" class="btn btn-primary btn-lg rounded-pill shadow">
+                        <i class="bi bi-receipt me-2"></i> View Order Details
+                    </button>
+                    <button onclick="window.location.href='index.html'" class="btn btn-outline-primary btn-lg rounded-pill">
+                        <i class="bi bi-arrow-repeat me-2"></i> Continue Shopping
+                    </button>
                 </div>
 
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-auto">
+    <!-- =========================================
+         FOOTER
+         ========================================= -->
+    <footer class="bg-white border-top mt-5 py-5">
         <div class="container text-center">
-            <p class="mb-0">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
+            <p class="mb-0 text-muted small">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
         </div>
     </footer>
 
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
 
-    <!-- Scripts -->
+    <!-- =========================================
+         SCRIPTS
+         ========================================= -->
+    
+    <!-- 1. Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    
+    <!-- 2. Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- 3. Application Logic -->
     <script src="js/supabase-config.js"></script>
     <script src="js/app.js"></script>
     <script src="js/cart.js"></script>
@@ -86,13 +127,15 @@
     <!-- Page Specific Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Get Order ID from URL
+            // Get Order ID from URL Query Parameter
             const params = new URLSearchParams(window.location.search);
             const orderId = params.get('id');
             
             if (orderId) {
+                // Display the Order ID safely
                 document.getElementById('display-order-id').textContent = '#' + orderId;
             } else {
+                // Fallback if ID is missing
                 document.getElementById('display-order-id').textContent = 'Unknown';
             }
         });

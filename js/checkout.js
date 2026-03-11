@@ -258,26 +258,66 @@
         }
     }
 
-    // 8. Location Logic
+       // 8. Location Logic (Updated to fill Text Box with Map URL)
     function detectLocation() {
         const btn = document.getElementById('detect-location-btn');
-        const old = btn.innerHTML;
+        const originalText = btn.innerHTML;
         btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Locating...';
+
+        if (!navigator.geolocation) {
+            showToast('Geolocation not supported', 'danger');
+            resetBtn(btn, originalText);
+            return;
+        }
 
         navigator.geolocation.getCurrentPosition(
-            async (pos) => {
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
-                    const data = await res.json();
-                    document.getElementById('checkout-address').value = data.display_name;
-                } catch(e) {}
-                btn.disabled = false;
-                btn.innerHTML = old;
+                    // 1. Generate Google Maps URL
+                    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+                    // 2. Fill the Text Box with the Map Link
+                    document.getElementById('checkout-address').value = mapUrl;
+
+                    // 3. (Optional) Add a "View on Map" button for easier clicking
+                    const mapContainerId = 'map-link-wrapper';
+                    let mapContainer = document.getElementById(mapContainerId);
+                    
+                    if (!mapContainer) {
+                        mapContainer = document.createElement('div');
+                        mapContainer.id = mapContainerId;
+                        mapContainer.className = 'mt-2 text-center';
+                        document.getElementById('checkout-address').insertAdjacentElement('afterend', mapContainer);
+                    }
+
+                    mapContainer.innerHTML = `
+                        <a href="${mapUrl}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">
+                            <i class="bi bi-map me-1"></i> Open Map
+                        </a>
+                    `;
+
+                    showToast("Location detected! Map link generated.", "success");
+
+                } catch(e) { console.error(e); }
+                finally { 
+                    resetBtn(btn, originalText); 
+                }
             },
-            () => {
-                btn.disabled = false;
-                btn.innerHTML = old;
+            (err) => { 
+                console.error(err); 
+                showToast('Could not get location', 'danger');
+                resetBtn(btn, originalText); 
             }
         );
+    }
+
+    // Helper to reset button state
+    function resetBtn(btn, text) {
+        btn.disabled = false;
+        btn.innerHTML = text;
     }
 })();
