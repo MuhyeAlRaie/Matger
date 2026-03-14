@@ -3,195 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر إلكتروني حديث | Modern Store</title>
     
-    <!-- Dynamic SEO Meta Tags (Will be updated by JS) -->
-    <title>متجر إلكتروني متعدد الأقسام | Multi-Category Store</title>
-    <meta name="description" content="أفضل المنتجات بأسعار منافسة. Best products at competitive prices.">
-    <meta name="keywords" content="تسوق, منتجات, تخفيضات, shop, products, sale">
-    <meta name="author" content="Store Name">
+    <!-- Meta Description for SEO -->
+    <meta name="description" content="تسوق أحدث المنتجات الإلكترونية والملابس بأسعار منافصة مع تجربة مستخدم عصرية.">
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://yourusername.github.io/">
-    <meta property="og:title" content="متجر إلكتروني متعدد الأقسام">
-    <meta property="og:description" content="تسوق الآن أحدث المنتجات.">
-    <meta property="og:image" content="https://yourusername.github.io/images/banners/default-og.jpg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://yourusername.github.io/">
-    <meta property="twitter:title" content="متجر إلكتروني متعدد الأقسام">
-    <meta property="twitter:description" content="تسوق الآن أحدث المنتجات.">
-    <meta property="twitter:image" content="https://yourusername.github.io/images/banners/default-og.jpg">
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0d6efd">
-    
-    <!-- Bootstrap 5.3 RTL CSS (Default) -->
+    <!-- Bootstrap 5.3 RTL CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Custom Styles -->
+    <!-- Custom Modern CSS (Generated in Step 1) -->
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- Structured Data Placeholder -->
-    <script type="application/ld+json" id="structured-data">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Store Name",
-      "url": "https://yourusername.github.io/Matger"
-    }
-    </script>
 </head>
 <body>
 
-    <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-    <div class="container">
-        <!-- Brand (Left) -->
-        <a class="navbar-brand" href="index.html">
-            <i class="bi bi-shop-window me-2"></i> <span data-i18n="store_name">متجري</span>
-        </a>
-        
-        <!-- Right Side: Cart (Always Visible) & Menu Toggle -->
-        <div class="d-flex align-items-center gap-3">
-            <!-- Cart Button (Moved Here) -->
-            <a href="cart.html" class="btn btn-sm btn-warning position-relative">
-                <i class="bi bi-cart3"></i>
-                <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+    <!-- =========================================
+         MODERN NAVIGATION (Glassmorphism)
+         ========================================= -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <!-- Brand -->
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-bag-heart-fill me-2 text-primary"></i> 
+                <span data-i18n="store_name">متجري</span>
             </a>
 
-            <!-- Mobile Menu Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
+            <!-- Right Side: Cart & Toggle (Always Visible) -->
+            <div class="d-flex align-items-center gap-3 order-lg-3">
+                <!-- Cart Button (Modern Pill Shape) -->
+                <a href="cart.html" class="btn btn-warning rounded-pill position-relative btn-sm">
+                    <i class="bi bi-cart3"></i>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+                <!-- Mobile Menu Toggle -->
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
 
-        <!-- Collapsible Menu (Links, Language, Auth) -->
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" href="index.html" data-i18n="nav_home">الرئيسية</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a>
-                </li>
-            </ul>
-            
-            <div class="d-flex align-items-center gap-3">
-                <!-- Language Switcher -->
-                <button id="lang-toggle" class="btn btn-sm btn-outline-light">English</button>
+            <!-- Collapsible Menu -->
+            <div class="collapse navbar-collapse order-lg-2" id="mainNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold" href="index.html" data-i18n="nav_home">الرئيسية</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="account.html" data-i18n="nav_account">حسابي</a>
+                    </li>
+                </ul>
                 
-                <!-- Search (Optional - keeping it inside menu for cleanliness, or move out if preferred) -->
-                <form class="d-none d-md-flex" role="search">
-                    <div class="input-group input-group-sm">
-                        <input class="form-control" type="search" id="search-input" placeholder="بحث..." aria-label="Search">
-                        <button class="btn btn-outline-light" type="button"><i class="bi bi-search"></i></button>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Language Switcher -->
+                    <button id="lang-toggle" class="btn btn-outline-primary rounded-pill btn-sm">English</button>
+                    
+                    <!-- Auth Buttons (Injected by JS) -->
+                    <div id="auth-buttons">
+                        <!-- Fallback content -->
+                        <a href="login.html" class="btn btn-sm btn-light rounded-pill">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
                     </div>
-                </form>
-
-                <!-- Auth Buttons -->
-                <div id="auth-buttons" class="d-flex gap-2">
-                    <!-- Injected by JS -->
-                    <a href="login.html" class="btn btn-sm btn-light"><i class="bi bi-person"></i></a>
                 </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Banner Slider Section -->
-        <section id="banner-section" class="mb-5">
-            <!-- Content injected by app.js from Supabase -->
-            <div class="placeholder-glow">
-                <div class="p-5 mb-4 bg-light rounded-3 placeholder-wave" style="height: 400px;"></div>
+    <!-- =========================================
+         MAIN CONTENT
+         ========================================= -->
+    <main class="container py-5">
+        
+        <!-- Hero Banner Section -->
+        <!-- Content is injected dynamically by app.js -->
+        <section id="banner-section">
+            <!-- Placeholder / Loading State -->
+            <div class="bg-primary bg-opacity-10 rounded-4 p-5 text-center shadow-sm">
+                <h2 class="fw-bold mb-3 text-primary"><i class="bi bi-lightning-charge text-warning"></i> جاري تحميل أحدث العروض...</h2>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         </section>
 
-        <div class="container">
-            <!-- Categories Section -->
-            <section id="categories-section" class="mb-5">
-                <h2 class="section-title mb-4" data-i18n="categories">الأقسام</h2>
-                <div id="categories-container" class="row g-3">
-                    <!-- Category Cards injected by products.js -->
-                </div>
-            </section>
-
-            <!-- Featured Products Section -->
-            <section id="featured-section" class="mb-5">
-                <h2 class="section-title mb-4" data-i18n="featured_products">منتجات مميزة</h2>
-                <div id="products-container" class="row g-4">
-                    <!-- Product Cards injected by products.js -->
-                    <!-- Loading Placeholder -->
-                    <div class="col-12 text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-auto">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h5 data-i18n="footer_about">عن المتجر</h5>
-                    <p class="small text-muted" data-i18n="footer_desc">نقدم أفضل المنتجات بأفضل الأسعار مع خدمة توصيل سريعة.</p>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5 data-i18n="footer_links">روابط سريعة</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="account.html" class="text-white text-decoration-none" data-i18n="nav_account">حسابي</a></li>
-                        <li><a href="cart.html" class="text-white text-decoration-none" data-i18n="nav_cart">السلة</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5 data-i18n="footer_contact">تواصل معنا</h5>
-                    <p class="small text-muted"><i class="bi bi-geo-alt"></i> <span data-i18n="location">الأردن</span></p>
-                    <p class="small text-muted"><i class="bi bi-envelope"></i> info@store.com</p>
+        <!-- Categories Section -->
+        <section id="categories-section" class="mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <h2 class="section-title mb-0" data-i18n="categories">تسوق حسب الفئة</h2>
+                <a href="category.html" class="btn btn-outline-primary rounded-pill btn-sm" data-i18n="view_all" >عرض الكل <i class="bi bi-arrow-left-short"></i></a>
+            </div>
+            
+            <div class="row g-4" id="categories-container">
+                <!-- Categories are injected by products.js -->
+                <div class="col-12 text-center text-muted">
+                    <div class="spinner-border text-secondary spinner-border-sm"></div>
                 </div>
             </div>
-            <hr>
+        </section>
+
+        <!-- Featured Products Section -->
+        <section id="featured-section">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <h2 class="section-title mb-0" data-i18n="featured_products">الأكثر مبيعاً</h2>
+                <a href="category.html" class="btn btn-outline-primary rounded-pill btn-sm" data-i18n="view_all">عرض الكل <i class="bi bi-arrow-left-short"></i></a>
+            </div>
+            
+            <div class="row g-4" id="products-container">
+                <!-- Products are injected by products.js -->
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading Products...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================================
+         FOOTER
+         ========================================= -->
+    <footer class="bg-white border-top mt-5 py-5">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Brand & Description -->
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-shop-window"></i> متجري</h5>
+                    <p class="text-muted small" data-i18n="footer_desc">وجهتك الأولى للتسوق الإلكتروني بتجربة عصرية وآمنة وأسعار لا تقبل المنافسة.</p>
+                </div>
+                <!-- Quick Links -->
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3" data-i18n="footer_quick_link">روابط سريعة</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-2"><a href="index.html" class="text-decoration-none text-muted hover-primary" data-i18n="footer_quick_link1">الرئيسية</a></li>
+                        <li class="mb-2"><a href="category.html" class="text-decoration-none text-muted hover-primary" data-i18n="footer_quick_link2">الأقسام</a></li>
+                        <li class="mb-2"><a href="account.html" class="text-decoration-none text-muted hover-primary" data-i18n="footer_quick_link3">حسابي</a></li>
+                        <!-- <li><a href="admin/index.html" class="text-decoration-none text-muted hover-primary">دخول الإدارة</a></li> -->
+                    </ul>
+                </div>
+                <!-- Contact & Social -->
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3" data-i18n="contact_us">تواصل معنا</h6>
+                    <div class="d-flex gap-2 mb-3">
+                        <a href="#" class="btn btn-sm btn-dark rounded-circle"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="btn btn-sm btn-dark rounded-circle"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="btn btn-sm btn-dark rounded-circle"><i class="bi bi-twitter"></i></a>
+                    </div>
+                    <p class="small text-muted mb-0">support@mystore.com</p>
+                </div>
+            </div>
+            <hr class="my-4">
             <div class="text-center small text-muted">
-                &copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.
+                &copy; 2023 <span data-i18n="store_name">متجري</span>. Designed with Modern UI/UX.
             </div>
         </div>
     </footer>
 
-    <!-- Toast Container for Notifications -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index: 1100"></div>
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
 
-    <!-- Scripts -->
-    <!-- Supabase Client (CDN for development ease, usually bundled in prod) -->
+    <!-- =========================================
+         SCRIPTS
+         ========================================= -->
+    
+    <!-- 1. Supabase Client (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     
-    <!-- Bootstrap Bundle JS -->
+    <!-- 2. Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 3. Application Logic (Load Order Matters) -->
+    <script src="js/supabase-config.js"></script> <!-- Config First -->
+    <script src="js/app.js"></script>            <!-- Core Logic (Language, Banners) -->
+    <script src="js/products.js"></script>      <!-- Renders Cats & Prods -->
+    <script src="js/cart.js"></script>           <!-- Cart Logic -->
+    <script src="js/auth.js"></script>           <!-- User Session -->
+    <script src="js/pwa-installer.js"></script>  <!-- PWA Logic -->
+    <script src="js/push-receiver.js"></script>
 
-    <!-- Application Logic -->
-    <script src="js/supabase-config.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/products.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/pwa-installer.js"></script>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('Service Worker: Registered'))
-        .catch(err => console.log('Service Worker: Error: ' + err));
-    });
-  }
-</script>
-<script src="js/push-receiver.js"></script>
+
 </body>
 </html>

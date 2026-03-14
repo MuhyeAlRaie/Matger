@@ -12,54 +12,243 @@
 // ==========================================
 const i18n = {
     ar: {
+        // =========================================
+        // GENERAL
+        // =========================================
         store_name: "متجري",
+        loading: "جاري التحميل...",
+        view_details: "عرض التفاصيل",
+        search_placeholder: "بحث عن منتج...",
+        install_app: "تثبيت التطبيق",
+        
+        // =========================================
+        // NAVIGATION
+        // =========================================
         nav_home: "الرئيسية",
         nav_categories: "الأقسام",
         nav_account: "حسابي",
         nav_cart: "السلة",
-        search_placeholder: "بحث عن منتج...",
-        install_app: "تثبيت التطبيق",
+        logout: "تسجيل الخروج",
+        login_title: "تسجيل الدخول",
+        register_title: "إنشاء حساب جديد",
+
+        // =========================================
+        // PRODUCT & CATEGORY UI
+        // =========================================
         categories: "الأقسام",
         featured_products: "منتجات مميزة",
         new_products: "وصل حديثاً",
-        footer_about: "عن المتجر",
-        footer_desc: "نقدم أفضل المنتجات بأفضل الأسعار مع خدمة توصيل سريعة.",
-        footer_links: "روابط سريعة",
-        footer_contact: "تواصل معنا",
-        location: "الأردن",
-        add_to_cart: "أضف للسلة",
+        related_products: "منتجات ذات صلة",
+        description: "الوصف",
         price: "السعر",
         currency: "دينار أردني",
-        loading: "جاري التحميل...",
-        view_details: "عرض التفاصيل",
-        login_title: "تسجيل الدخول",
-        register_title: "إنشاء حساب جديد",
-        logout: "تسجيل الخروج"
+        guarantee: "ضمان الجودة",
+        
+        // =========================================
+        // ACTIONS & BUTTONS
+        // =========================================
+        add_to_cart: "أضف للسلة",
+        buy_now: "اشتر الآن",
+        checkout: "إتمام الشراء",
+        cancel: "إلغاء",
+        save: "حفظ",
+        update: "تحديث",
+        delete: "حذف",
+        edit: "تعديل",
+        view: "عرض",
+        close: "إغلاق",
+        apply: "تطبيق",
+        place_order: "إتمام الطلب",
+        view_all: "عرض الكل",
+
+        // =========================================
+        // CART UI
+        // =========================================
+        cart_empty: "سلة التسوق فارغة",
+        subtotal: "المجموع الفرعي",
+        shipping: "التوصيل",
+        total: "الإجمالي",
+        discount: "الخصم",
+        apply_coupon: "تطبيق الكوبون",
+        proceed_checkout: "إتمام الشراء",
+
+        // =========================================
+        // CHECKOUT UI
+        // =========================================
+        detect_location: "تحديد موقعي",
+        shipping_info: "معلومات التوصيل",
+        fill_fields: "يرجى ملء جميع الحقول",
+        location_detected: "تم تحديد الموقع بنجاح",
+        select_region: "اختر منطقة التوصيل",
+        full_name: "الاسم الكامل",
+        phone_number: "رقم الهاتف",
+        delivery_address: "عنوان التوصيل",
+        
+        // =========================================
+        // ACCOUNT UI
+        // =========================================
+        profile_info: "الملف الشخصي",
+        order_history: "سجل الطلبات",
+        security: "الأمان والخصوصية",
+        change_password: "تغيير كلمة المرور",
+        current_password: "كلمة المرور الحالية",
+        new_password: "كلمة المرور الجديدة",
+        confirm_password: "تأكيد كلمة المرور",
+        update_profile: "تحديث الملف الشخصي",
+
+        // =========================================
+        // ADMIN PANEL
+        // =========================================
+        admin_dashboard: "لوحة التحكم",
+        admin_products: "المنتجات",
+        admin_orders: "الطلبات",
+        admin_notifications: "الإشعارات",
+        admin_regions: "المناطق",
+        admin_coupons: "الكوبونات",
+        
+        // Admin Actions
+        create_product: "إضافة منتج",
+        create_category: "إضافة قسم",
+        create_order: "إنشاء طلب",
+        create_banner: "إضافة بانر",
+        create_coupon: "إضافة كوبون",
+        
+        // Admin Success Messages
+        product_saved: "تم حفظ المنتج",
+        category_saved: "تم حفظ القسم",
+        order_updated: "تم تحديث الطلب",
+        
+        // Map Feature
+        view_map: "عرض في الخريطة",
+
+        // Footer 
+
+        footer_quick_link:"روابط سريعة",
+         footer_quick_link1:"الرئيسية",
+        footer_quick_link2:"الاقسام",
+        footer_quick_link3:"حسابي",
+        contact_us:"تواصل معنا",
+        footer_desc:"وجهتك الأولى للتسوق الإلكتروني بتجربة عصرية وآمنة وأسعار لا تقبل المنافسة.",
     },
     en: {
+        // =========================================
+        // GENERAL
+        // =========================================
         store_name: "MyStore",
+        loading: "Loading...",
+        view_details: "View Details",
+        search_placeholder: "Search products...",
+        install_app: "Install App",
+
+        // =========================================
+        // NAVIGATION
+        // =========================================
         nav_home: "Home",
         nav_categories: "Categories",
         nav_account: "My Account",
         nav_cart: "Cart",
-        search_placeholder: "Search products...",
-        install_app: "Install App",
+        logout: "Logout",
+        login_title: "Login",
+        register_title: "Create Account",
+
+        // =========================================
+        // PRODUCT & CATEGORY UI
+        // =========================================
         categories: "Categories",
         featured_products: "Featured Products",
         new_products: "New Arrivals",
-        footer_about: "About Us",
-        footer_desc: "We offer the best products at competitive prices with fast delivery.",
-        footer_links: "Quick Links",
-        footer_contact: "Contact Us",
-        location: "Jordan",
-        add_to_cart: "Add to Cart",
+        related_products: "Related Products",
+        description: "Description",
         price: "Price",
         currency: "JOD",
-        loading: "Loading...",
-        view_details: "View Details",
-        login_title: "Login",
-        register_title: "Create Account",
-        logout: "Logout"
+        guarantee: "Quality Guarantee",
+
+        // =========================================
+        // ACTIONS & BUTTONS
+        // =========================================
+        add_to_cart: "Add to Cart",
+        buy_now: "Buy Now",
+        checkout: "Checkout",
+        cancel: "Cancel",
+        save: "Save",
+        update: "Update",
+        delete: "Delete",
+        edit: "Edit",
+        view: "View",
+        close: "Close",
+        apply: "Apply",
+        place_order: "Place Order",
+        view_all: "View All",
+
+        // =========================================
+        // CART UI
+        // =========================================
+        cart_empty: "Your cart is empty",
+        subtotal: "Subtotal",
+        shipping: "Shipping",
+        total: "Total",
+        discount: "Discount",
+        apply_coupon: "Apply Coupon",
+        proceed_checkout: "Proceed to Checkout",
+
+        // =========================================
+        // CHECKOUT UI
+        // =========================================
+        detect_location: "Detect My Location",
+        shipping_info: "Shipping Information",
+        fill_fields: "Please fill all fields",
+        location_detected: "Location detected successfully",
+        select_region: "Select Delivery Region",
+        full_name: "Full Name",
+        phone_number: "Phone Number",
+        delivery_address: "Delivery Address",
+
+        // =========================================
+        // ACCOUNT UI
+        // =========================================
+        profile_info: "Profile Info",
+        order_history: "Order History",
+        security: "Security & Password",
+        change_password: "Change Password",
+        current_password: "Current Password",
+        new_password: "New Password",
+        confirm_password: "Confirm New Password",
+        update_profile: "Update Profile",
+
+        // =========================================
+        // ADMIN PANEL
+        // =========================================
+        admin_dashboard: "Dashboard",
+        admin_products: "Products",
+        admin_orders: "Orders",
+        admin_notifications: "Notifications",
+        admin_regions: "Regions",
+        admin_coupons: "Coupons",
+
+        // Admin Actions
+        create_product: "Add Product",
+        create_category: "Add Category",
+        create_order: "Create Order",
+        create_banner: "Add Banner",
+        create_coupon: "Add Coupon",
+
+        // Admin Success Messages
+        product_saved: "Product saved successfully",
+        category_saved: "Category saved successfully",
+        order_updated: "Order updated successfully",
+
+        // Map Feature
+        view_map: "View on Map",
+
+        // Footer 
+
+        footer_quick_link:"Quick Links",
+        footer_quick_link1:"Home",
+        footer_quick_link2:"Category",
+        footer_quick_link3:"My Account",
+        contact_us:"Contatc Us",
+        footer_desc:" Your First Online Store.",
+
     }
 };
 
