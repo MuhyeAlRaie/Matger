@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /admin/
 Disallow: /js/
 Disallow: /css/
+Disallow: /images/icons/
 Allow: /
 
-Sitemap: https://muhyealraie.github.io/Matger/sitemap.xml
+Sitemap: https://yourusername.github.io/sitemap.xml

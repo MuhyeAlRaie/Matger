@@ -1,11 +1,10 @@
 {
-  "name": "Modern E-Commerce Store",
+  "name": "Multi-Category Store",
   "short_name": "MyStore",
-  "description": "A modern, fast, and bilingual e-commerce shopping experience.",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#6366f1",
+  "theme_color": "#0d6efd",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [
@@ -22,19 +21,19 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["shopping", "retail", "fashion", "electronics"],
+  "categories": ["shopping", "retail"],
   "shortcuts": [
     {
-      "name": "Browse Products",
-      "short_name": "Shop",
-      "description": "View our complete product catalog",
+      "name": "View Products",
+      "short_name": "Products",
+      "description": "Browse our product catalog",
       "url": "/category.html",
       "icons": [{ "src": "/images/icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "My Cart",
       "short_name": "Cart",
-      "description": "Go directly to shopping cart",
+      "description": "Go to shopping cart",
       "url": "/cart.html",
       "icons": [{ "src": "/images/icons/icon-192x192.png", "sizes": "192x192" }]
     }

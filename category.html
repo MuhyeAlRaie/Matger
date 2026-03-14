@@ -5,149 +5,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الأقسام | Categories</title>
     
-    <!-- Bootstrap 5.3 RTL CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <!-- Custom Modern CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- =========================================
-         MODERN NAVIGATION
-         ========================================= -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="bi bi-bag-heart-fill me-2 text-primary"></i> 
-                <span data-i18n="store_name">متجري</span>
+   <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <div class="container">
+        <!-- Brand (Left) -->
+        <a class="navbar-brand" href="index.html">
+            <i class="bi bi-shop-window me-2"></i> <span data-i18n="store_name">متجري</span>
+        </a>
+        
+        <!-- Right Side: Cart (Always Visible) & Menu Toggle -->
+        <div class="d-flex align-items-center gap-3">
+            <!-- Cart Button (Moved Here) -->
+            <a href="cart.html" class="btn btn-sm btn-warning position-relative">
+                <i class="bi bi-cart3"></i>
+                <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
             </a>
 
-            <div class="d-flex align-items-center gap-3 order-lg-3">
-                <a href="cart.html" class="btn btn-warning rounded-pill position-relative btn-sm">
-                    <i class="bi bi-cart3"></i>
-                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-                </a>
-                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
+            <!-- Mobile Menu Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
 
-            <div class="collapse navbar-collapse order-lg-2" id="mainNav">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link fw-bold" href="index.html" data-i18n="nav_home">الرئيسية</a></li>
-                    <li class="nav-item"><a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a></li>
-                    <li class="nav-item"><a class="nav-link" href="account.html" data-i18n="nav_account">حسابي</a></li>
-                </ul>
+        <!-- Collapsible Menu (Links, Language, Auth) -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html" data-i18n="nav_home">الرئيسية</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a>
+                </li>
+            </ul>
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- Language Switcher -->
+                <button id="lang-toggle" class="btn btn-sm btn-outline-light">English</button>
                 
-                <div class="d-flex align-items-center gap-3">
-                    <button id="lang-toggle" class="btn btn-outline-primary rounded-pill btn-sm">English</button>
-                    <div id="auth-buttons">
-                        <a href="login.html" class="btn btn-sm btn-light rounded-pill"><i class="bi bi-person-circle"></i></a>
+                <!-- Search (Optional - keeping it inside menu for cleanliness, or move out if preferred) -->
+                <form class="d-none d-md-flex" role="search">
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="search" id="search-input" placeholder="بحث..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="button"><i class="bi bi-search"></i></button>
                     </div>
+                </form>
+
+                <!-- Auth Buttons -->
+                <div id="auth-buttons" class="d-flex gap-2">
+                    <!-- Injected by JS -->
+                    <a href="login.html" class="btn btn-sm btn-light"><i class="bi bi-person"></i></a>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- =========================================
-         MAIN CONTENT (Sidebar + Grid)
-         ========================================= -->
-    <main class="container my-5">
+    <!-- Breadcrumb -->
+    <div class="bg-light py-2 mb-4">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" id="breadcrumb-current">Category</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
         <div class="row">
-            
-            <!-- LEFT COLUMN: Categories Sidebar -->
+            <!-- Sidebar -->
             <aside class="col-lg-3 mb-4">
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white border-0 py-3 px-4">
-                        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-list-ul me-2 text-primary"></i> All Categories</h5>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="bi bi-funnel me-2"></i> <span data-i18n="categories">الأقسام</span>
                     </div>
-                    <div class="card-body p-2">
+                    <div class="card-body p-0">
                         <div class="list-group list-group-flush" id="sidebar-categories">
                             <!-- Categories injected by JS -->
-                            <div class="text-center py-3">
-                                <div class="spinner-border text-primary spinner-border-sm"></div>
-                            </div>
+                            <div class="text-center p-3"><div class="spinner-border spinner-border-sm"></div></div>
                         </div>
                     </div>
                 </div>
             </aside>
 
-            <!-- RIGHT COLUMN: Product Grid -->
+            <!-- Product Grid -->
             <main class="col-lg-9">
-                <!-- Header & Breadcrumbs -->
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-                    <div>
-                        <nav aria-label="breadcrumb" class="mb-1">
-                            <ol class="breadcrumb small mb-0">
-                                <li class="breadcrumb-item"><a href="index.html" class="text-muted text-decoration-none">Home</a></li>
-                                <li class="breadcrumb-item active text-primary" aria-current="page" id="breadcrumb-current">Category</li>
-                            </ol>
-                        </nav>
-                        <h2 class="fw-bold display-6 text-dark" id="page-title">All Products</h2>
-                    </div>
-                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2" id="results-count">Loading...</span>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 id="page-title">All Products</h4>
+                    <span class="text-muted small" id="results-count">Loading...</span>
                 </div>
 
-                <!-- Products Grid -->
                 <div id="products-grid" class="row g-4">
                     <!-- Products injected by JS -->
-                    <div class="col-12 text-center py-5">
-                        <div class="spinner-border text-primary" role="status"></div>
-                    </div>
                 </div>
                 
                 <!-- Empty State -->
                 <div id="empty-state" class="text-center py-5 d-none">
-                    <div class="mb-3">
-                        <i class="bi bi-emoji-frown display-1 text-muted"></i>
-                    </div>
-                    <h3 class="text-muted">No products found</h3>
-                    <p class="text-muted mb-4">We couldn't find any products matching your criteria.</p>
-                    <a href="index.html" class="btn btn-primary rounded-pill px-4">Back to Home</a>
+                    <i class="bi bi-emoji-frown display-1 text-muted"></i>
+                    <h3 class="mt-3">No products found</h3>
+                    <a href="index.html" class="btn btn-primary mt-2">Back to Home</a>
                 </div>
             </main>
         </div>
-    </main>
+    </div>
 
-    <!-- =========================================
-         FOOTER
-         ========================================= -->
-    <footer class="bg-white border-top mt-5 py-5">
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
         <div class="container text-center">
-            <p class="mb-0 text-muted small">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
+            <p class="mb-0">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
         </div>
     </footer>
 
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
 
-    <!-- =========================================
-         SCRIPTS
-         ========================================= -->
-    
-    <!-- 1. Supabase Client -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    
-    <!-- 2. Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- 3. Application Logic -->
     <script src="js/supabase-config.js"></script>
-    <!-- <script src="js/app.js"></script>
+    <script src="js/app.js"></script>
     <script src="js/cart.js"></script>
-    <script src="js/auth.js"></script> -->
+    <script src="js/auth.js"></script>
 
-<!-- Page Specific Script (Fixed) -->
+   <!-- Page Specific Script -->
 <script>
     // ==========================================
-    // 1. SELF-CONTAINED HELPERS
+    // HELPERS (Required because products.js is not loaded here)
     // ==========================================
-    
-    let currentLang = localStorage.getItem('app_language') || 'ar';
-
     function getLocalizedField(obj, fieldName) {
         if (!obj) return '';
         const suffix = currentLang === 'ar' ? 'ar' : 'en';
@@ -155,95 +148,37 @@
     }
 
     function formatPrice(price) {
-        if (!price) return '0.00 JOIN';
+        if (!price) return '0.00 JOD';
         return parseFloat(price).toFixed(2) + ' ' + (currentLang === 'ar' ? 'د.أ' : 'JOD');
     }
 
-    function toggleLoading(show) {
-        const grid = document.getElementById('products-grid');
-        if (!grid) return;
-        if (show) {
-            grid.innerHTML = `<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>`;
-        }
-    }
-
-    function showToast(message) {
-        let container = document.getElementById('toast-container');
-        if(!container) {
-            container = createContainer();
-        }
-        const toast = document.createElement('div');
-        toast.className = 'toast show bg-primary text-white border-0';
-        toast.innerHTML = message;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    function createContainer() {
-        const container = document.createElement('div');
-        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        container.style.zIndex = '1050';
-        document.body.appendChild(container);
-        return container;
-    }
-
     // ==========================================
-    // 2. LOAD SIDEBAR
+    // LOAD SIDEBAR (Fixed Scope Error)
     // ==========================================
     async function loadSidebarCategories() {
         const container = document.getElementById('sidebar-categories');
+        
+        // FIX: Read URL params inside this function so 'slug' is defined here
         const params = new URLSearchParams(window.location.search);
         const currentSlug = params.get('slug');
 
-        console.log("[Sidebar] Loading categories. Current Slug:", currentSlug);
-
-        if (!container) {
-            console.error("[Sidebar] Error: #sidebar-categories element not found in DOM.");
-            return;
-        }
-        
+        if (!container) return;
         try {
-            const { data: categories, error } = await supabase.from('categories').select('*');
-            
-            if (error) throw error;
-
-            if (!categories || categories.length === 0) {
-                console.warn("[Sidebar] No categories found in database.");
-                container.innerHTML = `<div class="alert alert-warning text-center m-2">No categories found.</div>`;
-                return;
-            }
-
-            console.log(`[Sidebar] Found ${categories.length} categories. Rendering...`);
-
-            let html = `<a href="category.html" class="list-group-item list-group-item-action border-0 mb-2 rounded-3 ${!currentSlug ? 'active text-primary' : ''}">
-                                <i class="bi bi-grid-fill me-2"></i> All Products
-                             </a>`;
+            const { data: categories } = await supabase.from('categories').select('*');
+            let html = `<a href="category.html" class="list-group-item list-group-item-action ${!currentSlug ? 'active' : ''}">All Products</a>`;
             
             categories.forEach(cat => {
                 const name = currentLang === 'ar' ? cat.name_ar : cat.name_en;
-                
-                if(!cat.slug) {
-                    console.warn(`Skipping category "${name}" - No Slug defined.`);
-                    return; 
-                }
-
-                const isActive = currentSlug === cat.slug ? 'active bg-primary text-white' : 'hover-bg-light';
-                
-                html += `<a href="category.html?slug=${cat.slug}" class="list-group-item list-group-item-action border-0 mb-2 rounded-3 d-flex justify-content-between align-items-center ${isActive}">
-                            <span>${name}</span>
-                            <i class="bi bi-chevron-left small"></i>
-                         </a>`;
+                // FIX: Use currentSlug (defined above) instead of global slug
+                const isActive = currentSlug === cat.slug ? 'active' : '';
+                html += `<a href="category.html?slug=${cat.slug}" class="list-group-item list-group-item-action ${isActive}">${name}</a>`;
             });
-            
             container.innerHTML = html;
-        } catch (e) { 
-            console.error("[Sidebar] Error loading categories:", e); 
-            container.innerHTML = `<div class="alert alert-danger m-2">Error loading categories.</div>`;
-        }
+        } catch (e) { console.error(e); }
     }
 
     // ==========================================
-    // 3. LOAD PRODUCTS
+    // LOAD PRODUCTS
     // ==========================================
     async function loadProducts(filters = {}) {
         const grid = document.getElementById('products-grid');
@@ -254,45 +189,37 @@
 
         toggleLoading(true);
 
-        let query = supabase.from('products')
-            .select(`*, categories (slug)`)
-            .eq('is_active', true);
+        let query = supabase.from('products').select(`*, categories (slug)`).eq('is_active', true);
 
         if (filters.categorySlug) {
-            console.log("[Load] Filtering by slug:", filters.categorySlug); 
             query = query.eq('categories.slug', filters.categorySlug);
-            updatePageTitle(filters.categorySlug);
-        } else if (filters.search) {
+            
+            // Update Title
+            const { data: catData } = await supabase.from('categories').select('name_ar, name_en').eq('slug', filters.categorySlug).single();
+            if(catData) {
+                const title = currentLang === 'ar' ? catData.name_ar : catData.name_en;
+                document.getElementById('page-title').textContent = title;
+                document.getElementById('breadcrumb-current').textContent = title;
+            }
+        }
+
+        if (filters.search) {
             const term = `%${filters.search}%`;
             query = query.or(`name_ar.ilike.${term},name_en.ilike.${term}`);
-            document.getElementById('page-title').textContent = `Search: "${filters.search}"`;
-            document.getElementById('breadcrumb-current').textContent = "Search Results";
         }
 
         const { data: products, error } = await query;
 
-        console.log("[Load] Products fetched:", products); 
-
-        grid.innerHTML = ''; 
-        
-        if (error) {
-            console.error("Error loading products:", error);
-            grid.innerHTML = `<div class="alert alert-danger p-3">Error loading products: ${error.message}</div>`;
-        } else if (!products || products.length === 0) {
+        grid.innerHTML = '';
+        if (error || !products || products.length === 0) {
             grid.classList.add('d-none');
             emptyState.classList.remove('d-none');
             countLabel.textContent = '0 results';
         } else {
-            grid.classList.remove('d-none');
-            emptyState.classList.add('d-none');
             countLabel.textContent = `${products.length} results`;
             
+            // Render Products (Using helpers defined above)
             products.forEach(prod => {
-                if (filters.categorySlug && (!prod.categories || prod.categories.slug !== filters.categorySlug)) {
-                    console.warn(`Skipping product (Mismatch)`);
-                    return;
-                }
-
                 const name = getLocalizedField(prod, 'name');
                 const price = prod.discount_price < prod.price ? prod.discount_price : prod.price;
                 const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
@@ -304,13 +231,13 @@
                         <a href="product.html?slug=${prod.slug}" class="text-decoration-none text-dark">
                             <div class="product-image-wrapper">
                                 <img src="${imgUrl}" alt="${name}" loading="lazy">
-                                ${hasDiscount ? `<span class="discount-badge">-${Math.round(((prod.price - prod.discount_price) / prod.price) * 100)}%</span>` : ''}
+                                ${hasDiscount ? `<span class="discount-badge">SALE</span>` : ''}
                             </div>
                             <div class="card-body">
                                 <h5 class="product-title">${name}</h5>
                                 <div class="product-price">
                                     ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
-                                    ${formatPrice(price)}
+                                    ${price} JOD
                                 </div>
                                 <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">Add to Cart</button>
                             </div>
@@ -322,40 +249,38 @@
         toggleLoading(false);
     }
 
-    async function updatePageTitle(slug) {
-        if (!slug) return;
-        try {
-            const { data: catData } = await supabase.from('categories').select('name_ar, name_en').eq('slug', slug).single();
-            if(catData) {
-                const title = currentLang === 'ar' ? catData.name_ar : catData.name_en;
-                document.getElementById('page-title').textContent = title;
-                document.getElementById('breadcrumb-current').textContent = title;
-            }
-        } catch (e) { console.error("Error fetching category title", e); }
-    }
-
     // ==========================================
-    // 4. INITIALIZATION
+    // INITIALIZATION
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
-        console.log("[Init] DOM Ready");
-        
-        await loadSidebarCategories(); // Load sidebar first
+        // Load Sidebar first
+        await loadSidebarCategories();
 
+        // Determine what to load
         const params = new URLSearchParams(window.location.search);
         const slug = params.get('slug');
         const searchQuery = params.get('search');
 
         if (searchQuery) {
+            document.getElementById('page-title').textContent = `Search: "${searchQuery}"`;
+            document.getElementById('breadcrumb-current').textContent = "Search Results";
             await loadProducts({ search: searchQuery });
-        } else if (slug && slug.length > 0) {
+        } else if (slug) {
             await loadProducts({ categorySlug: slug });
         } else {
             await loadProducts({});
         }
     });
 </script>
-    <script src="js/push-receiver.js"></script>
-
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker: Registered'))
+        .catch(err => console.log('Service Worker: Error: ' + err));
+    });
+  }
+</script>
+<script src="js/push-receiver.js"></script>
 </body>
 </html>

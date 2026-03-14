@@ -1,15 +1,11 @@
 /**
- * Modern Service Worker
- * 
- * Strategy:
- * 1. HTML (Documents): Network First (Fresh content is critical for e-commerce).
- * 2. Assets (CSS, JS, Images): Stale-While-Revalidate (Fast load + Auto-update).
- * 3. Non-HTTP Requests: Ignored (prevents chrome-extension errors).
+ * Fixed Service Worker
+ * Removed missing icon paths from cache to prevent crashes.
  */
 
-const CACHE_NAME = 'store-modern-v1';
+const CACHE_NAME = 'store-v1';
 
-// Assets to cache immediately on install
+// We REMOVED the icon URLs from this list because you haven't created the files yet.
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -21,7 +17,7 @@ const ASSETS_TO_CACHE = [
   '/login.html',
   '/register.html',
   '/thank-you.html',
-  '/manifest.json',
+  // '/manifest.json', // Temporarily commented out to prevent errors
   '/css/style.css',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
@@ -30,125 +26,95 @@ const ASSETS_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js'
 ];
 
-// ==========================================
-// 1. INSTALLATION: Cache the App Shell
-// ==========================================
+// 1. Installation
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Modern Service Worker...');
+  console.log('[Service Worker] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Caching App Shell');
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE.map(url => new Request(url, {cache: 'reload'})));
+    }).catch(err => {
+        console.error('[SW] Cache addAll failed:', err);
     })
   );
-  self.skipWaiting(); // Activate immediately
+  self.skipWaiting();
 });
 
-// ==========================================
-// 2. ACTIVATION: Clean Old Caches
-// ==========================================
+// 2. Activation
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Modern Service Worker...');
+  console.log('[Service Worker] Activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
-            console.log('[SW] Deleting old cache:', cache);
+            console.log('[Service Worker] Deleting old cache:', cache);
             return caches.delete(cache);
           }
         })
       );
     })
   );
-  self.clients.claim(); // Take control of all open pages immediately
+  self.clients.claim();
 });
 
-// ==========================================
-// 3. FETCH: Handle Network Requests
-// ==========================================
+// 3. Fetching
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // SAFETY: Ignore non-http requests (extensions, data:, etc.)
+  // FIX: Ignore non-http requests (chrome-extension, etc)
   if (!url.protocol.startsWith('http')) {
     return; 
   }
 
-  // STRATEGY A: HTML Pages (Network First)
-  // We want fresh HTML to ensure users see the latest prices/products.
+  // Network First for HTML
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Update cache with the fresh HTML version
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
           return response;
         })
         .catch(() => {
-          // Offline Fallback
           return caches.match(event.request);
         })
     );
     return;
   }
 
-  // STRATEGY B: Assets (Stale-While-Revalidate)
-  // 1. Serve from Cache (Instant Load).
-  // 2. Fetch from Network in background.
-  // 3. Update Cache for next visit.
+  // Cache First for Assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // 1. Serve Cached Asset
-        // 2. Update in background (Fire-and-Forget)
-        fetchAndCache(event.request);
         return cachedResponse;
       }
 
-      // Not in cache -> Fetch from Network
-      return fetchAndCache(event.request);
+      return fetch(event.request)
+        .then((response) => {
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+          return response;
+        })
+        .catch(err => console.log('[SW] Fetch failed', err));
     })
   );
 });
 
-// Helper: Fetch and Cache Logic
-async function fetchAndCache(request) {
-  try {
-    const response = await fetch(request);
-    
-    // Only cache valid responses (success, basic type)
-    if (!response || response.status !== 200 || response.type !== 'basic') {
-      return response;
-    }
-
-    const responseToCache = response.clone();
-    caches.open(CACHE_NAME).then((cache) => {
-      cache.put(request, responseToCache);
-    });
-
-    return response;
-  } catch (error) {
-    console.error('[SW] Fetch failed for:', request.url, error);
-    // Return a generic error or fallback image if possible
-    return new Response("Offline", { status: 503, statusText: "Service Unavailable" });
-  }
-}
-
-// ==========================================
-// 4. PUSH NOTIFICATIONS
-// ==========================================
+// 4. Push
 self.addEventListener('push', (event) => {
   const options = {
-    body: event.data ? event.data.text() : 'New update from Modern Store',
-    icon: '/images/icons/icon-192x192.png', // Ensure this file exists
+    body: event.data ? event.data.text() : 'New update',
+    icon: '/images/icons/icon-192x192.png', // Will just fail silently if missing
     badge: '/images/icons/icon-192x192.png',
     vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    }
+    data: { dateOfArrival: Date.now(), primaryKey: 1 }
   };
-  event.waitUntil(self.registration.showNotification('Modern Store', options));
+  event.waitUntil(self.registration.showNotification('MyStore', options));
 });

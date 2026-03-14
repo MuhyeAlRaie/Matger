@@ -5,184 +5,163 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تفاصيل المنتج | Product Details</title>
     
-    <!-- Bootstrap 5.3 RTL CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <!-- Custom Modern CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- =========================================
-         MODERN NAVIGATION
-         ========================================= -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="bi bi-bag-heart-fill me-2 text-primary"></i> 
-                <span data-i18n="store_name">متجري</span>
+   <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <div class="container">
+        <!-- Brand (Left) -->
+        <a class="navbar-brand" href="index.html">
+            <i class="bi bi-shop-window me-2"></i> <span data-i18n="store_name">متجري</span>
+        </a>
+        
+        <!-- Right Side: Cart (Always Visible) & Menu Toggle -->
+        <div class="d-flex align-items-center gap-3">
+            <!-- Cart Button (Moved Here) -->
+            <a href="cart.html" class="btn btn-sm btn-warning position-relative">
+                <i class="bi bi-cart3"></i>
+                <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
             </a>
 
-            <div class="d-flex align-items-center gap-3 order-lg-3">
-                <a href="cart.html" class="btn btn-warning rounded-pill position-relative btn-sm">
-                    <i class="bi bi-cart3"></i>
-                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-                </a>
-                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
-
-            <div class="collapse navbar-collapse order-lg-2" id="mainNav">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link fw-bold" href="index.html" data-i18n="nav_home">الرئيسية</a></li>
-                    <li class="nav-item"><a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a></li>
-                    <li class="nav-item"><a class="nav-link" href="account.html" data-i18n="nav_account">حسابي</a></li>
-                </ul>
-                
-                <div class="d-flex align-items-center gap-3">
-                    <button id="lang-toggle" class="btn btn-outline-primary rounded-pill btn-sm">English</button>
-                    <div id="auth-buttons">
-                        <a href="login.html" class="btn btn-sm btn-light rounded-pill"><i class="bi bi-person-circle"></i></a>
-                    </div>
-                </div>
-            </div>
+            <!-- Mobile Menu Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
-    </nav>
 
-    <!-- =========================================
-         MAIN PRODUCT LAYOUT (Split Screen)
-         ========================================= -->
-    <main class="container my-5">
-        <div class="row">
+        <!-- Collapsible Menu (Links, Language, Auth) -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html" data-i18n="nav_home">الرئيسية</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="category.html" data-i18n="nav_categories">الأقسام</a>
+                </li>
+            </ul>
             
-            <!-- LEFT COLUMN: Image Gallery (Sticky) -->
-            <div class="col-lg-6 mb-4">
-                <!-- Sticky positioning keeps image visible while scrolling text on desktop -->
-                <div class="sticky-top" style="top: 100px; z-index: 10;">
-                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                        <!-- 1:1 Aspect Ratio Container -->
-                        <img id="product-img" src="" alt="Product" class="img-fluid w-100" style="aspect-ratio: 1/1; object-fit: contain; background: #f8fafc;">
+            <div class="d-flex align-items-center gap-3">
+                <!-- Language Switcher -->
+                <button id="lang-toggle" class="btn btn-sm btn-outline-light">English</button>
+                
+                <!-- Search (Optional - keeping it inside menu for cleanliness, or move out if preferred) -->
+                <form class="d-none d-md-flex" role="search">
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="search" id="search-input" placeholder="بحث..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="button"><i class="bi bi-search"></i></button>
                     </div>
+                </form>
+
+                <!-- Auth Buttons -->
+                <div id="auth-buttons" class="d-flex gap-2">
+                    <!-- Injected by JS -->
+                    <a href="login.html" class="btn btn-sm btn-light"><i class="bi bi-person"></i></a>
                 </div>
             </div>
+        </div>
+    </div>
+</nav>
 
-            <!-- RIGHT COLUMN: Product Details -->
-            <div class="col-lg-6">
-                
-                <!-- Breadcrumbs -->
-                <nav aria-label="breadcrumb" class="mb-3">
-                    <ol class="breadcrumb small">
-                        <li class="breadcrumb-item"><a href="index.html" class="text-muted text-decoration-none">Home</a></li>
-                        <li class="breadcrumb-item"><a href="category.html" id="breadcrumb-category" class="text-muted text-decoration-none">Category</a></li>
-                        <li class="breadcrumb-item active text-primary" aria-current="page" id="breadcrumb-product">Product</li>
-                    </ol>
-                </nav>
+    <!-- Breadcrumb -->
+    <div class="bg-light py-2 mb-4">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="category.html" class="text-decoration-none" id="breadcrumb-category">Category</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" id="breadcrumb-product">Product</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-                <!-- Category Badge -->
-                <span class="badge bg-light text-primary border border-primary border-opacity-25 mb-3 px-3 py-2 rounded-pill" id="product-category-badge">Category</span>
-                
-                <!-- Product Title -->
-                <h1 class="fw-bold mb-3 display-5" id="product-title" style="color: var(--dark);">Product Title</h1>
-                
-                <!-- Price Block -->
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <span id="product-price" class="h2 fw-bold text-primary">0.00 JOD</span>
-                    <span id="product-old-price" class="h4 text-muted ms-2 d-none">0.00</span>
+    <!-- Main Content -->
+    <div class="container mb-5">
+        
+        <!-- Loading State -->
+        <div id="product-loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        <!-- Product Details (Hidden initially) -->
+        <div id="product-content" class="d-none">
+            <div class="row">
+                <!-- Images -->
+                <div class="col-lg-6 mb-4">
+                    <div class="border rounded p-3 bg-white">
+                        <img id="product-img" src="" alt="Product" class="img-fluid w-100 rounded" style="max-height: 500px; object-fit: contain;">
+                    </div>
                 </div>
 
-                <!-- Short Description (Pill Box) -->
-                <div class="p-4 bg-light rounded-4 mb-4 border-0">
-                    <h5 class="text-muted small text-uppercase fw-bold mb-2" data-i18n="description">تفاصيل المنتج</h5>
-                    <p id="product-description" class="text-secondary lead">Loading description...</p>
-                </div>
+                <!-- Info -->
+                <div class="col-lg-6">
+                    <span class="badge bg-secondary mb-2" id="product-category-badge">Category</span>
+                    <h1 class="mb-3" id="product-title">Product Title</h1>
+                    
+                    <div class="mb-4">
+                        <span id="product-price" class="h2 text-primary fw-bold"></span>
+                        <span id="product-old-price" class="h4 text-muted text-decoration-none ms-2 d-none"></span>
+                    </div>
 
-                <!-- Action Buttons (Add to Cart) -->
-                <div class="d-grid gap-3 mb-5">
-                    <button id="add-to-cart-btn" class="btn btn-primary btn-lg py-3 rounded-pill shadow">
-                        <i class="bi bi-bag-plus me-2"></i> <span data-i18n="add_to_cart">أضف للسلة</span>
-                    </button>
-                    <!-- <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary rounded-pill flex-fill"><i class="bi bi-heart"></i></button>
-                        <button class="btn btn-outline-secondary rounded-pill flex-fill"><i class="bi bi-share"></i></button>
-                    </div> -->
-                </div>
-                
-                <!-- Trust Signals (Checkmarks) -->
-                <ul class="list-unstyled mt-4 px-3">
-                    <li class="mb-2 d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i> 
-                        <span class="text-secondary">منتج أصلي 100%</span>
-                    </li>
-                    <li class="mb-2 d-flex align-items-center">
-                        <i class="bi bi-truck text-primary me-2 fs-5"></i> 
-                        <span class="text-secondary">توصيل سريع وآمن</span>
-                    </li>
-                    <!-- <li class="d-flex align-items-center">
-                        <i class="bi bi-shield-check text-primary me-2 fs-5"></i> 
-                        <span class="text-secondary">ضمان لمدة سنة كاملة</span>
-                    </li> -->
-                </ul>
+                    <div class="mb-4">
+                        <h5 class="text-muted" data-i18n="description">Description</h5>
+                        <p id="product-description" class="lead text-secondary"></p>
+                    </div>
 
+                    <div class="d-grid gap-2 col-lg-8">
+                        <button id="add-to-cart-btn" class="btn btn-primary btn-lg py-3">
+                            <i class="bi bi-cart-plus me-2"></i> <span data-i18n="add_to_cart">أضف للسلة</span>
+                        </button>
+                    </div>
+                    
+                    <ul class="list-unstyled mt-4 small text-muted">
+                        <li class="mb-1"><i class="bi bi-truck me-2"></i> <span data-i18n="location">الأردن</span> Delivery</li>
+                        <li><i class="bi bi-shield-check me-2"></i> <span data-i18n="guarantee">ضمان الجودة</span></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- Related Products Section -->
-        <section id="related-section" class="mt-5 pt-5 border-top">
-            <div class="d-flex justify-content-between align-items-end mb-4">
-                <h3 class="section-title mb-0" data-i18n="related_products">منتجات ذات صلة</h3>
-            </div>
+        <!-- 404 State -->
+        <div id="product-not-found" class="text-center py-5 d-none">
+            <h2 class="text-muted">Product Not Found</h2>
+            <a href="index.html" class="btn btn-primary mt-3">Back Home</a>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- Related Products -->
+        <section id="related-section">
+            <h3 class="mb-4 section-title" data-i18n="related_products">منتجات ذات صلة</h3>
             <div id="related-grid" class="row g-4">
-                <!-- Related products injected by JS -->
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                </div>
+                <!-- Injected via JS -->
             </div>
         </section>
 
-    </main>
+    </div>
 
-    <!-- =========================================
-         FOOTER
-         ========================================= -->
-    <footer class="bg-white border-top mt-5 py-5">
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
         <div class="container text-center">
-            <div class="row justify-content-center mb-4">
-                <div class="col-auto">
-                    <h4 class="fw-bold text-primary"><i class="bi bi-shop-window"></i> متجري</h4>
-                </div>
-            </div>
-            <div class="d-flex justify-content-center gap-3 mb-4">
-                <a href="#" class="text-muted text-decoration-none hover-primary">الرئيسية</a>
-                <a href="#" class="text-muted text-decoration-none hover-primary">من نحن</a>
-                <a href="#" class="text-muted text-decoration-none hover-primary">الشروط والأحكام</a>
-            </div>
-            <p class="mb-0 text-muted small">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
+            <p class="mb-0">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
         </div>
     </footer>
 
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
 
-    <!-- =========================================
-         SCRIPTS
-         ========================================= -->
-    
-    <!-- 1. Supabase Client -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    
-    <!-- 2. Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- 3. Application Logic -->
     <script src="js/supabase-config.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/pwa-installer.js"></script>
 
     <!-- Page Specific Script -->
     <script>
@@ -199,9 +178,9 @@
         });
 
         async function loadProduct(slug) {
-            // Show loading state
-            document.getElementById('product-title').textContent = 'جاري التحميل...';
-            document.getElementById('product-img').src = 'https://via.placeholder.com/600';
+            const loading = document.getElementById('product-loading');
+            const content = document.getElementById('product-content');
+            const notFound = document.getElementById('product-not-found');
 
             try {
                 // Fetch Product with Category Info
@@ -214,15 +193,18 @@
 
                 if (error || !product) throw error;
 
-                // Update UI with Data
+                // Update UI
+                loading.classList.add('d-none');
+                content.classList.remove('d-none');
+
+                // 1. Text Content
                 const title = currentLang === 'ar' ? product.name_ar : product.name_en;
                 const desc = currentLang === 'ar' ? product.full_description_ar : product.full_description_en;
                 const catName = currentLang === 'ar' ? product.categories.name_ar : product.categories.name_en;
 
-                // Text Content
                 document.title = `${title} | ${i18n[currentLang].store_name}`;
                 document.getElementById('product-title').textContent = title;
-                document.getElementById('product-description').innerHTML = desc || 'لا يوجد وصف متاح.';
+                document.getElementById('product-description').innerHTML = desc || ''; // Allow HTML in desc
                 document.getElementById('product-category-badge').textContent = catName;
                 
                 // Breadcrumbs
@@ -230,11 +212,11 @@
                 document.getElementById('breadcrumb-category').href = `category.html?slug=${product.categories.slug}`;
                 document.getElementById('breadcrumb-product').textContent = title;
 
-                // Images
+                // 2. Images
                 const imgUrl = product.image_url || 'https://via.placeholder.com/600';
                 document.getElementById('product-img').src = imgUrl;
 
-                // Price Logic
+                // 3. Price
                 const hasDiscount = product.discount_price && product.discount_price < product.price;
                 const finalPrice = hasDiscount ? product.discount_price : product.price;
 
@@ -248,16 +230,20 @@
                     oldPriceEl.classList.add('d-none');
                 }
 
-                // Add to Cart Logic
+                // 4. Add to Cart Logic
                 const btn = document.getElementById('add-to-cart-btn');
                 btn.onclick = () => addToCart(product.id);
 
-                // Load Related Products
+                // 5. Load Related Products
                 loadRelatedProducts(product.categories.id, product.id);
+
+                // 6. Update Meta Description
+                document.querySelector('meta[name="description"]').setAttribute("content", desc.substring(0, 150));
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('product-title').textContent = 'منتج غير موجود';
+                loading.classList.add('d-none');
+                notFound.classList.remove('d-none');
             }
         }
 
@@ -268,7 +254,7 @@
                     .from('products')
                     .select('*')
                     .eq('category_id', catId)
-                    .neq('id', currentProdId)
+                    .neq('id', currentProdId) // Exclude current product
                     .eq('is_active', true)
                     .limit(4);
 
@@ -295,7 +281,7 @@
                                     <h5 class="product-title">${title}</h5>
                                     <div class="product-price">
                                         ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
-                                        ${formatPrice(price)}
+                                        ${price} JOD
                                     </div>
                                     <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">Add to Cart</button>
                                 </div>
@@ -307,6 +293,5 @@
         }
     </script>
     <script src="js/push-receiver.js"></script>
-
 </body>
 </html>
