@@ -122,6 +122,8 @@
         </div>
     </footer>
 
+    <a href="https://wa.me/962781313782?text=Hello%2C%20I%20am%20interested%20in%20your%20products" class="whatsapp-float" target="_blank"><i class="bi bi-whatsapp"></i></a>
+
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
 
@@ -374,13 +376,13 @@
                 }
 
                 const name = getLocalizedField(prod, 'name');
+                const desc = getLocalizedField(prod, 'short_description'); // NEW: Get description
                 
-                // FIXED LOGIC: Check if discount_price is greater than 0 AND less than the normal price
+                // FIXED: Check if discount_price is greater than 0
                 const hasDiscount = prod.discount_price && prod.discount_price > 0 && prod.discount_price < prod.price;
                 const price = hasDiscount ? prod.discount_price : prod.price;
                 
                 const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
-
 
                 grid.innerHTML += `
                 <div class="col-6 col-md-4 col-lg-4">
@@ -392,8 +394,13 @@
                             </div>
                             <div class="card-body">
                                 <h5 class="product-title">${name}</h5>
+                                
+                                <!-- NEW: Short Description -->
+                                <p class="product-short-desc">${desc || ''}</p>
+                                
                                 <div class="product-price">
-                                    ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
+                                    <!-- UPDATED: Added Currency to Old Price -->
+                                    ${hasDiscount ? `<span class="old-price">${formatPrice(prod.price)}</span>` : ''}
                                     ${formatPrice(price)}
                                 </div>
                                 <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">${i18n[currentLang].add_to_cart}</button>

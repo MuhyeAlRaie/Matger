@@ -229,12 +229,14 @@ async function loadCategoryCarousels() {
             const catName = currentLang === 'ar' ? cat.name_ar : cat.name_en;
             const viewAllText = i18n[currentLang].view_all;
 
-            // Generate Cards HTML
+             // Generate Cards HTML
             let cardsHtml = '';
-            catProducts.slice(0, 10).forEach(prod => { // Limit to 10 items per carousel
+            catProducts.slice(0, 10).forEach(prod => { 
                 const name = getLocalizedField(prod, 'name');
-                const price = prod.discount_price && prod.discount_price < prod.price ? prod.discount_price : prod.price;
-                const hasDiscount = prod.discount_price && prod.discount_price < prod.price;
+                const desc = getLocalizedField(prod, 'short_description'); // Get description
+                
+                const price = prod.discount_price && prod.discount_price > 0 && prod.discount_price < prod.price ? prod.discount_price : prod.price;
+                const hasDiscount = prod.discount_price && prod.discount_price > 0 && prod.discount_price < prod.price;
                 const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
 
                 cardsHtml += `
@@ -247,8 +249,13 @@ async function loadCategoryCarousels() {
                             </div>
                             <div class="card-body p-2">
                                 <h5 class="product-title" style="font-size: 0.9rem; height: 2.2em;">${name}</h5>
+                                
+                                <!-- NEW: Short Description -->
+                                <p class="product-short-desc">${desc || ''}</p>
+                                
                                 <div class="product-price" style="font-size: 0.9rem; margin-bottom: 0.5rem;">
-                                    ${hasDiscount ? `<span class="old-price" style="font-size: 0.8rem;">${prod.price}</span>` : ''}
+                                    <!-- UPDATED: Added Currency to Old Price -->
+                                    ${hasDiscount ? `<span class="old-price" style="font-size: 0.8rem;">${formatPrice(prod.price)}</span>` : ''}
                                     ${formatPrice(price)}
                                 </div>
                                 <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 btn-sm" style="font-size: 0.8rem; padding: 4px 10px;">
