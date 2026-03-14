@@ -454,29 +454,38 @@ html[dir="rtl"] .section-title::after {
 }
 
 /* =========================================
-   RESPONSIVE: Product Description
+   RESPONSIVE PRODUCT DESCRIPTION (No Scroll)
    ========================================== */
 
-/* Base style for better readability */
+/* Base Styles */
 #product-description {
-    line-height: 1.7;
+    line-height: 1.7; /* Good readability */
     white-space: pre-wrap; /* Preserves paragraphs from database */
+    color: var(--text-main);
+    width: 100%;
+}
+
+/* The Container Box (Remove height limits) */
+.p-4:has(> #product-description) {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important; /* Removes scrollbar */
+    
+    /* Keep the styling nice */
+    background-color: #f8fafc; /* Light grey background */
+    border-radius: var(--radius-lg);
+    margin-bottom: 2rem;
 }
 
 /* Mobile Adjustments */
-@media (max-width: 768px) {
-    /* 1. Reduce font size for better fit on small screens */
-    #product-description {
-        font-size: 0.95rem; 
-        line-height: 1.6; /* Slightly tighter line height */
-    }
-
-    /* 2. Adjust the description container (Optional Optimization) */
-    /* If the description is very long, this limits the height and allows scrolling */
+@media (max-width: 576px) {
+    /* Slightly reduce padding on mobile to save space, but don't limit height */
     .p-4:has(> #product-description) {
-        padding: 1rem !important; /* Reduce padding to save space */
-        max-height: 300px;    /* Limit height */
-        overflow-y: auto;      /* Enable scroll inside the box */
+        padding: 1.5rem !important; 
+    }
+    
+    #product-description {
+        font-size: 0.95rem; /* Slightly smaller text for mobile */
     }
 }
 

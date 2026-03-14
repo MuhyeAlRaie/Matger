@@ -200,112 +200,137 @@
         });
 
         async function loadProduct(slug) {
-            // Show loading state
-            document.getElementById('product-title').textContent = 'جاري التحميل...';
-            document.getElementById('product-img').src = 'https://via.placeholder.com/600';
+    // Show loading state
+    document.getElementById('product-title').textContent = 'جاري التحميل...';
+    document.getElementById('product-img').src = 'https://via.placeholder.com/600';
 
-            try {
-                // Fetch Product with Category Info
-                const { data: product, error } = await supabase
-                    .from('products')
-                    .select(`*, categories (id, slug, name_ar, name_en)`)
-                    .eq('slug', slug)
-                    .eq('is_active', true)
-                    .single();
+    try {
+        // Fetch Product with Category Info
+        const { data: product, error } = await supabase
+            .from('products')
+            .select(`*, categories (id, slug, name_ar, name_en)`)
+            .eq('slug', slug)
+            .eq('is_active', true)
+            .single();
 
-                if (error || !product) throw error;
+        if (error || !product) throw error;
 
-                // Update UI with Data
-                const title = currentLang === 'ar' ? product.name_ar : product.name_en;
-                const desc = currentLang === 'ar' ? product.full_description_ar : product.full_description_en;
-                const catName = currentLang === 'ar' ? product.categories.name_ar : product.categories.name_en;
+        // Update UI with Data
+        const title = currentLang === 'ar' ? product.name_ar : product.name_en;
+        const desc = currentLang === 'ar' ? product.full_description_ar : product.full_description_en;
+        const catName = currentLang === 'ar' ? product.categories.name_ar : product.categories.name_en;
 
-                // Text Content
-                document.title = `${title} | ${i18n[currentLang].store_name}`;
-                document.getElementById('product-title').textContent = title;
-                document.getElementById('product-description').innerHTML = desc || 'لا يوجد وصف متاح.';
-                document.getElementById('product-category-badge').textContent = catName;
-                
-                // Breadcrumbs
-                document.getElementById('breadcrumb-category').textContent = catName;
-                document.getElementById('breadcrumb-category').href = `category.html?slug=${product.categories.slug}`;
-                document.getElementById('breadcrumb-product').textContent = title;
+        // Text Content
+        document.title = `${title} | ${i18n[currentLang].store_name}`;
+        document.getElementById('product-title').textContent = title;
+        document.getElementById('product-description').innerHTML = desc || 'لا يوجد وصف متاح.';
+        document.getElementById('product-category-badge').textContent = catName;
+        
+        // Breadcrumbs
+        document.getElementById('breadcrumb-category').textContent = catName;
+        document.getElementById('breadcrumb-category').href = `category.html?slug=${product.categories.slug}`;
+        document.getElementById('breadcrumb-product').textContent = title;
 
-                // Images
-                const imgUrl = product.image_url || 'https://via.placeholder.com/600';
-                document.getElementById('product-img').src = imgUrl;
+        // Images
+        const imgUrl = product.image_url || 'https://via.placeholder.com/600';
+        document.getElementById('product-img').src = imgUrl;
 
-                // Price Logic
-                const hasDiscount = product.discount_price && product.discount_price < product.price;
-                const finalPrice = hasDiscount ? product.discount_price : product.price;
+        // ==========================================
+        // FIXED: Price Logic (Checks if price > 0)
+        // ==========================================
+        const hasDiscount = product.discount_price && product.discount_price > 0 && product.discount_price < product.price;
+        const finalPrice = hasDiscount ? product.discount_price : product.price;
 
-                document.getElementById('product-price').textContent = formatPrice(finalPrice);
-                
-                const oldPriceEl = document.getElementById('product-old-price');
-                if (hasDiscount) {
-                    oldPriceEl.textContent = formatPrice(product.price);
-                    oldPriceEl.classList.remove('d-none');
-                } else {
-                    oldPriceEl.classList.add('d-none');
-                }
-
-                // Add to Cart Logic
-                const btn = document.getElementById('add-to-cart-btn');
-                btn.onclick = () => addToCart(product.id);
-
-                // Load Related Products
-                loadRelatedProducts(product.categories.id, product.id);
-
-            } catch (err) {
-                console.error(err);
-                document.getElementById('product-title').textContent = 'منتج غير موجود';
-            }
+        document.getElementById('product-price').textContent = formatPrice(finalPrice);
+        
+        const oldPriceEl = document.getElementById('product-old-price');
+        if (hasDiscount) {
+            oldPriceEl.textContent = formatPrice(product.price);
+            oldPriceEl.classList.remove('d-none');
+        } else {
+            oldPriceEl.classList.add('d-none');
         }
+
+        // Add to Cart Logic
+        const btn = document.getElementById('add-to-cart-btn');
+        btn.onclick = () => addToCart(product.id);
+
+        // Load Related Products
+        loadRelatedProducts(product.categories.id, product.id);
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('product-title').textContent = 'منتج غير موجود';
+    }
+}
 
         async function loadRelatedProducts(catId, currentProdId) {
-            const grid = document.getElementById('related-grid');
-            try {
-                const { data: products } = await supabase
-                    .from('products')
-                    .select('*')
-                    .eq('category_id', catId)
-                    .neq('id', currentProdId)
-                    .eq('is_active', true)
-                    .limit(4);
+    const grid = document.getElementById('related-grid');
+    
+    // ==========================================
+    // FIXED: Clear Grid to Remove Spinner
+    // ==========================================
+    if (grid) {
+        grid.innerHTML = ''; 
+    }
 
-                if (!products || products.length === 0) {
-                    document.getElementById('related-section').style.display = 'none';
-                    return;
-                }
+    try {
+        const { data: products } = await supabase
+            .from('products')
+            .select('*')
+            .eq('category_id', catId)
+            .neq('id', currentProdId)
+            .eq('is_active', true)
+            .limit(4);
 
-                products.forEach(prod => {
-                    const title = currentLang === 'ar' ? prod.name_ar : prod.name_en;
-                    const price = prod.discount_price < prod.price ? prod.discount_price : prod.price;
-                    const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
-                    const hasDiscount = prod.discount_price && prod.discount_price < prod.price;
-
-                    grid.innerHTML += `
-                    <div class="col-6 col-md-3">
-                        <div class="product-card h-100">
-                            <a href="product.html?slug=${prod.slug}" class="text-decoration-none text-dark">
-                                <div class="product-image-wrapper">
-                                    <img src="${imgUrl}" alt="${title}" loading="lazy">
-                                    ${hasDiscount ? `<span class="discount-badge">SALE</span>` : ''}
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="product-title">${title}</h5>
-                                    <div class="product-price">
-                                        ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
-                                        ${formatPrice(price)}
-                                    </div>
-                                    <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">Add to Cart</button>
-                                </div>
-                            </a>
-                        </div>
-                    </div>`;
-                });
-            } catch (e) { console.error(e); }
+        if (!products || products.length === 0) {
+            const section = document.getElementById('related-section');
+            if(section) section.style.display = 'none';
+            return;
         }
+
+        // Build HTML string first for better performance
+        let html = '';
+        products.forEach(prod => {
+            const title = currentLang === 'ar' ? prod.name_ar : prod.name_en;
+            
+            // ==========================================
+            // FIXED: Related Product Price Logic
+            // ==========================================
+            const hasDiscount = prod.discount_price && prod.discount_price > 0 && prod.discount_price < prod.price;
+            const price = hasDiscount ? prod.discount_price : prod.price;
+            
+            const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
+
+            html += `
+            <div class="col-6 col-md-3">
+                <div class="product-card h-100">
+                    <a href="product.html?slug=${prod.slug}" class="text-decoration-none text-dark">
+                        <div class="product-image-wrapper">
+                            <img src="${imgUrl}" alt="${title}" loading="lazy">
+                            ${hasDiscount ? `<span class="discount-badge">SALE</span>` : ''}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="product-title">${title}</h5>
+                            <div class="product-price">
+                                ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
+                                ${formatPrice(price)}
+                            </div>
+                            <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">Add to Cart</button>
+                        </div>
+                    </a>
+                </div>
+            </div>`;
+        });
+        
+        // Append all at once
+        if (grid) grid.innerHTML = html;
+
+    } catch (e) { 
+        console.error(e); 
+        if(grid) grid.innerHTML = '<div class="col-12 text-center text-danger">Error loading products.</div>';
+    }
+}
     </script>
     <script src="js/push-receiver.js"></script>
 
