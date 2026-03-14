@@ -368,15 +368,19 @@
             emptyState.classList.add('d-none');
             countLabel.textContent = `${products.length} results`;
             
-            products.forEach(prod => {
+                        products.forEach(prod => {
                 if (filters.categorySlug && (!prod.categories || prod.categories.slug !== filters.categorySlug)) {
                     return;
                 }
 
                 const name = getLocalizedField(prod, 'name');
-                const price = prod.discount_price < prod.price ? prod.discount_price : prod.price;
+                
+                // FIXED LOGIC: Check if discount_price is greater than 0 AND less than the normal price
+                const hasDiscount = prod.discount_price && prod.discount_price > 0 && prod.discount_price < prod.price;
+                const price = hasDiscount ? prod.discount_price : prod.price;
+                
                 const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
-                const hasDiscount = prod.discount_price && prod.discount_price < prod.price;
+
 
                 grid.innerHTML += `
                 <div class="col-6 col-md-4 col-lg-4">

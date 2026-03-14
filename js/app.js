@@ -272,6 +272,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fetch Homepage Data (Banners)
     await loadBanners();
 
+     // NEW: Load Category Carousels
+    await loadCategoryCarousels();
+
     // Initialize other modules if they exist and have init functions
     // (Assuming cart.js and auth.js run their own logic on load, 
     // but we can trigger updates here if needed)

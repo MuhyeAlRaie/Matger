@@ -512,3 +512,50 @@ html[dir="rtl"] .section-title::after {
     font-size: 1rem; /* Reduced from 1.1rem */
     height: 2.4em; /* Limits height to 2 lines */
 }
+
+/* =========================================
+   RESPONSIVE CATEGORY CAROUSELS
+   ========================================= */
+
+.carousel-section {
+    margin-bottom: 3rem;
+}
+
+/* The scrolling container */
+.category-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem; /* Space between cards */
+    padding-bottom: 1rem; /* Space for scrollbar (if visible) */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+}
+
+/* Hide the scrollbar for a cleaner look */
+.category-carousel::-webkit-scrollbar {
+    display: none;
+}
+.category-carousel {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* The individual card in the carousel */
+.carousel-card {
+    flex: 0 0 auto; /* Don't shrink or grow */
+    
+    /* Size on Mobile */
+    width: 160px; 
+}
+
+/* Size on Tablet/Desktop */
+@media (min-width: 768px) {
+    .carousel-card {
+        width: 220px;
+    }
+}
+
+/* Prevent footer from overlapping content if needed */
+html {
+    scroll-behavior: smooth;
+}

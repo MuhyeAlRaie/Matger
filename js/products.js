@@ -176,3 +176,108 @@ function setupSearch() {
         });
     }
 }
+
+// ==========================================
+// LOAD CATEGORY CAROUSELS (Optimized)
+// ==========================================
+async function loadCategoryCarousels() {
+    const container = document.getElementById('dynamic-category-sections');
+    if (!container) return;
+
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>';
+
+    try {
+        // 1. Fetch Categories
+        const { data: categories, error: catError } = await supabase
+            .from('categories')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (catError) throw catError;
+
+        // 2. Fetch All Active Products
+        const { data: products, error: prodError } = await supabase
+            .from('products')
+            .select('*')
+            .eq('is_active', true);
+
+        if (prodError) throw prodError;
+
+        if (!categories || categories.length === 0) {
+            container.innerHTML = '<div class="alert alert-info">No categories found.</div>';
+            return;
+        }
+
+        // 3. Group Products by Category ID
+        const productsByCategory = {};
+        products.forEach(prod => {
+            if (!productsByCategory[prod.category_id]) {
+                productsByCategory[prod.category_id] = [];
+            }
+            productsByCategory[prod.category_id].push(prod);
+        });
+
+        // 4. Build HTML for each Category
+        let html = '';
+
+        categories.forEach(cat => {
+            const catProducts = productsByCategory[cat.category_id || cat.id] || [];
+            
+            // Skip category if it has no products
+            if (catProducts.length === 0) return;
+
+            const catName = currentLang === 'ar' ? cat.name_ar : cat.name_en;
+            const viewAllText = i18n[currentLang].view_all;
+
+            // Generate Cards HTML
+            let cardsHtml = '';
+            catProducts.slice(0, 10).forEach(prod => { // Limit to 10 items per carousel
+                const name = getLocalizedField(prod, 'name');
+                const price = prod.discount_price && prod.discount_price < prod.price ? prod.discount_price : prod.price;
+                const hasDiscount = prod.discount_price && prod.discount_price < prod.price;
+                const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
+
+                cardsHtml += `
+                <div class="carousel-card">
+                    <div class="product-card h-100">
+                        <a href="product.html?slug=${prod.slug}" class="text-decoration-none text-dark">
+                            <div class="product-image-wrapper">
+                                <img src="${imgUrl}" alt="${name}" loading="lazy">
+                                ${hasDiscount ? `<span class="discount-badge">-${Math.round(((prod.price - prod.discount_price) / prod.price) * 100)}%</span>` : ''}
+                            </div>
+                            <div class="card-body p-2">
+                                <h5 class="product-title" style="font-size: 0.9rem; height: 2.2em;">${name}</h5>
+                                <div class="product-price" style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                    ${hasDiscount ? `<span class="old-price" style="font-size: 0.8rem;">${prod.price}</span>` : ''}
+                                    ${formatPrice(price)}
+                                </div>
+                                <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 btn-sm" style="font-size: 0.8rem; padding: 4px 10px;">
+                                    ${i18n[currentLang].add_to_cart}
+                                </button>
+                            </div>
+                        </a>
+                    </div>
+                </div>`;
+            });
+
+            // Wrap in Section
+            html += `
+            <div class="carousel-section">
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <h2 class="section-title mb-0" style="font-size: 1.5rem;">${catName}</h2>
+                    <a href="category.html?slug=${cat.slug}" class="btn btn-outline-primary rounded-pill btn-sm">${viewAllText} <i class="bi bi-arrow-left-short"></i></a>
+                </div>
+                
+                <div class="category-carousel">
+                    ${cardsHtml}
+                </div>
+            </div>`;
+        });
+
+        container.innerHTML = html;
+
+    } catch (err) {
+        console.error("Error loading category sections:", err);
+        container.innerHTML = '<div class="alert alert-danger">Error loading products.</div>';
+    }
+}
