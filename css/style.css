@@ -134,6 +134,21 @@ html[lang="ar"] body {
 }
 
 /* =========================================
+   LOGO STYLING
+   ========================================= */
+.brand-logo {
+    height: 40px; /* Adjust this height to fit your design */
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+/* Optional: Slight zoom on hover */
+.navbar-brand:hover .brand-logo {
+    transform: scale(1.05);
+}
+
+/* =========================================
    COMPONENTS: PRODUCT CARDS
    ========================================= */
 .product-card {

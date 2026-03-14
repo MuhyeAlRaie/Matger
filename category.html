@@ -20,10 +20,11 @@
          ========================================= -->
     <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="bi bi-bag-heart-fill me-2 text-primary"></i> 
-                <span data-i18n="store_name">متجري</span>
-            </a>
+            <!-- Brand -->
+<a class="navbar-brand" href="index.html">
+    <!-- Update 'src' to your actual logo file path -->
+    <img src="images/logo.png" alt="Store Logo" class="brand-logo">
+</a>
 
             <div class="d-flex align-items-center gap-3 order-lg-3">
                 <a href="cart.html" class="btn btn-warning rounded-pill position-relative btn-sm">
@@ -136,17 +137,56 @@
     
     <!-- 3. Application Logic -->
     <script src="js/supabase-config.js"></script>
-    <!-- <script src="js/app.js"></script>
+    <!-- <script src="js/app.js"></script> -->
     <script src="js/cart.js"></script>
-    <script src="js/auth.js"></script> -->
+    <script src="js/auth.js"></script>
 
 <!-- Page Specific Script (Fixed) -->
 <script>
     // ==========================================
-    // 1. SELF-CONTAINED HELPERS
+    // 1. TRANSLATIONS DICTIONARY
+    // ==========================================
+    const i18n = {
+        ar: {
+            store_name: "متجري",
+            nav_home: "الرئيسية",
+            nav_categories: "الأقسام",
+            nav_account: "حسابي",
+            view_all: "عرض الكل",
+            add_to_cart: "أضف للسلة",
+            search_placeholder: "بحث..."
+        },
+        en: {
+            store_name: "MyStore",
+            nav_home: "Home",
+            nav_categories: "Categories",
+            nav_account: "My Account",
+            view_all: "View All",
+            add_to_cart: "Add to Cart",
+            search_placeholder: "Search..."
+        }
+    };
+
+    // ==========================================
+    // 2. INITIALIZATION & STATE
     // ==========================================
     
+    // Load language from LocalStorage (Default: Arabic)
     let currentLang = localStorage.getItem('app_language') || 'ar';
+
+    // ==========================================
+    // 3. HELPER FUNCTIONS
+    // ==========================================
+    
+    // NEW: Function to update static UI text (Navbar, etc.)
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            if (i18n[currentLang] && i18n[currentLang][key]) {
+                element.textContent = i18n[currentLang][key];
+            }
+        });
+    }
 
     function getLocalizedField(obj, fieldName) {
         if (!obj) return '';
@@ -155,7 +195,7 @@
     }
 
     function formatPrice(price) {
-        if (!price) return '0.00 JOIN';
+        if (!price) return '0.00 JOD';
         return parseFloat(price).toFixed(2) + ' ' + (currentLang === 'ar' ? 'د.أ' : 'JOD');
     }
 
@@ -188,19 +228,67 @@
     }
 
     // ==========================================
-    // 2. LOAD SIDEBAR
+    // 4. LANGUAGE SWITCHING LOGIC (UPDATED)
+    // ==========================================
+    
+    function applyBootstrapDirection(lang) {
+        const bootstrapLink = document.querySelector('link[href*="bootstrap"]');
+        if (bootstrapLink) {
+            if (lang === 'ar') {
+                bootstrapLink.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css";
+            } else {
+                bootstrapLink.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css";
+            }
+        }
+    }
+
+    function toggleLanguage() {
+        // 1. Switch State
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        localStorage.setItem('app_language', currentLang);
+
+        // 2. Update HTML Direction & Attributes
+        const html = document.documentElement;
+        html.setAttribute('lang', currentLang);
+        html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+
+        // 3. Update Bootstrap CSS
+        applyBootstrapDirection(currentLang);
+
+        // 4. NEW: Update Static Text (Navbar, Footer)
+        applyTranslations();
+
+        // 5. Update Button Text
+        const langBtn = document.getElementById('lang-toggle');
+        if(langBtn) {
+            langBtn.textContent = currentLang === 'ar' ? 'English' : 'العربية';
+        }
+
+        // 6. Re-fetch Content
+        loadSidebarCategories();
+        
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('slug');
+        const searchQuery = params.get('search');
+
+        if (searchQuery) {
+            loadProducts({ search: searchQuery });
+        } else if (slug && slug.length > 0) {
+            loadProducts({ categorySlug: slug });
+        } else {
+            loadProducts({});
+        }
+    }
+
+    // ==========================================
+    // 5. LOAD SIDEBAR
     // ==========================================
     async function loadSidebarCategories() {
         const container = document.getElementById('sidebar-categories');
         const params = new URLSearchParams(window.location.search);
         const currentSlug = params.get('slug');
 
-        console.log("[Sidebar] Loading categories. Current Slug:", currentSlug);
-
-        if (!container) {
-            console.error("[Sidebar] Error: #sidebar-categories element not found in DOM.");
-            return;
-        }
+        if (!container) return;
         
         try {
             const { data: categories, error } = await supabase.from('categories').select('*');
@@ -208,24 +296,18 @@
             if (error) throw error;
 
             if (!categories || categories.length === 0) {
-                console.warn("[Sidebar] No categories found in database.");
                 container.innerHTML = `<div class="alert alert-warning text-center m-2">No categories found.</div>`;
                 return;
             }
 
-            console.log(`[Sidebar] Found ${categories.length} categories. Rendering...`);
-
             let html = `<a href="category.html" class="list-group-item list-group-item-action border-0 mb-2 rounded-3 ${!currentSlug ? 'active text-primary' : ''}">
-                                <i class="bi bi-grid-fill me-2"></i> All Products
+                                <i class="bi bi-grid-fill me-2"></i> ${i18n[currentLang].nav_home}
                              </a>`;
             
             categories.forEach(cat => {
                 const name = currentLang === 'ar' ? cat.name_ar : cat.name_en;
                 
-                if(!cat.slug) {
-                    console.warn(`Skipping category "${name}" - No Slug defined.`);
-                    return; 
-                }
+                if(!cat.slug) return; 
 
                 const isActive = currentSlug === cat.slug ? 'active bg-primary text-white' : 'hover-bg-light';
                 
@@ -237,13 +319,13 @@
             
             container.innerHTML = html;
         } catch (e) { 
-            console.error("[Sidebar] Error loading categories:", e); 
+            console.error(e); 
             container.innerHTML = `<div class="alert alert-danger m-2">Error loading categories.</div>`;
         }
     }
 
     // ==========================================
-    // 3. LOAD PRODUCTS
+    // 6. LOAD PRODUCTS
     // ==========================================
     async function loadProducts(filters = {}) {
         const grid = document.getElementById('products-grid');
@@ -259,19 +341,18 @@
             .eq('is_active', true);
 
         if (filters.categorySlug) {
-            console.log("[Load] Filtering by slug:", filters.categorySlug); 
             query = query.eq('categories.slug', filters.categorySlug);
             updatePageTitle(filters.categorySlug);
         } else if (filters.search) {
             const term = `%${filters.search}%`;
             query = query.or(`name_ar.ilike.${term},name_en.ilike.${term}`);
-            document.getElementById('page-title').textContent = `Search: "${filters.search}"`;
-            document.getElementById('breadcrumb-current').textContent = "Search Results";
+            document.getElementById('page-title').textContent = `${i18n[currentLang].nav_categories}: "${filters.search}"`;
+            document.getElementById('breadcrumb-current').textContent = "Search";
+        } else {
+             document.getElementById('page-title').textContent = i18n[currentLang].nav_categories;
         }
 
         const { data: products, error } = await query;
-
-        console.log("[Load] Products fetched:", products); 
 
         grid.innerHTML = ''; 
         
@@ -289,7 +370,6 @@
             
             products.forEach(prod => {
                 if (filters.categorySlug && (!prod.categories || prod.categories.slug !== filters.categorySlug)) {
-                    console.warn(`Skipping product (Mismatch)`);
                     return;
                 }
 
@@ -312,7 +392,7 @@
                                     ${hasDiscount ? `<span class="old-price">${prod.price}</span>` : ''}
                                     ${formatPrice(price)}
                                 </div>
-                                <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">Add to Cart</button>
+                                <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 mt-3 btn-sm">${i18n[currentLang].add_to_cart}</button>
                             </div>
                         </a>
                     </div>
@@ -335,12 +415,29 @@
     }
 
     // ==========================================
-    // 4. INITIALIZATION
+    // 7. MAIN INITIALIZATION
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
         console.log("[Init] DOM Ready");
+
+        // A. Set Initial Language Direction & CSS
+        const html = document.documentElement;
+        html.setAttribute('lang', currentLang);
+        html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+        applyBootstrapDirection(currentLang);
+
+        // B. NEW: Apply Static Translations (Navbar, Footer)
+        applyTranslations();
+
+        // C. Set Language Button Text
+        const langBtn = document.getElementById('lang-toggle');
+        if (langBtn) {
+            langBtn.textContent = currentLang === 'ar' ? 'English' : 'العربية';
+            langBtn.addEventListener('click', toggleLanguage);
+        }
         
-        await loadSidebarCategories(); // Load sidebar first
+        // D. Load Content
+        await loadSidebarCategories();
 
         const params = new URLSearchParams(window.location.search);
         const slug = params.get('slug');
