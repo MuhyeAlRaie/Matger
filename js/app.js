@@ -272,6 +272,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fetch Homepage Data (Banners)
     await loadBanners();
 
+    await loadSpecialOffers();
+
     // NEW: Load Discounted Products
     await loadDiscountedProducts();
 
@@ -401,6 +403,79 @@ async function loadBanners() {
         console.error("Error loading banners:", err);
         // Keep placeholder or hide
         bannerSection.innerHTML = `<div class="alert alert-warning m-3">Error loading banners. Please check console.</div>`;
+    }
+}
+
+
+// ==========================================
+// SPECIAL OFFERS SLIDER (7 Seconds)
+// ==========================================
+let currentOfferIndex = 0;
+let offersData = [];
+let offerTimer = null;
+
+async function loadSpecialOffers() {
+    const container = document.getElementById('special-offers-container');
+    const imgEl = document.getElementById('special-offers-img');
+    const linkEl = document.getElementById('special-offers-link');
+
+    try {
+        // Fetch offers with product slug to build the link
+        const { data: offers, error } = await supabase
+            .from('special_offers')
+            .select('*, products(slug)')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+
+        if (!offers || offers.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+
+        offersData = offers;
+        container.classList.remove('d-none');
+
+        // Function to render a specific slide
+        const renderOffer = (index) => {
+            const offer = offersData[index];
+            const imgUrl = offer.image_url || 'https://via.placeholder.com/1200x300';
+            
+            // Fade effect
+            imgEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                imgEl.src = imgUrl;
+                // Link to product page using slug
+                if (offer.products && offer.products.slug) {
+                    linkEl.href = `product.html?slug=${offer.products.slug}`;
+                } else {
+                    linkEl.href = '#';
+                }
+                
+                // Fade in
+                imgEl.onload = () => {
+                    imgEl.style.opacity = '1';
+                };
+            }, 500); // Wait for fade out
+        };
+
+        // Show first image
+        renderOffer(0);
+
+        // Start Timer if more than 1 offer
+        if (offersData.length > 1) {
+            if (offerTimer) clearInterval(offerTimer);
+            offerTimer = setInterval(() => {
+                currentOfferIndex = (currentOfferIndex + 1) % offersData.length;
+                renderOffer(currentOfferIndex);
+            }, 7000); // 7000ms = 7 Seconds
+        }
+
+    } catch (err) {
+        console.error("Error loading special offers:", err);
+        container.style.display = 'none';
     }
 }
 

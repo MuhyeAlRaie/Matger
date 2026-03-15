@@ -687,3 +687,10 @@ html {
         font-size: 0.95rem;
     }
 }
+
+#special-offers-img {
+    transition: opacity 1s ease-in-out;
+}
+.opacity-fade {
+    opacity: 0.5;
+}
