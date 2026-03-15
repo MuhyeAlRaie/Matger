@@ -237,11 +237,13 @@ async function loadDiscountedProducts() {
                                 <span class="old-price" style="font-size: 0.8rem;">${formatPrice(prod.price)}</span>
                                 ${formatPrice(price)}
                             </div>
+                            </a>
                             <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 btn-sm" style="font-size: 0.8rem; padding: 4px 10px;">
                                 ${i18n[currentLang].add_to_cart}
                             </button>
                         </div>
-                    </a>
+                    
+                    
                 </div>
             </div>`;
         });
@@ -335,11 +337,12 @@ async function loadCategoryCarousels() {
                                     ${hasDiscount ? `<span class="old-price" style="font-size: 0.8rem;">${formatPrice(prod.price)}</span>` : ''}
                                     ${formatPrice(price)}
                                 </div>
+                                </a>
                                 <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 btn-sm" style="font-size: 0.8rem; padding: 4px 10px;">
                                     ${i18n[currentLang].add_to_cart}
                                 </button>
                             </div>
-                        </a>
+                        
                     </div>
                 </div>`;
             });
