@@ -607,3 +607,83 @@ html {
     background-color: var(--secondary) !important;
     color: #ffffff;
 }
+
+
+
+/* =========================================
+   HOME: MINI CATEGORY CAROUSEL
+   ========================================= */
+
+/* The scrolling container (reuse existing style or ensure it exists) */
+.category-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem; /* Space between mini cards */
+    padding-bottom: 1rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.category-carousel::-webkit-scrollbar {
+    display: none;
+}
+.category-carousel {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* The Mini Card */
+.category-card-mini {
+    flex: 0 0 auto; /* Don't shrink/grow */
+    width: 100px; /* Mobile Width */
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s;
+}
+
+.category-card-mini:hover {
+    transform: translateY(-5px);
+}
+
+/* The Circular Image */
+.category-img-mini {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* Circle Shape */
+    object-fit: cover;
+    border: 2px solid var(--border); /* Soft Pink Border */
+    margin: 0 auto 10px auto;
+    display: block;
+    background-color: #fff0f2; /* Light pink placeholder bg */
+}
+
+/* The Category Name */
+.category-name-mini {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    
+    /* Limit text to 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+    height: 2.2em;
+}
+
+/* Responsive Sizing */
+@media (min-width: 768px) {
+    .category-card-mini {
+        width: 130px; /* Desktop Width */
+    }
+    .category-img-mini {
+        width: 100px;
+        height: 100px;
+    }
+    .category-name-mini {
+        font-size: 0.95rem;
+    }
+}

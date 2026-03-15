@@ -23,16 +23,16 @@ function formatPrice(price) {
 // 2. Initialization
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    loadCategories();
+    loadHomeCategoriesCarousel();
     loadProducts();
     setupSearch();
 });
 
 // ==========================================
-// 3. Categories Logic
+// LOAD HOME CATEGORIES (Mini Image Carousel)
 // ==========================================
-async function loadCategories() {
-    const container = document.getElementById('categories-container');
+async function loadHomeCategoriesCarousel() {
+    const container = document.getElementById('home-categories-carousel');
     if (!container) return;
 
     try {
@@ -43,30 +43,31 @@ async function loadCategories() {
 
         if (error) throw error;
 
-        container.innerHTML = categories.map(cat => createCategoryCard(cat)).join('');
+        if (!categories || categories.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning">No categories found.</div>';
+            return;
+        }
+
+        let html = '';
+        
+        categories.forEach(cat => {
+            const name = currentLang === 'ar' ? cat.name_ar : cat.name_en;
+            // Fallback image if category image is missing
+            const imgUrl = cat.image_url || `https://picsum.photos/seed/${cat.slug}/200/200`;
+
+            html += `
+            <a href="category.html?slug=${cat.slug}" class="category-card-mini">
+                <img src="${imgUrl}" alt="${name}" class="category-img-mini">
+                <span class="category-name-mini">${name}</span>
+            </a>`;
+        });
+
+        container.innerHTML = html;
 
     } catch (err) {
         console.error("Error loading categories:", err);
-        container.innerHTML = `<div class="alert alert-danger">Error loading categories</div>`;
+        container.innerHTML = '<div class="alert alert-danger">Error loading categories.</div>';
     }
-}
-
-function createCategoryCard(category) {
-    const name = getLocalizedField(category, 'name');
-    const slug = category.slug;
-    // Using a placeholder icon if image is missing, or the category image
-    const imgUrl = category.image_url || `https://picsum.photos/seed/${slug}/200/200`;
-
-    return `
-        <div class="col-6 col-md-3">
-            <a href="category.html?slug=${slug}" class="category-card">
-                <div class="category-icon">
-                    <i class="bi bi-tag"></i> 
-                </div>
-                <h5 class="mb-0">${name}</h5>
-            </a>
-        </div>
-    `;
 }
 
 // ==========================================
@@ -348,7 +349,7 @@ async function loadCategoryCarousels() {
             <div class="carousel-section">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <h2 class="section-title mb-0" style="font-size: 1.5rem;">${catName}</h2>
-                    <a href="category.html?slug=${cat.slug}" class="btn btn-outline-primary rounded-pill btn-sm">${viewAllText} <i class="bi bi-arrow-left-short"></i></a>
+                    <a href="category.html?slug=${cat.slug}" class="btn btn-outline rounded-pill btn-sm">${viewAllText} <i class="bi bi-arrow-left-short"></i></a>
                 </div>
                 
                 <div class="category-carousel">

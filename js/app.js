@@ -275,6 +275,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // NEW: Load Discounted Products
     await loadDiscountedProducts();
 
+        // NEW: Load Home Categories
+    await loadHomeCategoriesCarousel();
+
      // NEW: Load Category Carousels
     await loadCategoryCarousels();
 
