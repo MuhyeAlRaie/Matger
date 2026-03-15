@@ -212,6 +212,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+
+            
             // CRITICAL: Check Session directly instead of relying on auth.js variable timing
             const { data: { session }, error } = await supabase.auth.getSession();
 

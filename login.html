@@ -158,20 +158,26 @@
 
         // Helper for Forgot Password (Sends email via Supabase)
         async function handleForgotPassword() {
-            const email = document.getElementById('login-email').value;
-            if (!email) {
-                showToast("Please enter your email address first", "warning");
-                return;
-            }
-            
-            // Show loading state visually (optional)
-            const btn = document.querySelector('form button');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
-            btn.disabled = true;
+        let email = document.getElementById('login-email').value;
+        
+        // If email is empty in the box, ask the user to type it
+        if (!email) {
+            email = prompt("Please enter your email address to reset password:");
+        }
 
+        if (!email) {
+            return; // User cancelled or entered nothing
+        }
+        
+        // Show loading state visually
+        const btn = document.querySelector('form button'); // The login button
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+        btn.disabled = true;
+
+        try {
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/account.html', // User will reset password on account page
+                redirectTo: window.location.origin + '/reset-password.html',
             });
 
             // Reset button
@@ -183,7 +189,12 @@
             } else {
                 showToast("Password reset email sent! Please check your inbox.", "success");
             }
+        } catch (err) {
+            showToast("An error occurred. Please try again.", "danger");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
+    }
     </script>
 </body>
 </html>
