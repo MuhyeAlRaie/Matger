@@ -7,21 +7,25 @@
 
 /* 2. CSS Variables (The Design Tokens) */
 :root {
-    /* Primary Colors: Modern Indigo/Violet Theme */
-    --primary: #6366f1;       /* Indigo 500 */
-    --primary-dark: #4f46e5;  /* Indigo 600 */
-    --primary-light: #818cf8; /* Indigo 400 */
-    --secondary: #ec4899;     /* Pink 500 (Accents) */
+    /* Primary Colors: Modern Pink Theme */
+    --primary: #c80051;       /* Deep Pink */
+    --primary-dark: #a60043;  /* Darker Pink (Hover) */
+    --primary-light: #f0a0a5; /* Soft Pink (Light Accent) */
+    
+    /* Secondary Colors */
+    --secondary: #f0a0a5;     /* Soft Pink (Accents) */
     
     /* Neutral Colors (Slate Scale) */
     --dark: #0f172a;          /* Slate 900 */
     --text-main: #334155;     /* Slate 700 */
     --text-light: #64748b;    /* Slate 500 */
-    --bg-body: #f8fafc;      /* Slate 50 (Very light grey) */
-    --bg-card: #ffffff;
+    
+    /* Background Colors */
+    --bg-body: #ffffff;      /* Pure White */
+    --bg-card: #ffffff;      /* Pure White */
     
     /* Surface Colors */
-    --border: #e2e8f0;        /* Slate 200 */
+    --border: #f0a0a5;        /* Soft Pink Border (To define white cards on white bg) */
     
     /* Effects & Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -61,6 +65,7 @@ html[lang="ar"] body {
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
     letter-spacing: 0.5px;
+    color: var(--primary);
 }
 
 /* Primary Button Gradient */
@@ -76,8 +81,11 @@ html[lang="ar"] body {
     color: white;
 }
 
-/* Warning Button (Cart/Checkout) */
+/* Warning Button (Cart/Checkout) - Keeping Orange/Yellow or change to Secondary Pink? 
+   Let's keep it distinct for contrast, or make it a solid pink */
 .btn-warning {
+    /* You can change this to match your theme if you prefer: */
+    /* background: linear-gradient(135deg, #f0a0a5 0%, #c80051 100%); color: white; */
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: white;
 }
@@ -92,16 +100,16 @@ html[lang="ar"] body {
    COMPONENTS: FORMS
    ========================================= */
 .form-control, .form-select {
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--border); /* Uses Soft Pink border */
     border-radius: var(--radius-md);
     padding: 12px 16px;
-    background-color: #f8fafc;
+    background-color: #ffffff;
     transition: var(--transition);
 }
 
 .form-control:focus, .form-select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); /* Primary colored glow */
+    box-shadow: 0 0 0 4px rgba(200, 0, 81, 0.1); /* Pink Glow */
     background-color: #fff;
 }
 
@@ -109,10 +117,10 @@ html[lang="ar"] body {
    COMPONENTS: NAVIGATION
    ========================================= */
 .navbar {
-    background: rgba(255, 255, 255, 0.85); /* Glassmorphism base */
-    backdrop-filter: blur(12px); /* Blur effect */
+    background: rgba(255, 255, 255, 0.95); /* White Glassmorphism */
+    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid var(--border); /* Soft Pink Border */
     padding: 1rem 0;
     box-shadow: var(--shadow-sm);
 }
@@ -120,7 +128,7 @@ html[lang="ar"] body {
 .navbar-brand {
     font-weight: 800;
     font-size: 1.5rem;
-    color: var(--primary-dark) !important;
+    color: var(--primary) !important; /* Pink Brand */
     letter-spacing: -0.5px;
 }
 
@@ -134,28 +142,13 @@ html[lang="ar"] body {
 }
 
 /* =========================================
-   LOGO STYLING
-   ========================================= */
-.brand-logo {
-    height: 40px; /* Adjust this height to fit your design */
-    width: auto;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-}
-
-/* Optional: Slight zoom on hover */
-.navbar-brand:hover .brand-logo {
-    transform: scale(1.05);
-}
-
-/* =========================================
    COMPONENTS: PRODUCT CARDS
    ========================================= */
 .product-card {
-    border: none;
+    border: 1px solid var(--border); /* Soft Pink Border for visibility on white bg */
     background: var(--bg-card);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
     transition: var(--transition);
     overflow: hidden;
     position: relative;
@@ -166,12 +159,13 @@ html[lang="ar"] body {
 .product-card:hover {
     transform: translateY(-8px); /* Lift effect */
     box-shadow: var(--shadow-hover);
+    border-color: var(--primary); /* Pink border on hover */
 }
 
 .product-image-wrapper {
     position: relative;
     padding-top: 100%; /* 1:1 Aspect Ratio */
-    background-color: #f1f5f9;
+    background-color: #fff0f2; /* Very light pink bg for image placeholder */
     overflow: hidden;
 }
 
@@ -190,7 +184,7 @@ html[lang="ar"] body {
     position: absolute;
     top: 15px;
     inset-inline-start: 15px;
-    background: var(--secondary);
+    background: var(--secondary); /* Soft Pink */
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -225,34 +219,57 @@ html[lang="ar"] body {
 .product-price {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: var(--primary); /* Pink Price */
     margin-top: auto;
     margin-bottom: 1rem;
     display: flex;
-    align-items: baseline; /* Aligns text nicely */
+    align-items: baseline;
+}
+#product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary); /* Pink Price */
+    margin-top: auto;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: baseline;
 }
 
 span#product-old-price {
-    font-size: 1.1rem; /* Slightly smaller than active price */
-    color: #94a3b8; /* Red color to indicate discount */
-    font-weight: 500; /* Medium weight */
+    font-size: 1.1rem;
+    color: #94a3b8;
+    font-weight: 500;
     text-decoration: line-through;
-    text-decoration-thickness: 2.5px; /* Thick strike-through line */
-    text-decoration-color: #94a3b8; /* Ensure the line is also red */
-    margin-inline-end: 10px; /* Space between prices */
-    opacity: 0.8; /* Slight fade to keep focus on active price */
-    vertical-align: middle; /* Align perfectly with the active price */
+    text-decoration-thickness: 2.5px;
+    text-decoration-color: #94a3b8;
+    margin-inline-end: 10px;
+    opacity: 0.8;
+    vertical-align: middle;
 }
 
 .old-price {
-    font-size: 1rem; /* Readable size */
-    color: #94a3b8; /* Muted Grey */
+    font-size: 1rem;
+    color: #94a3b8;
     text-decoration: line-through;
-    text-decoration-color: #cbd5e1; /* Lighter line color */
-    text-decoration-thickness: 2px; /* Visible line */
-    font-weight: 400; /* Regular weight */
-    margin-inline-end: 12px; /* Space from new price */
-    opacity: 0.7; /* Faded out slightly */
+    text-decoration-color: #cbd5e1;
+    text-decoration-thickness: 2px;
+    font-weight: 400;
+    margin-inline-end: 12px;
+    opacity: 0.7;
+}
+
+/* =========================================
+   PRODUCT CARD SHORT DESCRIPTION
+   ========================================= */
+.product-short-desc {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
 }
 
 /* =========================================
@@ -260,7 +277,7 @@ span#product-old-price {
    ========================================= */
 .banner-slide {
     width: 100%;
-    height: 500px; /* Taller, more modern */
+    height: 500px;
     background-size: cover;
     background-position: center;
     border-radius: var(--radius-lg);
@@ -274,12 +291,12 @@ span#product-old-price {
     margin-bottom: 3rem;
 }
 
-/* Overlay Gradient for Readability */
+/* Overlay Gradient (Tinted slightly with Primary) */
 .banner-slide::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 41, 59, 0.4) 100%);
+    background: linear-gradient(135deg, rgba(200, 0, 81, 0.8) 0%, rgba(200, 0, 81, 0.4) 100%);
     z-index: 1;
 }
 
@@ -289,7 +306,7 @@ span#product-old-price {
     text-align: center;
     max-width: 800px;
     padding: 2rem;
-    animation: fadeInUp 0.8s ease-out; /* Entry Animation */
+    animation: fadeInUp 0.8s ease-out;
 }
 
 @keyframes fadeInUp {
@@ -305,7 +322,7 @@ span#product-old-price {
     padding: 2.5rem 1.5rem;
     background: white;
     border-radius: var(--radius-lg);
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border);
     transition: var(--transition);
     text-decoration: none;
     color: inherit;
@@ -315,7 +332,7 @@ span#product-old-price {
 
 .category-card:hover {
     border-color: var(--primary);
-    background: #f8fafc;
+    background: #fff0f2; /* Very light pink bg on hover */
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
 }
@@ -325,7 +342,7 @@ span#product-old-price {
     color: var(--primary);
     margin-bottom: 1.5rem;
     display: inline-block;
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(200, 0, 81, 0.1); /* Pink tint */
     width: 80px;
     height: 80px;
     line-height: 80px;
@@ -337,8 +354,8 @@ span#product-old-price {
    ========================================= */
 .admin-sidebar {
     min-height: 100vh;
-    background-color: #0f172a; /* Slate 900 (Dark) */
-    color: #94a3b8; /* Slate 400 */
+    background-color: #0f172a;
+    color: #94a3b8;
     padding-top: 2rem;
     box-shadow: 4px 0 24px rgba(0,0,0,0.1);
 }
@@ -359,7 +376,6 @@ span#product-old-price {
     color: white;
 }
 
-/* RTL/LTR Logic for Sidebar Active State */
 html[dir="rtl"] .admin-sidebar .nav-link {
     border-left: none;
     border-right: 3px solid transparent;
@@ -367,20 +383,19 @@ html[dir="rtl"] .admin-sidebar .nav-link {
 
 html[dir="ltr"] .admin-sidebar .nav-link.active {
     border-left-color: var(--primary);
-    background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+    background: linear-gradient(90deg, rgba(200, 0, 81, 0.1) 0%, transparent 100%);
     color: white;
 }
 
 html[dir="rtl"] .admin-sidebar .nav-link.active {
     border-right-color: var(--primary);
-    background: linear-gradient(-90deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+    background: linear-gradient(-90deg, rgba(200, 0, 81, 0.1) 0%, transparent 100%);
     color: white;
 }
 
-/* Modern Admin Stats Cards */
 .stat-card {
     background: white;
-    border: none;
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 1.5rem;
     box-shadow: var(--shadow-sm);
@@ -425,17 +440,15 @@ html[dir="rtl"] .admin-sidebar .nav-link.active {
     left: 0;
     width: 60px;
     height: 4px;
-    background: var(--primary);
+    background: var(--primary); /* Pink Underline */
     border-radius: 2px;
 }
 
-/* RTL Logic for Section Title Border */
 html[dir="rtl"] .section-title::after {
     right: 0;
     left: auto;
 }
 
-/* Toast Animation */
 @keyframes slideInRight {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
@@ -445,7 +458,6 @@ html[dir="rtl"] .section-title::after {
     animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Mobile Optimization */
 @media (max-width: 768px) {
     .banner-slide { height: 350px; }
     .product-title { font-size: 1rem; }
@@ -454,135 +466,84 @@ html[dir="rtl"] .section-title::after {
 }
 
 /* =========================================
-   RESPONSIVE PRODUCT DESCRIPTION (No Scroll)
+   RESPONSIVE: Product Description
    ========================================== */
-
-/* Base Styles */
 #product-description {
-    line-height: 1.7; /* Good readability */
-    white-space: pre-wrap; /* Preserves paragraphs from database */
+    line-height: 1.7;
+    white-space: pre-wrap;
     color: var(--text-main);
-    width: 100%;
 }
 
-/* The Container Box (Remove height limits) */
 .p-4:has(> #product-description) {
     height: auto !important;
     max-height: none !important;
-    overflow: visible !important; /* Removes scrollbar */
-    
-    /* Keep the styling nice */
-    background-color: #f8fafc; /* Light grey background */
+    overflow: visible !important;
+    background-color: #fff0f2; /* Light pink background for description box */
     border-radius: var(--radius-lg);
     margin-bottom: 2rem;
 }
 
-/* Mobile Adjustments */
 @media (max-width: 576px) {
-    /* Slightly reduce padding on mobile to save space, but don't limit height */
     .p-4:has(> #product-description) {
         padding: 1.5rem !important; 
     }
-    
     #product-description {
-        font-size: 0.95rem; /* Slightly smaller text for mobile */
+        font-size: 0.95rem; 
+        line-height: 1.6;
     }
-}
-
-/* =========================================
-   COMPACT PRODUCT CARD STYLES
-   ========================================= */
-
-/* 1. Smaller Main Price */
-.product-card .product-price {
-    font-size: 0.95rem; /* Reduced from 1.25rem */
-    font-weight: 700;
-    margin-top: auto;     /* Pushes price to bottom */
-    margin-bottom: 0.5rem; /* Less space below price */
-}
-
-/* 2. Smaller Old Price */
-.product-card .old-price {
-    font-size: 0.8rem; /* Reduced from 1rem */
-    margin-inline-end: 6px; /* Tighter gap between prices */
-}
-
-/* 3. Smaller Add to Cart Button */
-.product-card .btn {
-    padding: 6px 12px; /* Shorter height and width */
-    font-size: 0.8rem; /* Smaller text */
-    border-radius: 50px;
-    min-height: auto; /* Removes default Bootstrap min-height */
-    line-height: 1.5;
-}
-
-/* Optional: Make product title slightly smaller if still too tall */
-.product-card .product-title {
-    font-size: 1rem; /* Reduced from 1.1rem */
-    height: 2.4em; /* Limits height to 2 lines */
-}
-
-/* =========================================
-   PRODUCT CARD SHORT DESCRIPTION
-   ========================================= */
-.product-short-desc {
-    font-size: 0.8rem;
-    color: var(--text-light);
-    margin-bottom: 0.5rem;
-    
-    /* Limit to 2 lines */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.4;
 }
 
 /* =========================================
    RESPONSIVE CATEGORY CAROUSELS
-   ========================================= */
-
+   ========================================== */
 .carousel-section {
     margin-bottom: 3rem;
 }
 
-/* The scrolling container */
 .category-carousel {
     display: flex;
     overflow-x: auto;
-    gap: 1rem; /* Space between cards */
-    padding-bottom: 1rem; /* Space for scrollbar (if visible) */
+    gap: 1rem;
+    padding-bottom: 1rem;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Hide the scrollbar for a cleaner look */
 .category-carousel::-webkit-scrollbar {
     display: none;
 }
 .category-carousel {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-/* The individual card in the carousel */
 .carousel-card {
-    flex: 0 0 auto; /* Don't shrink or grow */
-    
-    /* Size on Mobile */
+    flex: 0 0 auto;
     width: 160px; 
 }
 
-/* Size on Tablet/Desktop */
 @media (min-width: 768px) {
     .carousel-card {
         width: 220px;
     }
 }
 
-/* Prevent footer from overlapping content if needed */
 html {
     scroll-behavior: smooth;
+}
+
+/* =========================================
+   LOGO STYLING
+   ========================================= */
+.brand-logo {
+    height: 40px; 
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .brand-logo {
+    transform: scale(1.05);
 }
 
 /* =========================================
@@ -593,7 +554,7 @@ html {
     width: 60px;
     height: 60px;
     bottom: 20px;
-    inset-inline-end: 20px; /* Automatically Left/Right based on language */
+    inset-inline-end: 20px;
     background-color: #25d366;
     color: #FFF;
     border-radius: 50px;
@@ -614,7 +575,6 @@ html {
     color: white;
 }
 
-/* For mobile, make it slightly smaller */
 @media (max-width: 576px) {
     .whatsapp-float {
         width: 50px;
@@ -623,4 +583,17 @@ html {
         bottom: 15px;
         inset-inline-end: 15px;
     }
+}
+
+.breadcrumb-item.active {
+
+    color: var(--primary) !important;
+}
+
+#person-icon {
+    color: var(--primary);
+}
+
+.list-group-item.active {
+    background-color: var(--primary) !important;
 }

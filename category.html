@@ -23,13 +23,13 @@
             <!-- Brand -->
 <a class="navbar-brand" href="index.html">
     <!-- Update 'src' to your actual logo file path -->
-    <img src="images/logo.png" alt="Store Logo" class="brand-logo">
+    <img src="images/loomi-logo.png" alt="Loomi Logo" class="brand-logo">
 </a>
 
             <div class="d-flex align-items-center gap-3 order-lg-3">
-                <a href="cart.html" class="btn btn-warning rounded-pill position-relative btn-sm">
+                <a href="cart.html" class="btn rounded-pill position-relative btn-sm">
                     <i class="bi bi-cart3"></i>
-                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill ">0</span>
                 </a>
                 <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
                     <span class="navbar-toggler-icon"></span>
@@ -63,13 +63,13 @@
             <aside class="col-lg-3 mb-4">
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-header bg-white border-0 py-3 px-4">
-                        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-list-ul me-2 text-primary"></i> All Categories</h5>
+                        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-list-ul me-2"></i> All Categories</h5>
                     </div>
                     <div class="card-body p-2">
                         <div class="list-group list-group-flush" id="sidebar-categories">
                             <!-- Categories injected by JS -->
                             <div class="text-center py-3">
-                                <div class="spinner-border text-primary spinner-border-sm"></div>
+                                <div class="spinner-border  spinner-border-sm"></div>
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@
          ========================================= -->
     <footer class="bg-white border-top mt-5 py-5">
         <div class="container text-center">
-            <p class="mb-0 text-muted small">&copy; 2023 <span data-i18n="store_name">متجري</span>. All Rights Reserved.</p>
+            <p class="mb-0 text-muted small">&copy; 2023 <span data-i18n="store_name">Loomi</span>. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -150,13 +150,15 @@
     // ==========================================
     const i18n = {
         ar: {
-            store_name: "متجري",
+            store_name: "Loomi",
             nav_home: "الرئيسية",
             nav_categories: "الأقسام",
             nav_account: "حسابي",
             view_all: "عرض الكل",
             add_to_cart: "أضف للسلة",
-            search_placeholder: "بحث..."
+            search_placeholder: "بحث...",
+            login_title: "تسجيل الدخول",
+            logout: "تسجيل الخروج",
         },
         en: {
             store_name: "MyStore",
@@ -165,7 +167,9 @@
             nav_account: "My Account",
             view_all: "View All",
             add_to_cart: "Add to Cart",
-            search_placeholder: "Search..."
+            search_placeholder: "Search...",
+            login_title: "Login",
+            logout: "Logout",
         }
     };
 
@@ -302,7 +306,7 @@
                 return;
             }
 
-            let html = `<a href="category.html" class="list-group-item list-group-item-action border-0 mb-2 rounded-3 ${!currentSlug ? 'active text-primary' : ''}">
+            let html = `<a href="category.html" class="list-group-item list-group-item-action border-0 mb-2 rounded-3 ${!currentSlug ? 'active' : ''}">
                                 <i class="bi bi-grid-fill me-2"></i> ${i18n[currentLang].nav_home}
                              </a>`;
             

@@ -15,7 +15,7 @@ const i18n = {
         // =========================================
         // GENERAL
         // =========================================
-        store_name: "متجري",
+        store_name: "لومي",
         loading: "جاري التحميل...",
         view_details: "عرض التفاصيل",
         search_placeholder: "بحث عن منتج...",
@@ -134,7 +134,7 @@ const i18n = {
         // =========================================
         // GENERAL
         // =========================================
-        store_name: "MyStore",
+        store_name: "Loomi",
         loading: "Loading...",
         view_details: "View Details",
         search_placeholder: "Search products...",
