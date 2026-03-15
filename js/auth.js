@@ -97,6 +97,9 @@ async function handleLogin(event) {
 // ==========================================
 async function handleRegister(event) {
     event.preventDefault();
+    
+    // Capture Name (New)
+    const name = document.getElementById('reg-name').value;
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
     const errorDiv = document.getElementById('reg-error');
@@ -105,6 +108,11 @@ async function handleRegister(event) {
         const { data, error } = await supabase.auth.signUp({
             email: email,
             password: password,
+            options: {
+                data: {
+                    display_name: name  // <--- Saves name to Supabase User Metadata
+                }
+            }
         });
 
         if (error) throw error;

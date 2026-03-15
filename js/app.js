@@ -31,6 +31,7 @@ const i18n = {
         logout: "تسجيل الخروج",
         login_title: "تسجيل الدخول",
         register_title: "إنشاء حساب جديد",
+        register_Subtitle: "انضم الينا اليوم لمشاهدة العروض و سهولة الطلب",
 
         // =========================================
         // PRODUCT & CATEGORY UI
@@ -150,6 +151,7 @@ const i18n = {
         logout: "Logout",
         login_title: "Login",
         register_title: "Create Account",
+        register_Subtitle: "Join us today for exclusive offers and fast checkout.",
 
         // =========================================
         // PRODUCT & CATEGORY UI

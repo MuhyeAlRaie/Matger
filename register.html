@@ -27,10 +27,7 @@
 </a>
 
             <div class="d-flex align-items-center gap-3 order-lg-3">
-                <a href="cart.html" class="btn rounded-pill position-relative btn-sm">
-                    <i class="bi bi-cart3"></i>
-                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-                </a>
+                
                 <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -63,10 +60,10 @@
                         <!-- Icon & Header -->
                         <div class="text-center mb-5">
                             <div class="mb-3">
-                                <i class="bi bi-person-plus-fill display-1 text-primary"></i>
+                                <i class="bi bi-person-plus-fill display-1 " id="person-icon"></i>
                             </div>
                             <h3 class="fw-bold text-dark mb-1" data-i18n="register_title">إنشاء حساب جديد</h3>
-                            <p class="text-muted small">Join us today for exclusive offers and fast checkout.</p>
+                            <p class="text-muted small" data-i18n="register_Subtitle">Join us today for exclusive offers and fast checkout.</p>
                         </div>
 
                         <!-- Error Alert -->
@@ -74,6 +71,17 @@
 
                         <!-- Register Form -->
                         <form id="register-form">
+
+                             <div class="mb-3">
+                                <label for="reg-name" class="form-label small text-muted fw-bold text-uppercase">Full Name</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-person text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="reg-name" required placeholder="John Doe">
+                                </div>
+                            </div>
+
                             <!-- Email Field -->
                             <div class="mb-3">
                                 <label for="reg-email" class="form-label small text-muted fw-bold text-uppercase">Email Address</label>
@@ -105,7 +113,7 @@
                         <!-- Footer Link -->
                         <div class="text-center mt-5">
                             <span class="text-muted small">Already have an account? </span>
-                            <a href="login.html" class="small fw-bold text-decoration-none text-primary hover-underline">Login</a>
+                            <a href="login.html" class="small fw-bold text-decoration-none  hover-underline">Login</a>
                         </div>
 
                     </div>
@@ -120,7 +128,7 @@
          ========================================= -->
     <footer class="bg-white border-top mt-5 py-5">
         <div class="container text-center">
-            <p class="mb-0 text-muted small">&copy; 2023 <span data-i18n="store_name">Loomi</span>. All Rights Reserved.</p>
+            <p class="mb-0 text-muted small">&copy; 2026 <span data-i18n="store_name">Loomi</span>. All Rights Reserved.</p>
         </div>
     </footer>
 
