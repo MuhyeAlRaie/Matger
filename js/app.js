@@ -272,6 +272,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fetch Homepage Data (Banners)
     await loadBanners();
 
+    // NEW: Load Discounted Products
+    await loadDiscountedProducts();
+
      // NEW: Load Category Carousels
     await loadCategoryCarousels();
 

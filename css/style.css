@@ -597,3 +597,13 @@ html {
 .list-group-item.active {
     background-color: var(--primary) !important;
 }
+
+.btn-outline {
+    background-color: var(--primary) !important;
+    color: #ffffff;
+}
+
+.btn-outline:hover {
+    background-color: var(--secondary) !important;
+    color: #ffffff;
+}

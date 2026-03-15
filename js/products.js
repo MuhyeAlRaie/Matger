@@ -178,6 +178,82 @@ function setupSearch() {
 }
 
 // ==========================================
+// LOAD DISCOUNTED PRODUCTS (Sales Section)
+// ==========================================
+async function loadDiscountedProducts() {
+    const container = document.getElementById('discounted-products-section');
+    const carousel = container.querySelector('.category-carousel');
+    
+    // Set Title based on Language
+    document.getElementById('sales-title').textContent = currentLang === 'ar' ? 'تخفيضات' : 'Flash Sales';
+
+    if (!carousel) return;
+
+    try {
+        // Fetch products where discount_price is greater than 0
+        const { data: products, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('is_active', true)
+            .gt('discount_price', 0) // Only fetch discounted items
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (error) throw error;
+
+        if (!products || products.length === 0) {
+            // Hide section if no sales exist
+            container.style.display = 'none';
+            return;
+        }
+
+        // Build Cards
+        let html = '';
+        products.forEach(prod => {
+            const name = getLocalizedField(prod, 'name');
+            const desc = getLocalizedField(prod, 'short_description');
+            
+            // Double check price logic
+            const hasDiscount = prod.discount_price && prod.discount_price > 0 && prod.discount_price < prod.price;
+            const price = hasDiscount ? prod.discount_price : prod.price;
+            
+            const imgUrl = prod.image_url || 'https://via.placeholder.com/300';
+
+            html += `
+            <div class="carousel-card">
+                <div class="product-card h-100">
+                    <a href="product.html?slug=${prod.slug}" class="text-decoration-none text-dark">
+                        <div class="product-image-wrapper">
+                            <img src="${imgUrl}" alt="${name}" loading="lazy">
+                            ${hasDiscount ? `<span class="discount-badge">-${Math.round(((prod.price - prod.discount_price) / prod.price) * 100)}%</span>` : ''}
+                        </div>
+                        <div class="card-body p-2">
+                            <h5 class="product-title" style="font-size: 0.9rem; height: 2.2em;">${name}</h5>
+                            
+                            <p class="product-short-desc">${desc || ''}</p>
+                            
+                            <div class="product-price" style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                <span class="old-price" style="font-size: 0.8rem;">${formatPrice(prod.price)}</span>
+                                ${formatPrice(price)}
+                            </div>
+                            <button onclick="addToCart(${prod.id})" class="btn btn-primary w-100 btn-sm" style="font-size: 0.8rem; padding: 4px 10px;">
+                                ${i18n[currentLang].add_to_cart}
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            </div>`;
+        });
+
+        carousel.innerHTML = html;
+
+    } catch (err) {
+        console.error("Error loading sales:", err);
+        container.style.display = 'none';
+    }
+}
+
+// ==========================================
 // LOAD CATEGORY CAROUSELS (Optimized)
 // ==========================================
 async function loadCategoryCarousels() {
