@@ -95,10 +95,12 @@ async function handleLogin(event) {
 // ==========================================
 // 4. Register Logic
 // ==========================================
+// ==========================================
+// 4. Register Logic
+// ==========================================
 async function handleRegister(event) {
     event.preventDefault();
     
-    // Capture Name (New)
     const name = document.getElementById('reg-name').value;
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
@@ -110,25 +112,16 @@ async function handleRegister(event) {
             password: password,
             options: {
                 data: {
-                    display_name: name  // <--- Saves name to Supabase User Metadata
+                    display_name: name
                 }
             }
         });
 
         if (error) throw error;
 
-        // Check if email confirmation is required
-        if (data.session) {
-            // Auto login
-            window.location.href = 'account.html';
-        } else {
-            // Email confirmation required
-            const msg = currentLang === 'ar' 
-                ? 'تم التسجيل بنجاح! يرجى تفعيل حسابك من خلال البريد الإلكتروني.' 
-                : 'Registration successful! Please check your email to confirm.';
-            showToast(msg, 'success');
-            setTimeout(() => window.location.href = 'login.html', 3000);
-        }
+        // If email confirmation is OFF, Supabase returns a session immediately.
+        // We redirect straight to the account page.
+        window.location.href = 'login.html';
 
     } catch (error) {
         console.error('Register error:', error.message);
