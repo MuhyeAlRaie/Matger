@@ -178,7 +178,7 @@
          ========================================= -->
     <footer class="bg-white border-top mt-5 py-5">
         <div class="container text-center">
-            <p class="mb-0 text-muted small">&copy; 2023 <span data-i18n="store_name">Loomi</span>. All Rights Reserved.</p>
+            <p class="mb-0 text-muted small">&copy; 2026 <span data-i18n="store_name">Loomi</span>. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -201,55 +201,60 @@
     <script src="js/cart.js"></script>
     <script src="js/auth.js"></script>
 
-    <!-- Page Specific Script -->
+       <!-- Page Specific Script -->
     <script>
-        // Simple Tab Switcher
+
+            // Simple Tab Switcher
         function switchTab(tabName) {
             document.querySelectorAll('.account-tab').forEach(el => el.classList.add('d-none'));
             document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.remove('d-none');
             document.getElementById(`btn-${tabName}`).classList.add('active');
         }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-
-            
-            // CRITICAL: Check Session directly instead of relying on auth.js variable timing
-            const { data: { session }, error } = await supabase.auth.getSession();
-
-            if (error || !session) {
-                console.warn("Account Page: No session found. Redirecting to login.");
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // If we are here, we ARE logged in.
-            console.log("Account Page: Session Verified for", session.user.email);
-            
-            // Manually update the global variable for other functions
-            currentUser = session.user;
-
-            // Load Data
-            loadAccountDetails();
-            
-            
-        if(currentUser) {
-            // Try to get the stored display_name first
-            const displayName = currentUser.user_metadata?.display_name || currentUser.email.split('@')[0];
-            document.getElementById('user-display-name').textContent = displayName;
+        // Helper to format dates
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
         }
-        });
 
-        // Load Account Details Wrapper
-        async function loadAccountDetails() {
-            // Load Orders (Logic copied from auth.js context to ensure it runs)
+        // 1. Function to Load Account Details (Now accepts 'user' as argument)
+        async function loadAccountDetails(user) {
+            if (!user) return;
+
+            console.log("Loading details for:", user.email);
+
+            // --- Update Sidebar ---
+            const displayName = user.user_metadata?.display_name || user.email.split('@')[0];
+            const nameEl = document.getElementById('user-display-name');
+            if(nameEl) nameEl.textContent = displayName;
+            
+            const emailEl = document.getElementById('account-email');
+            if(emailEl) emailEl.textContent = user.email;
+
+            // --- Update Profile Tab (Right Column) ---
+            const idEl = document.getElementById('account-id');
+            if(idEl) idEl.textContent = user.id;
+
+            const createdEl = document.getElementById('account-created');
+            if(createdEl) createdEl.textContent = formatDate(user.created_at);
+
+            // Load Orders
+            loadOrders(user.id);
+        }
+
+        // 2. Function to Load Orders
+        async function loadOrders(userId) {
             const container = document.getElementById('orders-container');
             if(!container) return;
+
+            container.innerHTML = `<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>`;
 
             try {
                 const { data: orders, error } = await supabase
                     .from('orders')
                     .select('*')
+                    .eq('user_id', userId) // Ensure we only fetch THIS user's orders
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
@@ -259,7 +264,7 @@
                     return;
                 }
 
-                // Render Orders (Modern List Style)
+                // Render Orders
                 container.innerHTML = orders.map(order => {
                     const statusColor = 
                         order.status === 'delivered' ? 'text-success' : 
@@ -271,7 +276,7 @@
                         <div class="card-body p-3 d-flex justify-content-between align-items-center">
                             <div>
                                 <div class="fw-bold text-dark mb-1">Order #${order.id.slice(0,8)}</div>
-                                <div class="small text-muted">${new Date(order.created_at).toLocaleDateString()}</div>
+                                <div class="small text-muted">${formatDate(order.created_at)}</div>
                             </div>
                             <div class="text-end">
                                 <div class="h5 mb-0 fw-bold text-primary">${order.total_amount.toFixed(2)} JOD</div>
@@ -283,15 +288,30 @@
 
             } catch (err) {
                 console.error("Error loading orders:", err);
-            }
-
-            // Update Profile UI Fields
-            if(currentUser) {
-                document.getElementById('account-id').textContent = currentUser.id;
-                document.getElementById('account-created').textContent = new Date(currentUser.created_at).toLocaleDateString();
-                document.getElementById('account-email').textContent = currentUser.email;
+                container.innerHTML = `<div class="alert alert-danger">Error loading orders.</div>`;
             }
         }
+
+        // 3. Main Initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check Session directly
+            const { data: { session }, error } = await supabase.auth.getSession();
+
+            if (error || !session) {
+                console.warn("Account Page: No session found. Redirecting to login.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // If we are here, we ARE logged in.
+            console.log("Account Page: Session Verified for", session.user.email);
+            
+            // Manually update the global variable for other functions (like Auth UI)
+            currentUser = session.user;
+
+            // Load Data - PASSING THE USER EXPLICITLY
+            await loadAccountDetails(session.user);
+        });
     </script>
 </body>
 </html>

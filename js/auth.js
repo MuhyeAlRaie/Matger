@@ -43,10 +43,13 @@ function updateAuthUI(isLoggedIn) {
 
     if (isLoggedIn && currentUser) {
         // Show Account & Logout
+        // UPDATED: Try to get display_name from metadata, fallback to email prefix
+        const displayName = currentUser.user_metadata?.display_name || currentUser.email.split('@')[0];
+
         authContainer.innerHTML = `
             <div class="dropdown">
                 <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle"></i> ${currentUser.email.split('@')[0]}
+                    <i class="bi bi-person-circle"></i> ${displayName}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="account.html"><i class="bi bi-person"></i> ${i18n[currentLang].nav_account}</a></li>
